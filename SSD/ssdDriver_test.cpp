@@ -36,3 +36,31 @@ TEST(SSD_TS, WriteFailOutOfRange) {
       .WillRepeatedly(Return(false));
   EXPECT_FALSE(ssdDriver.write(200, 0x12345678));
 }
+
+TEST(TS, RunInvalidParam1) {
+    SSDDriver ssd;
+
+    //ssd.exe R 10 0x00010001 
+    int argc = 1;
+    char* argv[1];
+    argv[0] = const_cast<char*>("ssd.exe");
+
+    vector<string> params = ssd.parseParams(argc, argv);
+
+    EXPECT_EQ(params.size(), 0);
+}
+
+TEST(TS, RunInvalidParam2) {
+    SSDDriver ssd;
+
+    int argc = 3;
+    char* argv[3];
+    argv[0] = const_cast<char*>("ssd.exe");
+    argv[1] = const_cast<char*>("R");
+    argv[2] = const_cast<char*>("10");
+    vector<string> params = ssd.parseParams(argc, argv);
+
+    EXPECT_EQ(params.size(), 2);
+}
+
+
