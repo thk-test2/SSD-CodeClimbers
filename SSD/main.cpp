@@ -1,5 +1,4 @@
 #include "gmock/gmock.h"
-#include "ssdDriver_test.cpp"
 
 int main() {
     ::testing::InitGoogleMock();
