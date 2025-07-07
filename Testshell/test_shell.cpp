@@ -36,24 +36,18 @@ public:
 
 class ArgParser {};
 
-class SsdInterface : public SSD_INTERFACE {
-public:
-  bool read(int lba) override { return true; }
-  bool write(int lba, int value) override { return true; }
-  string getResult() override { return ""; }
-};
-
 class TestShell {
 private:
   StdInOutCtrl *ctrl;
   ArgParser *parser;
-  SsdInterface *ssd;
+  SSD_INTERFACE *ssd;
   Command command;
 
 public:
   TestShell()
-      : ctrl(new StdInOutCtrl()), parser(new ArgParser()),
-        ssd(new SsdInterface()) {}
+      : ctrl(new StdInOutCtrl()), parser(new ArgParser()) {}
+  TestShell(SSD_INTERFACE * _ssd)
+      : ctrl(new StdInOutCtrl()), parser(new ArgParser()), ssd{_ssd} {}
 
   void run() {
     string userInput;
@@ -71,7 +65,7 @@ public:
 
   void executeCommand(const Command &command) {
     if (command.command == "read") {
-
+      read(command);
     } else if (command.command == "write") {
 
     } else if (command.command == "fullread") {
@@ -94,5 +88,21 @@ public:
   Command parsing(const string &userInput) {
     return Command{userInput,
                    vector<string>()}; // Simplified parsing for demonstration
+  }
+
+  bool read(const Command &command) {
+    if (command.args.size() != 1)
+      return false;
+    int lba;
+    try {
+      lba = stoi(command.args[0]);    
+    } catch (std::exception &e) {
+      cout << "Invalid Usage.";
+      return false;
+    }
+
+    bool ret = ssd->read(lba);
+    cout << "[Read] " << command.args[0] << " : " << ssd->getResult() << "\n";
+    return ret;
   }
 };
