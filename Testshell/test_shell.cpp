@@ -44,9 +44,8 @@ private:
   Command command;
 
 public:
-  TestShell()
-      : ctrl(new StdInOutCtrl()), parser(new ArgParser()) {}
-  TestShell(SSD_INTERFACE * _ssd)
+  TestShell() : ctrl(new StdInOutCtrl()), parser(new ArgParser()) {}
+  TestShell(SSD_INTERFACE *_ssd)
       : ctrl(new StdInOutCtrl()), parser(new ArgParser()), ssd{_ssd} {}
 
   void run() {
@@ -91,18 +90,24 @@ public:
   }
 
   bool read(const Command &command) {
-    if (command.args.size() != 1)
-      return false;
-    int lba;
-    try {
-      lba = stoi(command.args[0]);    
-    } catch (std::exception &e) {
+    if (!isValidReadUsage(command)) {
       cout << "Invalid Usage.";
       return false;
     }
 
+    int lba = stoi(command.args[0]);
     bool ret = ssd->read(lba);
     cout << "[Read] " << command.args[0] << " : " << ssd->getResult() << "\n";
     return ret;
+  }
+  bool isValidReadUsage(const Command &command) {
+    if (command.args.size() != 1)
+      return false;
+    try {
+      int lba = stoi(command.args[0]);
+    } catch (std::exception &e) {
+      return false;
+    }
+    return true;
   }
 };
