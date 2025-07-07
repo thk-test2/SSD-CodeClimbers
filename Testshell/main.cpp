@@ -13,23 +13,23 @@ public:
   MOCK_METHOD(bool, write, (int lba, int value), (override));
 };
 
-class stdInOut_Ctrl {
+class StdInOutCtrl {
 
 };
 
-class ArgParseing {
+class ArgParser {
 
 };
 
-class ssd_driver : public SSD_INTERFACE {
+class SsdInterface : public SSD_INTERFACE {
 
 };
 
 class TestShell {
 private:
-  stdInOut_Ctrl *ctrl;
-  ArgParseing *arg;
-  ssd_driver *ssd;
+  StdInOutCtrl *ctrl;
+  ArgParser *parser;
+  SsdInterface *ssd;
 };
 
 
