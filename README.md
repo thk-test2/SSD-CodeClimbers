@@ -1,7 +1,7 @@
 ## SSD 개발 프로젝트
 https://github.com/JonJaryongLee/ssd-project-samsung?tab=readme-ov-file
 
-## Code Climbers 코드 리뷰 전략
+## Code Climbers 그라운드 룰
 - 리뷰 기조
   - 비판과 지적보다는 제안과 설득 위주의 리뷰
 - PR 관련
@@ -9,6 +9,7 @@ https://github.com/JonJaryongLee/ssd-project-samsung?tab=readme-ov-file
   - 특별히 리뷰 받고 싶은 부분이 있으면 본인이 해당 코드에 코맨트해놓기
   - 이해를 돕도록 PR에 충분한 배경 설명을 기재하기
   - PR 제목에 목적에 맞게 prefix 붙이기: [feature], [refactor], [docs]
+  - 코드 리뷰 집중시간 선정(오전 11:30, 오후 16:30 에는 코드 리뷰에 집중)
 - 리뷰 코멘트 관련
   - 긍정적인 어조 사용하기
   - 쿠션멘트 리스트업해서 리뷰에서 사용하는 연습하기
