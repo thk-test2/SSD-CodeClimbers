@@ -57,7 +57,6 @@ public:
 
   void run() {
     string userInput;
-    cout << "SSD Test Shell - Type 'help' for userInputs" << endl;
     while (true) {
       cout << "> ";
       getline(std::cin, userInput);
@@ -95,42 +94,49 @@ public:
     return Command{userInput,
                    vector<string>()}; // Simplified parsing for demonstration
   }
+
   void help() {
+    printHeader();
+    printTeamInfo();
+    printCommands();
+  }
+
+  void printHeader() {
     cout << "\033[1;36m"
          << "SSD Test Shell - Simple and Powerful SSD Testing Tool\n"
          << "\033[0m";
+  }
 
+  void printTeamInfo() {
     cout << "\n\033[1mTeam: CodeClimbers\n\033[0m";
-
     cout << "\n\033[1mTeam Members:\033[0m\n"
          << "  Taehyeon Kyung, Sunghwan Kim, Hyeonseok Sim\n"
          << "  Yerim Yun, Hoenhwi Jeong, Jeseong Kim\n"
+
          << "  Repository: https://github.com/thk-test2/SSD-CodeClimbers\n";
+  }
 
-    cout << "\n\033[1mCommands:\033[0m\n"
-         << "  \033[1mread\033[0m <lba>\n"
-         << "    Description: Read from SSD at logical block address <lba>\n"
-         << "    Example: read 10\n\n"
+  void printCommands() {
+    cout << "\n\033[1mCommands:\033[0m\n";
+    printCommandInfo("read", "<lba>",
+                     "Read from SSD at logical block address <lba>", "read 10");
+    printCommandInfo("write", "<lba> <value>",
+                     "Write <value> to SSD at logical block address <lba>",
+                     "write 5 0xFF");
+    printCommandInfo("fullread", "", "Read the entire SSD", "fullread");
+    printCommandInfo("fullwrite", "<value>", "Write <value> to the entire SSD",
+                     "fullwrite 0x00");
+    printCommandInfo("help", "", "Show this help message", "help");
+    printCommandInfo("exit", "", "Exit the shell", "exit");
+  }
 
-         << "  \033[1mwrite\033[0m <lba> <value>\n"
-         << "    Description: Write <value> to SSD at logical block address "
-            "<lba>\n"
-         << "    Example: write 5 0xFF\n\n"
-
-         << "  \033[1mfullread\033[0m\n"
-         << "    Description: Read the entire SSD\n"
-         << "    Example: fullread\n\n"
-
-         << "  \033[1mfullwrite\033[0m <value>\n"
-         << "    Description: Write <value> to the entire SSD\n"
-         << "    Example: fullwrite 0x00\n\n"
-
-         << "  \033[1mhelp\033[0m\n"
-         << "    Description: Show this help message\n"
-         << "    Example: help\n\n"
-
-         << "  \033[1mexit\033[0m\n"
-         << "    Description: Exit the shell\n"
-         << "    Example: exit\n";
+  void printCommandInfo(const string &command, const string &args,
+                        const string &description, const string &example) {
+    cout << "  \033[1m" << command << "\033[0m";
+    if (!args.empty()) {
+      cout << " " << args;
+    }
+    cout << "\n    Description: " << description << "\n"
+         << "    Example: " << example << "\n\n";
   }
 };
