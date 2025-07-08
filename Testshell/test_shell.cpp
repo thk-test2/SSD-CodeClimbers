@@ -9,6 +9,10 @@ using std::endl;
 using std::string;
 using std::vector;
 
+struct ShellExit : public std::exception {
+  const char *what() const noexcept override { return "Shell exited."; }
+};
+
 class SSD_INTERFACE {
 public:
   virtual void read(int lba) = 0;
@@ -67,6 +71,8 @@ public:
       read(command);
     } else if (cmd == "write") {
       write(command);
+    } else if (cmd == "exit") {
+      exitTestShell(command);
     } else if (cmd == "fullread") {
       fullread(command.args);
     } else if (cmd == "fullwrite") {
@@ -110,6 +116,15 @@ public:
   Command parsing(const string &userInput) {
     return Command{userInput,
                    vector<string>()}; // Simplified parsing for demonstration
+  }
+
+  void exitTestShell(const Command &command) {
+    if (command.args.size() != 0) {
+      cout << "INVALID COMMAND\n";
+      return;
+    }
+    cout << "Exiting shell..." << endl;
+    throw ShellExit();
   }
 
   void fullread(vector<string> args) {
