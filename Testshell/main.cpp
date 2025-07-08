@@ -106,9 +106,7 @@ TEST_F(TestShellFixture, ReadNormalCase) {
 
   EXPECT_CALL(ssd, read(_)).Times(1);
 
-  EXPECT_CALL(ssd, getResult())
-	  .Times(1)
-	  .WillOnce(Return("0xAAAABBBB"));
+  EXPECT_CALL(ssd, getResult()).Times(1).WillOnce(Return("0xAAAABBBB"));
 
   ts.executeCommand(command);
 }
@@ -117,10 +115,8 @@ TEST_F(TestShellFixture, ReadInvalidLbaCase) {
   Command command{"read", vector<string>{"100"}};
 
   EXPECT_CALL(ssd, read(_)).Times(1);
-  
-  EXPECT_CALL(ssd, getResult())
-	  .Times(1)
-	  .WillOnce(Return("ERROR"));
+
+  EXPECT_CALL(ssd, getResult()).Times(1).WillOnce(Return("ERROR"));
 
   ts.executeCommand(command);
 }
@@ -144,6 +140,35 @@ TEST_F(TestShellFixture, ReadLbaOverThanMaxOfInt) {
   EXPECT_CALL(ssd, getResult()).Times(0);
 
   ts.executeCommand(command);
+}
+
+TEST_F(TestShellFixture, WriteNormalCase) {
+  Command command{"write", vector<string>{"0", "0xAAAABBBB"}};
+
+  EXPECT_CALL(ssd, write(_, _)).Times(1);
+  EXPECT_CALL(ssd, getResult()).Times(1).WillOnce(Return(""));
+
+  ts.executeCommand(command);
+}
+
+TEST_F(TestShellFixture, WriteInvalidCase) {
+  Command OutOfLbaCmd{"write", vector<string>{"100", "0xAAAABBBB"}};
+  EXPECT_CALL(ssd, write(_, _)).Times(1);
+  EXPECT_CALL(ssd, getResult()).Times(1).WillOnce(Return("ERROR"));
+
+  ts.executeCommand(OutOfLbaCmd);
+
+  Command InvalidFormatCmd{"write", vector<string>{"s", "2"}};
+  EXPECT_CALL(ssd, write(_, _)).Times(0);
+  EXPECT_CALL(ssd, getResult()).Times(0);
+
+  ts.executeCommand(InvalidFormatCmd);
+
+  Command OverflowLbaCmd{"write", vector<string>{"2147483648", "0xAAAABBBB"}};
+  EXPECT_CALL(ssd, write(_, _)).Times(0);
+  EXPECT_CALL(ssd, getResult()).Times(0);
+
+  ts.executeCommand(OverflowLbaCmd);
 }
 
 int main() {
