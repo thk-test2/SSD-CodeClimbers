@@ -38,42 +38,75 @@ TEST(SSD_TS, WriteFailOutOfRange) {
 }
 
 class SSDDriverTestFixture : public Test {
-protected:
+public:
   SSDDriver ssd;
 };
 
 TEST_F(SSDDriverTestFixture, SSDReadInitialPass) {
   string output;
-  ssd.read(2);
+  int lba = 2;
+  ssd.read(lba);
 
   istringstream iss = ssd.getIoStream()->getOutputReadStream();
   getline(iss, output);
 
   EXPECT_EQ("0x00000000", output);
 }
-#if 0
-TEST_F(IOstreamTestFixture, SSDReadFail) {
-  unsigned long value = ssd.read(1);
-  EXPECT_NE(value, 0x1);
+
+TEST_F(SSDDriverTestFixture, SSDReadOutOfRangeFail) {
+  string output;
+  int lba = 100;
+  ssd.read(lba);
+
+  istringstream iss = ssd.getIoStream()->getOutputReadStream();
+  getline(iss, output);
+
+  EXPECT_EQ("ERROR", output);
 }
 
-TEST_F(IOstreamTestFixture, SSDWritePass) {
+TEST_F(SSDDriverTestFixture, SSDWritePass) {
+  string output;
+  int lba = 1;
+  ssd.write(lba, 0xAAAAFFFF);
+
+  istringstream iss = ssd.getIoStream()->getOutputReadStream();
+  getline(iss, output);
+
+  EXPECT_EQ("", output);
+}
+
+TEST_F(SSDDriverTestFixture, SSDWriteOutOfRange) {
+  string output;
+  int lba = 100;
+  ssd.write(lba, 0xAAAAFFFF);
+
+  istringstream iss = ssd.getIoStream()->getOutputReadStream();
+  getline(iss, output);
+
+  EXPECT_EQ("ERROR", output);
+}
+
+TEST_F(SSDDriverTestFixture, SSDReadWriteCompare) {
+  string output;
+  int lba = 1;
   ssd.write(1, 0xAAAAFFFF);
+  ssd.read(1);
 
-  unsigned long value = ssd.read(1);
-  EXPECT_EQ(value, 0xAAAAFFFF);
+  istringstream iss = ssd.getIoStream()->getOutputReadStream();
+  getline(iss, output);
+  
+  EXPECT_EQ("0xAAAAFFFF", output);
 }
 
-TEST_F(IOstreamTestFixture, SSDErrorMassageCheckAfterReadLBARangeFail) {
-  ssd.read(100);
+TEST_F(SSDDriverTestFixture, SSDWrite2TimesCompare) {
+  string output;
+  int lba = 1;
+  ssd.write(1, 0xAAAAFFFF);
+  ssd.write(1, 0xEEEEAAAA);
+  ssd.read(1);
 
-  EXPECT_EQ("ERROR", ioStream.readFileAsString(ioStream.output_file_name));
+  istringstream iss = ssd.getIoStream()->getOutputReadStream();
+  getline(iss, output);
+
+  EXPECT_EQ("0xEEEEAAAA", output);
 }
-
-TEST_F(IOstreamTestFixture, SSDErrorMassageCheckAfterWriteLBARangeFail) {
-  ssd.write(100,0xAAAAAAAA);
-
-  EXPECT_EQ("ERROR", ioStream.readFileAsString(ioStream.output_file_name));
-}
-
-#endif

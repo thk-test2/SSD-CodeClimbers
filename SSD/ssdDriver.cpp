@@ -50,6 +50,7 @@ public:
   }
 
   IoStream *getIoStream() { return stream; }
+
 private:  
   static const int MAX_NAND_MEMORY_MAP_SIZE = 100;
   unsigned long buf[MAX_NAND_MEMORY_MAP_SIZE] = {

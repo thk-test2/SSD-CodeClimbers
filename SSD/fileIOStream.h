@@ -15,6 +15,7 @@ public:
     nand_file_name = "ssd_nand.txt";
     output_file_name = "ssd_output.txt";
     storageSize = size;
+    buffer = buf;
     initSsdNand();
   };
   string readFileAsString(const string &filename);

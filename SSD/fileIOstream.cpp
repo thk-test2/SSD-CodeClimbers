@@ -76,11 +76,11 @@ ofstream IoStream::getNandWriteStream() {
 }
 
 istringstream IoStream::getOutputReadStream() {
-  istringstream iss(output_file_name);
+  istringstream iss(readFileAsString(output_file_name));
   return iss;
 }
 
 istringstream IoStream::getNandReadStream() {
-  istringstream iss(nand_file_name);
+  istringstream iss(readFileAsString(nand_file_name));
   return iss;
 }
