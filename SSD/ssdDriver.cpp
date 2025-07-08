@@ -17,13 +17,14 @@ public:
   void run(int argc, char *argv[]) {
     vector<string> params = parseParams(argc, argv);
 
-    string command = params[1];
-    int lba = std::stoi(params[2]);
-    unsigned long value = std::stoul(params[3]);
+    string command = params[0];
+    int lba = std::stoi(params[1]);
 
     bool result = false;
-    if (command == "W")
+    if (command == "W") {
+      unsigned long value = std::stoul(params[2], nullptr, HEX_BASE);
       result = write(lba, value);
+    }
     if (command == "R")
       result = read(lba);
     if (!result)
@@ -81,6 +82,7 @@ public:
   IoStream *getIoStream() { return stream; }
 
 private:
+  static const int HEX_BASE = 16;
   static const int MAX_NAND_MEMORY_MAP_SIZE = 100;
   unsigned long buf[MAX_NAND_MEMORY_MAP_SIZE] = {
       0,
