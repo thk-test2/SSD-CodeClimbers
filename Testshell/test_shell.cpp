@@ -62,25 +62,49 @@ public:
   }
 
   void executeCommand(const Command &command) {
-    if (command.command == "read") {
+    string cmd = command.command;
+    if (cmd == "read") {
       read(command);
-    } else if (command.command == "write") {
+    } else if (cmd == "write") {
       write(command);
-    } else if (command.command == "fullread") {
+    } else if (cmd == "fullread") {
       fullread(command.args);
-    } else if (command.command == "fullwrite") {
+    } else if (cmd == "fullwrite") {
       fullwrite(command.args);
-    } else if (command.command == "help") {
+    } else if (cmd == "help") {
       help();
-    } else if (command.command == "1_") {
+    } else if (cmd == "1_" || cmd == "1_FullWriteAndReadCompare") {
+      bool isFailed = executeScriptOne(command);
+      if (isFailed) return;
+    } else if (cmd == "2_") {
 
-    } else if (command.command == "2_") {
-
-    } else if (command.command == "3_") {
+    } else if (cmd == "3_") {
 
     } else {
       cout << "INVALID COMMAND" << endl;
     }
+  }
+
+  bool executeScriptOne(const Command &command) {
+    string valueStr = command.args[0];
+    unsigned long value = std::stoul(valueStr, nullptr, 16);
+
+    for (int lba = 0; lba < 100; lba += 4) {
+      for (int i = 0; i < 4; i++) {
+        ssd->write(lba + i, value);
+      }
+
+      for (int i = 0; i < 4; i++) {
+        ssd->read(lba);
+        string result = ssd->getResult();
+        if (result != valueStr) {
+          cout << "Script 1 execution failed." << endl;
+          return true;
+        }
+      }
+    }
+    cout << "Script 1 executed successfully." << endl;
+    return false;
   }
 
   Command parsing(const string &userInput) {
