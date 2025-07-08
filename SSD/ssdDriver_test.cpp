@@ -1,5 +1,6 @@
 #include "ssdDriver.cpp"
 #include "gmock/gmock.h"
+#include "fileIOStream.h"
 
 using namespace testing;
 
@@ -85,4 +86,78 @@ TEST(SSD_TS, WriteParams) {
   vector<string> args = ssdDriver.parseParams(argc, argv);
 
   EXPECT_EQ(args.size(), 3);
+}
+
+class SSDDriverTestFixture : public Test {
+public:
+  SSDDriver ssd;
+};
+
+TEST_F(SSDDriverTestFixture, SSDReadInitialPass) {
+  string output;
+  int lba = 2;
+  ssd.read(lba);
+
+  istringstream iss = ssd.getIoStream()->getOutputReadStream();
+  getline(iss, output);
+
+  EXPECT_EQ("0x00000000", output);
+}
+
+TEST_F(SSDDriverTestFixture, SSDReadOutOfRangeFail) {
+  string output;
+  int lba = 100;
+  ssd.read(lba);
+
+  istringstream iss = ssd.getIoStream()->getOutputReadStream();
+  getline(iss, output);
+
+  EXPECT_EQ("ERROR", output);
+}
+
+TEST_F(SSDDriverTestFixture, SSDWritePass) {
+  string output;
+  int lba = 1;
+  ssd.write(lba, 0xAAAAFFFF);
+
+  istringstream iss = ssd.getIoStream()->getOutputReadStream();
+  getline(iss, output);
+
+  EXPECT_EQ("", output);
+}
+
+TEST_F(SSDDriverTestFixture, SSDWriteOutOfRange) {
+  string output;
+  int lba = 100;
+  ssd.write(lba, 0xAAAAFFFF);
+
+  istringstream iss = ssd.getIoStream()->getOutputReadStream();
+  getline(iss, output);
+
+  EXPECT_EQ("ERROR", output);
+}
+
+TEST_F(SSDDriverTestFixture, SSDReadWriteCompare) {
+  string output;
+  int lba = 1;
+  ssd.write(1, 0xAAAAFFFF);
+  ssd.read(1);
+
+  istringstream iss = ssd.getIoStream()->getOutputReadStream();
+  getline(iss, output);
+
+  EXPECT_EQ("0xAAAAFFFF", output);
+}
+
+TEST_F(SSDDriverTestFixture, SSDWrite2TimesCompare) {
+  string output;
+  int lba = 1;
+  ssd.write(1, 0xAAAAFFFF);
+  ssd.write(1, 0xEEEEAAAA);
+  ssd.read(1);
+
+  istringstream iss = ssd.getIoStream()->getOutputReadStream();
+  getline(iss, output);
+
+  EXPECT_EQ("0xEEEEAAAA", output);
 }
