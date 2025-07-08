@@ -126,6 +126,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="fileIOstream.cpp" />
+    <ClCompile Include="IOstream_test.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ssdDriver.cpp" />
     <ClCompile Include="ssdDriver_test.cpp">
@@ -137,6 +139,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="device.h" />
+    <ClInclude Include="fileIOStream.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
