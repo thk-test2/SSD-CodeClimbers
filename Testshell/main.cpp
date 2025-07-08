@@ -111,35 +111,24 @@ TEST_F(TestShellFixture, ReadNormalCase) {
   ts.executeCommand(command);
 }
 
-TEST_F(TestShellFixture, ReadInvalidLbaCase) {
-  Command command{"read", vector<string>{"100"}};
-
+TEST_F(TestShellFixture, ReadInvalidCase) {
+  Command OutOfLbaCmd{"read", vector<string>{"100"}};
   EXPECT_CALL(ssd, read(_)).Times(1);
-
   EXPECT_CALL(ssd, getResult()).Times(1).WillOnce(Return("ERROR"));
 
-  ts.executeCommand(command);
-}
+  ts.executeCommand(OutOfLbaCmd);
 
-TEST_F(TestShellFixture, ReadInvalidUsage) {
-  Command command{"read", vector<string>{"s", "2"}};
-
+  Command InvalidFormatCmd{"read", vector<string>{"s", "2"}};
   EXPECT_CALL(ssd, read(_)).Times(0);
-
   EXPECT_CALL(ssd, getResult()).Times(0);
 
-  ts.executeCommand(command);
-}
+  ts.executeCommand(InvalidFormatCmd);
 
-TEST_F(TestShellFixture, ReadLbaOverThanMaxOfInt) {
-  int MAX_INT = 2147483647; // Maximum value for a 32-bit signed integer
-  Command command{"read", vector<string>{"2147483648"}};
-
+  Command OverflowLbaCmd{"read", vector<string>{"2147483648"}};
   EXPECT_CALL(ssd, read(_)).Times(0);
-
   EXPECT_CALL(ssd, getResult()).Times(0);
 
-  ts.executeCommand(command);
+  ts.executeCommand(OverflowLbaCmd);
 }
 
 TEST_F(TestShellFixture, WriteNormalCase) {
@@ -169,6 +158,12 @@ TEST_F(TestShellFixture, WriteInvalidCase) {
   EXPECT_CALL(ssd, getResult()).Times(0);
 
   ts.executeCommand(OverflowLbaCmd);
+
+  Command OverflowValueCmd{"write", vector<string>{"0", "0xAAAABBBBAAAABBBB"}};
+  EXPECT_CALL(ssd, write(_, _)).Times(0);
+  EXPECT_CALL(ssd, getResult()).Times(0);
+
+  ts.executeCommand(OverflowValueCmd);
 }
 
 int main() {
