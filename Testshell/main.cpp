@@ -178,6 +178,74 @@ TEST_F(TestShellFixture, FullReadInvalidUsage) {
   EXPECT_EQ("INVALID COMMAND\n", output);
 }
 
+// fullwrite 테스트들
+TEST_F(TestShellFixture, FullWriteNormalCase) {
+  vector<string> args{"42"};
+
+  // 3개의 LBA에 성공적으로 쓰고 4번째에서 ERROR 반환
+  EXPECT_CALL(ssd, write(0, 42)).Times(1);
+  EXPECT_CALL(ssd, write(1, 42)).Times(1);
+  EXPECT_CALL(ssd, write(2, 42)).Times(1);
+  EXPECT_CALL(ssd, write(3, 42)).Times(1);
+
+  EXPECT_CALL(ssd, getResult())
+      .Times(4)
+      .WillOnce(Return("SUCCESS"))
+      .WillOnce(Return("SUCCESS"))
+      .WillOnce(Return("SUCCESS"))
+      .WillOnce(Return("ERROR"));
+
+  CaptureStdout();
+  ts.fullwrite(args);
+  std::string output = GetCapturedStdout();
+
+  EXPECT_TRUE(output.find("[Full Write] LBA: 0 Value: 42") !=
+              std::string::npos);
+  EXPECT_TRUE(output.find("[Full Write] LBA: 1 Value: 42") !=
+              std::string::npos);
+  EXPECT_TRUE(output.find("[Full Write] LBA: 2 Value: 42") !=
+              std::string::npos);
+}
+
+TEST_F(TestShellFixture, FullWriteInvalidArgumentCount) {
+  vector<string> args{"42", "extraArgs"};
+
+  EXPECT_CALL(ssd, write(_, _)).Times(0);
+  EXPECT_CALL(ssd, getResult()).Times(0);
+
+  CaptureStdout();
+  ts.fullwrite(args);
+  std::string output = GetCapturedStdout();
+
+  EXPECT_EQ("INVALID COMMAND\n", output);
+}
+
+TEST_F(TestShellFixture, FullWriteNoArguments) {
+  vector<string> args{};
+
+  EXPECT_CALL(ssd, write(_, _)).Times(0);
+  EXPECT_CALL(ssd, getResult()).Times(0);
+
+  CaptureStdout();
+  ts.fullwrite(args);
+  std::string output = GetCapturedStdout();
+
+  EXPECT_EQ("INVALID COMMAND\n", output);
+}
+
+TEST_F(TestShellFixture, FullWriteInvalidValue) {
+  vector<string> args{"invalid_number"};
+
+  EXPECT_CALL(ssd, write(_, _)).Times(0);
+  EXPECT_CALL(ssd, getResult()).Times(0);
+
+  CaptureStdout();
+  ts.fullwrite(args);
+  std::string output = GetCapturedStdout();
+
+  EXPECT_EQ("INVALID COMMAND\n", output);
+}
+
 int main() {
 #ifdef _DEBUG
   ::testing::InitGoogleTest();
