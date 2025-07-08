@@ -38,9 +38,6 @@ void IoStream::initSsdNand() {
     ofs << dec << i << " 0x" << setfill('0') << setw(8) << hex << uppercase << 0
         << "\n";
   }
-
-  cout << "[INFO] " << nand_file_name << MAX_NAND_MEMORY_MAP_SIZE
-       << " Init Success\n";
 }
 
 void IoStream::loadNandFile() {
@@ -57,10 +54,7 @@ void IoStream::loadNandFile() {
   string hexVal;
 
   if (isValid_nand_file) {
-    //cout << "[DEBUG] Start reading file contents...\n";
     while (ifs >> idx >> hexVal) {
-      // cout << "[DEBUG] Read line: idx=" << idx << ", hexVal=" << hexVal <<
-      // "\n";
 
       if (idx < 0 || idx >= MAX_NAND_MEMORY_MAP_SIZE) {
         cout << "[DEBUG] Skipped invalid idx=" << idx << "\n";
@@ -75,7 +69,6 @@ void IoStream::loadNandFile() {
         nandMemoryMap.value[idx] = 0;
       }
     }
-    //cout << "[DEBUG] Finished reading file.\n";
   } else {
     for (int i = 0; i < MAX_NAND_MEMORY_MAP_SIZE; ++i) {
       nandMemoryMap.value[i] = 0;
