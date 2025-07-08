@@ -1,19 +1,13 @@
 #include "fileIOStream.h"
 
-using namespace std;
-using std::cout;
-
-namespace {
-// 내부 함수
-void writeError(const string &output_file) {
-  ofstream ofs(output_file);
+void IoStream::writeError() {
+  ofstream ofs(output_file_name);
   ofs << "ERROR";
 }
 
-void clearOutput(const string &output_file) {
-  ofstream ofs(output_file, ios::trunc); // 빈 파일로 만듦
+void IoStream::clearOutput() {
+  ofstream ofs(output_file_name, ios::trunc); // 빈 파일로 만듦
 }
-} // namespace
 
 string IoStream::readFileAsString(const string &filename) {
   std::ifstream ifs(filename);
@@ -34,7 +28,7 @@ void IoStream::initSsdNand() {
     return;
   }
 
-  for (int i = 0; i < MAX_NAND_MEMORY_MAP_SIZE; ++i) {
+  for (int i = 0; i < storageSize; ++i) {
     ofs << dec << i << " 0x" << setfill('0') << setw(8) << hex << uppercase << 0
         << "\n";
   }
@@ -54,58 +48,39 @@ void IoStream::loadNandFile() {
 
   while (ifs >> idx >> hexVal) {
 
-    if (idx < 0 || idx >= MAX_NAND_MEMORY_MAP_SIZE) {
+    if (idx < 0 || idx >= storageSize) {
       cout << "[DEBUG] Skipped invalid idx=" << idx << "\n";
       continue;
     }
 
     try {
-      nandMemoryMap.value[idx] = stoul(hexVal, nullptr, 16);
+      buffer[idx] = stoul(hexVal, nullptr, 16);
     } catch (const std::exception &e) {
       cout << "[DEBUG] Error parsing hexVal at idx=" << idx << ": " << e.what()
            << "\n";
-      nandMemoryMap.value[idx] = 0;
+      buffer[idx] = 0;
     }
   }
 }
 
-unsigned int IoStream::readStream(int lba) {
-  loadNandFile();
+int IoStream::getStorageSize() { return storageSize; }
 
-  if (!isValid_LBA_Range(lba)) {
-    writeError(output_file_name);
-    return -1;
-  }
-
+ofstream IoStream::getOutputWriteStream() {
   ofstream ofs(output_file_name);
-
-  ofs << "0x" << setfill('0') << setw(8) << hex << uppercase
-      << nandMemoryMap.value[lba];
-
-  return nandMemoryMap.value[lba];
+  return ofs;
 }
 
-int IoStream::writeStream(int lba, int value) {
-  loadNandFile();
-
-  if (!isValid_LBA_Range(lba)) {
-    writeError(output_file_name);
-    return -1;
-  }
-
-  nandMemoryMap.value[lba] = value;
-
+ofstream IoStream::getNandWriteStream() {
   ofstream ofs(nand_file_name);
-  for (int i = 0; i < MAX_NAND_MEMORY_MAP_SIZE; ++i) {
-    ofs << dec << i << " 0x" << setfill('0') << setw(8) << hex << uppercase
-        << nandMemoryMap.value[i] << "\n";
-  }
-
-  clearOutput(output_file_name);
-
-  return 0;
+  return ofs;
 }
 
-bool IoStream::isValid_LBA_Range(int lba) {
-  return (lba >= 0 && lba < MAX_NAND_MEMORY_MAP_SIZE);
+istringstream IoStream::getOutputReadStream() {
+  istringstream iss(output_file_name);
+  return iss;
+}
+
+istringstream IoStream::getNandReadStream() {
+  istringstream iss(nand_file_name);
+  return iss;
 }

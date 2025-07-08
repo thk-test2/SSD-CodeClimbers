@@ -5,7 +5,7 @@ using namespace testing;
 
 class MockSSD : public Device {
 public:
-  MOCK_METHOD(bool, write, (int, unsigned int), (override));
+  MOCK_METHOD(bool, write, (int, unsigned long), (override));
   MOCK_METHOD(bool, read, (int), (override));
 };
 
@@ -36,3 +36,44 @@ TEST(SSD_TS, WriteFailOutOfRange) {
       .WillRepeatedly(Return(false));
   EXPECT_FALSE(ssdDriver.write(200, 0x12345678));
 }
+
+class SSDDriverTestFixture : public Test {
+protected:
+  SSDDriver ssd;
+};
+
+TEST_F(SSDDriverTestFixture, SSDReadInitialPass) {
+  string output;
+  ssd.read(2);
+
+  istringstream iss = ssd.getIoStream()->getOutputReadStream();
+  getline(iss, output);
+
+  EXPECT_EQ("0x00000000", output);
+}
+#if 0
+TEST_F(IOstreamTestFixture, SSDReadFail) {
+  unsigned long value = ssd.read(1);
+  EXPECT_NE(value, 0x1);
+}
+
+TEST_F(IOstreamTestFixture, SSDWritePass) {
+  ssd.write(1, 0xAAAAFFFF);
+
+  unsigned long value = ssd.read(1);
+  EXPECT_EQ(value, 0xAAAAFFFF);
+}
+
+TEST_F(IOstreamTestFixture, SSDErrorMassageCheckAfterReadLBARangeFail) {
+  ssd.read(100);
+
+  EXPECT_EQ("ERROR", ioStream.readFileAsString(ioStream.output_file_name));
+}
+
+TEST_F(IOstreamTestFixture, SSDErrorMassageCheckAfterWriteLBARangeFail) {
+  ssd.write(100,0xAAAAAAAA);
+
+  EXPECT_EQ("ERROR", ioStream.readFileAsString(ioStream.output_file_name));
+}
+
+#endif

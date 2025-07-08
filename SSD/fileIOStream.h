@@ -4,39 +4,38 @@
 #include <iomanip>
 #include <sstream>
 #include <iostream>
+
+using namespace std;
 using std::string;
 using std::cout;
 
-const int MAX_NAND_MEMORY_MAP_SIZE = 100;
-
-class NandMemoryMap {
-public:
-  unsigned int value[MAX_NAND_MEMORY_MAP_SIZE] = {
-      0,
-  };
-};
-
 class IoStream {
 public:
-  IoStream() {
+  IoStream(const int size, unsigned long* buf) {
     nand_file_name = "ssd_nand.txt";
     output_file_name = "ssd_output.txt";
+    storageSize = size;
     initSsdNand();
   };
   string readFileAsString(const string &filename);
-  int writeStream(int lba, int value);
-  unsigned int readStream(int lba);
-
-  bool isValid_LBA_Range(int lba);
-
+  void writeError();
+  void clearOutput();
+ 
   void loadNandFile();
   void initSsdNand();
 
-  NandMemoryMap nandMemoryMap;
+  int getStorageSize();
+  ofstream getOutputWriteStream();
+  ofstream getNandWriteStream();
+  istringstream getOutputReadStream();
+  istringstream getNandReadStream();
+
   string nand_file_name;
   string output_file_name;
 
 private:
+  int storageSize = 0;
+  unsigned long *buffer ;
   bool isValid_nand_file = true;
   bool isValid_output_file = true;
 };
