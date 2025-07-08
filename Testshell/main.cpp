@@ -227,6 +227,9 @@ TEST_F(TestShellFixture, FullWriteNormalCase) {
               std::string::npos);
   EXPECT_TRUE(output.find("[Full Write] LBA: 2 Value: 42") !=
               std::string::npos);
+
+  // 4번째 LBA는 ERROR이므로 출력되지 않아야 함
+  EXPECT_TRUE(output.find("[Full Write] LBA: 3") == std::string::npos);
 }
 
 TEST_F(TestShellFixture, FullWriteInvalidArgumentCount) {
