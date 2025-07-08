@@ -152,13 +152,7 @@ public:
       cout << "INVALID COMMAND\n";
       return;
     }
-    int lba = stoi(command.args[0]);
-    unsigned long value = 0;
-    if (command.args[1].substr(0, 2) == "0x")
-      value = stoul(command.args[1], nullptr, 16);
-    else
-      value = stoul(command.args[1]);
-    ssd->write(lba, value);
+    ssd->write(stoi(command.args[0]), stringToUnsignedLong(command.args[1]));
     string result = ssd->getResult();
     if (result == "")
       result = "Done";
@@ -170,17 +164,19 @@ public:
       return false;
     try {
       int lba = stoi(command.args[0]);
-      unsigned long value = 0;
-      string valuestr = command.args[1];
-      if (valuestr.substr(0, 2) == "0x") {
-        value = stoul(valuestr.substr(2), nullptr, 16);
-      } else {
-        value = stoul(valuestr);
-      }
+      unsigned long value = stringToUnsignedLong(command.args[1]);
     } catch (std::exception &e) {
       return false;
     }
     return true;
+  }
+
+  unsigned long stringToUnsignedLong(const string &str) {
+    if (str.substr(0, 2) == "0x") {
+      return stoul(str.substr(2), nullptr, 16);
+    } else {
+      return stoul(str);
+    }
   }
 
   void read(const Command &command) {
