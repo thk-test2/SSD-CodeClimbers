@@ -19,19 +19,25 @@ public:
   void read(int lba) override {
     std::ostringstream cmd;
     cmd << "\"" << ssdDir << "\\ssd.exe\" R " << lba;
+#ifdef _DEBUG
+    std::cout << cmd.str() << "\n";
+#else
     int ret = system(cmd.str().c_str());
-
     if (ret != 0) {
       lastResult = "ERROR";
     } else {
       lastResult = readOutputFile();
     }
+#endif
   }
 
   void write(int lba, unsigned long value) override {
     std::ostringstream cmd;
     cmd << "\"" << ssdDir << "\\ssd.exe\" W " << lba << " 0x" << std::hex
-        << value;
+        << std::uppercase << value;
+#ifdef _DEBUG
+    std::cout << cmd.str();
+#else
     int ret = system(cmd.str().c_str());
 
     if (ret != 0) {
@@ -40,6 +46,7 @@ public:
       string out = readOutputFile();
       lastResult = out.empty() ? "" : "ERROR";
     }
+#endif
   }
 
   string getResult() override { return lastResult; }
@@ -48,7 +55,7 @@ private:
   string ssdDir;
   string lastResult;
 
-  // 현재 디렉토리 기준 ../SSD/x64/Release 를 절대경로로 변환
+  // 현재 디렉토리 기준 ../../../SSD/x64/Release 를 절대경로로 변환
   string getSSDExePath() {
     char cwd[1024];
     if (!_getcwd(cwd, sizeof(cwd))) {
