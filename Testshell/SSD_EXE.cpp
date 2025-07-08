@@ -18,13 +18,13 @@ public:
 
   void read(int lba) override {
     std::ostringstream cmd;
-    cmd << "\"" << ssdDir << "\\ssd.exe\" R " << lba;
+    cmd << "\"" << ssdDir << "\\" << SSD_EXE_NAME << "\" R " << lba;
 #ifdef _DEBUG
     std::cout << cmd.str() << "\n";
 #else
     int ret = system(cmd.str().c_str());
     if (ret != 0) {
-      lastResult = "ERROR";
+      lastResult = ERROR_MSG;
     } else {
       lastResult = readOutputFile();
     }
@@ -33,18 +33,18 @@ public:
 
   void write(int lba, unsigned long value) override {
     std::ostringstream cmd;
-    cmd << "\"" << ssdDir << "\\ssd.exe\" W " << lba << " 0x" << std::hex
-        << std::uppercase << value;
+    cmd << "\"" << ssdDir << "\\" << SSD_EXE_NAME << "\" W " << lba << " 0x"
+        << std::hex << std::uppercase << value;
 #ifdef _DEBUG
-    std::cout << cmd.str();
+    std::cout << cmd.str() << "\n";
 #else
     int ret = system(cmd.str().c_str());
 
     if (ret != 0) {
-      lastResult = "ERROR";
+      lastResult = ERROR_MSG;
     } else {
       string out = readOutputFile();
-      lastResult = out.empty() ? "" : "ERROR";
+      lastResult = out.empty() ? "" : ERROR_MSG;
     }
 #endif
   }
@@ -54,6 +54,9 @@ public:
 private:
   string ssdDir;
   string lastResult;
+  const string SSD_EXE_NAME = "ssd.exe";
+  const string SSD_OUTPUT_FILE = "ssd_output.txt";
+  const string ERROR_MSG = ERROR_MSG;
 
   // 현재 디렉토리 기준 ../../../SSD/x64/Release 를 절대경로로 변환
   string getSSDExePath() {
@@ -74,9 +77,9 @@ private:
   }
 
   string readOutputFile() {
-    std::ifstream infile(ssdDir + "\\ssd_output.txt");
+    std::ifstream infile(ssdDir + "\\" + SSD_OUTPUT_FILE);
     if (!infile.is_open()) {
-      return "ERROR";
+      return ERROR_MSG;
     }
 
     std::string line;
