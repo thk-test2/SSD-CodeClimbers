@@ -9,21 +9,7 @@ using std::string;
 class SSDDriver : public Device{
 public:
     void run(int argc, char* argv[]) {
-        if (argc < 3) std::exception();
-        if (argv[0] != "ssd.exe") std::exception();
 
-        vector<string> params = parseParams(argc, argv);
-
-        string command = params[0];
-        if (command == "W") {
-
-        }
-        else if (command == "R") {
-
-        }
-        else {
-            std::exception();
-        }
     }
 
     vector<string> parseParams(int argc, char* argv[]) {
