@@ -12,7 +12,7 @@ using std::vector;
 class SSD_INTERFACE {
 public:
   virtual void read(int lba) = 0;
-  virtual void write(int lba, int value) = 0;
+  virtual void write(int lba, unsigned long value) = 0;
   virtual string getResult() = 0;
 };
 
@@ -20,7 +20,7 @@ public:
 class MockSSD : public SSD_INTERFACE {
 public:
   MOCK_METHOD(void, read, (int lba), (override));
-  MOCK_METHOD(void, write, (int lba, int value), (override));
+  MOCK_METHOD(void, write, (int lba, unsigned long value), (override));
   MOCK_METHOD(string, getResult, (), (override));
 };
 
@@ -65,7 +65,7 @@ public:
     if (command.command == "read") {
       read(command);
     } else if (command.command == "write") {
-
+      write(command);
     } else if (command.command == "fullread") {
 
     } else if (command.command == "fullwrite") {
@@ -145,6 +145,42 @@ public:
     }
     cout << "\n    Description: " << description << "\n"
          << "    Example: " << example << "\n\n";
+  }
+
+  void write(const Command &command) {
+    if (!isValidWriteUsage(command)) {
+      cout << "INVALID COMMAND\n";
+      return;
+    }
+    int lba = stoi(command.args[0]);
+    unsigned long value = 0;
+    if (command.args[1].substr(0, 2) == "0x")
+      value = stoul(command.args[1], nullptr, 16);
+    else
+      value = stoul(command.args[1]);
+    ssd->write(lba, value);
+    string result = ssd->getResult();
+    if (result == "")
+      result = "Done";
+    cout << "[Write] " << result << "\n";
+  }
+
+  bool isValidWriteUsage(const Command &command) {
+    if (command.args.size() != 2)
+      return false;
+    try {
+      int lba = stoi(command.args[0]);
+      unsigned long value = 0;
+      string valuestr = command.args[1];
+      if (valuestr.substr(0, 2) == "0x") {
+        value = stoul(valuestr.substr(2), nullptr, 16);
+      } else {
+        value = stoul(valuestr);
+      }
+    } catch (std::exception &e) {
+      return false;
+    }
+    return true;
   }
 
   void read(const Command &command) {
