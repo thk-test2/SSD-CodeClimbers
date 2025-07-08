@@ -200,7 +200,7 @@ TEST_F(TestShellFixture, FullReadInvalidUsage) {
 
 // fullwrite 테스트들
 TEST_F(TestShellFixture, FullWriteNormalCase) {
-  vector<string> args{"42"};
+  vector<string> args{"0xABCDABCD"};
 
   // 3개의 LBA에 성공적으로 쓰고 4번째에서 ERROR 반환
   EXPECT_CALL(ssd, write(0, 42)).Times(1);
@@ -219,11 +219,11 @@ TEST_F(TestShellFixture, FullWriteNormalCase) {
   ts.fullwrite(args);
   std::string output = GetCapturedStdout();
 
-  EXPECT_TRUE(output.find("[Full Write] LBA: 0 Value: 42") !=
+  EXPECT_TRUE(output.find("[Full Write] LBA: 0 Done") !=
               std::string::npos);
-  EXPECT_TRUE(output.find("[Full Write] LBA: 1 Value: 42") !=
+  EXPECT_TRUE(output.find("[Full Write] LBA: 1 Done") !=
               std::string::npos);
-  EXPECT_TRUE(output.find("[Full Write] LBA: 2 Value: 42") !=
+  EXPECT_TRUE(output.find("[Full Write] LBA: 2 Done") !=
               std::string::npos);
 
   // 4번째 LBA는 ERROR이므로 출력되지 않아야 함
@@ -231,7 +231,7 @@ TEST_F(TestShellFixture, FullWriteNormalCase) {
 }
 
 TEST_F(TestShellFixture, FullWriteInvalidArgumentCount) {
-  vector<string> args{"42", "extraArgs"};
+  vector<string> args{"0xABCDABCD", "extraArgs"};
 
   EXPECT_CALL(ssd, write(_, _)).Times(0);
   EXPECT_CALL(ssd, getResult()).Times(0);
