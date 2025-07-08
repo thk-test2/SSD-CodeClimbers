@@ -80,10 +80,13 @@ public:
     } else if (cmd == "help") {
       help();
     } else if (cmd == "1_" || cmd == "1_FullWriteAndReadCompare") {
-      bool isFailed = executeScriptOne(command);
-      if (isFailed) return;
-    } else if (cmd == "2_") {
-
+      bool isFailed = isScriptOneExecutionSuccessful(command);
+      if (isFailed)
+        return;
+    } else if (cmd == "2_" || cmd == "2_PartialLBAWrite") {
+      bool isFailed = isScriptTwoExecutionSuccessful(command);
+      if (isFailed)
+        return;
     } else if (cmd == "3_") {
 
     } else {
@@ -91,7 +94,7 @@ public:
     }
   }
 
-  bool executeScriptOne(const Command &command) {
+  bool isScriptOneExecutionSuccessful(const Command &command) {
     string valueStr = command.args[0];
     unsigned long value = std::stoul(valueStr, nullptr, 16);
 
@@ -111,6 +114,29 @@ public:
     }
     cout << "Script 1 executed successfully." << endl;
     return false;
+  }
+
+  bool isScriptTwoExecutionSuccessful(const Command &command) {
+    string valueStr = command.args[0];
+    vector<int> lbaList{4, 0, 3, 1, 2};
+
+    for (int turn = 0; turn < 30; ++turn) {
+      for (auto lba : lbaList) {
+        if (!checkPartialWriteSuccess(lba, valueStr))
+          return false;
+      }
+    }
+    cout << "Script 2 executed successfully." << endl;
+    return true;
+  }
+
+  bool checkPartialWriteSuccess(int lba, std::string &valueStr) {
+    ssd->write(lba, std::stoul(valueStr, nullptr, 16));
+    if (ssd->getResult() == "ERROR" || ssd->getResult() != valueStr) {
+      cout << "Script 2 execution failed." << endl;
+      return false;
+    }
+    return true;
   }
 
   // Split the userInput string into command and arguments
