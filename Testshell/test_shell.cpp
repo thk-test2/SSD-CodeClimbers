@@ -67,9 +67,9 @@ public:
     } else if (command.command == "write") {
       write(command);
     } else if (command.command == "fullread") {
-
+      fullread(command.args);
     } else if (command.command == "fullwrite") {
-
+      fullwrite(command.args);
     } else if (command.command == "help") {
       help();
     } else if (command.command == "1_") {
@@ -86,6 +86,43 @@ public:
   Command parsing(const string &userInput) {
     return Command{userInput,
                    vector<string>()}; // Simplified parsing for demonstration
+  }
+
+  void fullread(vector<string> args) {
+    if (args.size() != 0) {
+      cout << "INVALID COMMAND\n";
+      return;
+    }
+    int lba = 0;
+    ssd->read(lba);
+    string result = ssd->getResult();
+    while (result != "ERROR") {
+      cout << "[Full Read] LBA: " << lba << " Result: " << result << endl;
+      lba++;
+      ssd->read(lba);
+      result = ssd->getResult();
+    }
+  }
+
+  void fullwrite(vector<string> args) {
+    if (args.size() != 1) {
+      cout << "INVALID COMMAND\n";
+      return;
+    }
+    unsigned long value;
+    try {
+      value = stoul(args[0]);
+    } catch (std::exception &e) {
+      cout << "INVALID COMMAND\n";
+      return;
+    }
+    int lba = 0;
+    ssd->write(lba, value);
+    while (ssd->getResult() != "ERROR") {
+      cout << "[Full Write] LBA: " << lba << " Value: " << value << endl;
+      lba++;
+      ssd->write(lba, value);
+    }
   }
 
   void help() {

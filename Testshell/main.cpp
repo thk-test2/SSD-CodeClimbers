@@ -6,7 +6,7 @@ using testing::internal::CaptureStdout;
 using testing::internal::GetCapturedStdout;
 using namespace testing;
 
-class TestShellFixture: public ::testing::Test {
+class TestShellFixture : public ::testing::Test {
 public:
   NiceMock<MockSSD> ssd;
   TestShell ts{&ssd};
@@ -39,8 +39,8 @@ TEST_F(TestShellHelpTest, DisplaysCorrectHeader) {
   std::string output = GetCapturedOutput();
 
   EXPECT_TRUE(
-      output.find("SSD Test Shell - Simple and Powerful SSD Testing Tool") !=
-      std::string::npos);
+    output.find("SSD Test Shell - Simple and Powerful SSD Testing Tool") !=
+    std::string::npos);
 }
 
 TEST_F(TestShellHelpTest, DisplaysTeamMembers) {
@@ -93,7 +93,7 @@ TEST_F(TestShellHelpTest, DisplayTestScriptsSection) {
 
 TEST_F(TestShellFixture, InvalidCommand) {
   Command cmd{"INVALID"};
-  
+
   CaptureStdout();
   ts.executeCommand(cmd);
   std::string output = GetCapturedStdout();
@@ -106,7 +106,9 @@ TEST_F(TestShellFixture, ReadNormalCase) {
 
   EXPECT_CALL(ssd, read(_)).Times(1);
 
-  EXPECT_CALL(ssd, getResult()).Times(1).WillOnce(Return("0xAAAABBBB"));
+  EXPECT_CALL(ssd, getResult())
+    .Times(1)
+    .WillOnce(Return("0xAAAABBBB"));
 
   ts.executeCommand(command);
 }
@@ -164,6 +166,132 @@ TEST_F(TestShellFixture, WriteInvalidCase) {
   EXPECT_CALL(ssd, getResult()).Times(0);
 
   ts.executeCommand(OverflowValueCmd);
+}
+
+TEST_F(TestShellFixture, FullReadNormalCase) {
+  vector<string> args{};
+  // Total LBA 수를 3인 경우로 가정
+  // 3개의 LBA를 성공적으로 읽고 4번째에서 ERROR 반환
+  EXPECT_CALL(ssd, read(0))
+    .Times(1);
+  EXPECT_CALL(ssd, read(1))
+    .Times(1);
+  EXPECT_CALL(ssd, read(2))
+    .Times(1);
+  EXPECT_CALL(ssd, read(3))
+    .Times(1);
+
+  EXPECT_CALL(ssd, getResult())
+    .Times(4)
+    .WillOnce(Return("0xAAAABBBB"))
+    .WillOnce(Return("0xCCCCDDDD"))
+    .WillOnce(Return("0xEEEEFFFF"))
+    .WillOnce(Return("ERROR"));
+
+  CaptureStdout();
+  ts.fullread(args);
+  std::string output = GetCapturedStdout();
+
+  EXPECT_TRUE(output.find("[Full Read] LBA: 0 Result: 0xAAAABBBB") !=
+              std::string::npos);
+  EXPECT_TRUE(output.find("[Full Read] LBA: 1 Result: 0xCCCCDDDD") !=
+              std::string::npos);
+  EXPECT_TRUE(output.find("[Full Read] LBA: 2 Result: 0xEEEEFFFF") !=
+              std::string::npos);
+}
+
+TEST_F(TestShellFixture, FullReadInvalidUsage) {
+  vector<string> args{"extra"};
+  EXPECT_CALL(ssd, read(_))
+    .Times(0);
+  EXPECT_CALL(ssd, getResult())
+    .Times(0);
+
+  CaptureStdout();
+  ts.fullread(args);
+  std::string output = GetCapturedStdout();
+  EXPECT_EQ("INVALID COMMAND\n", output);
+}
+
+// fullwrite 테스트들
+TEST_F(TestShellFixture, FullWriteNormalCase) {
+  vector<string> args{"42"};
+
+  // 3개의 LBA에 성공적으로 쓰고 4번째에서 ERROR 반환
+  EXPECT_CALL(ssd, write(0, 42))
+    .Times(1);
+  EXPECT_CALL(ssd, write(1, 42))
+    .Times(1);
+  EXPECT_CALL(ssd, write(2, 42))
+    .Times(1);
+  EXPECT_CALL(ssd, write(3, 42))
+    .Times(1);
+
+  EXPECT_CALL(ssd, getResult())
+    .Times(4)
+    .WillOnce(Return("SUCCESS"))
+    .WillOnce(Return("SUCCESS"))
+    .WillOnce(Return("SUCCESS"))
+    .WillOnce(Return("ERROR"));
+
+  CaptureStdout();
+  ts.fullwrite(args);
+  std::string output = GetCapturedStdout();
+
+  EXPECT_TRUE(output.find("[Full Write] LBA: 0 Value: 42") !=
+              std::string::npos);
+  EXPECT_TRUE(output.find("[Full Write] LBA: 1 Value: 42") !=
+              std::string::npos);
+  EXPECT_TRUE(output.find("[Full Write] LBA: 2 Value: 42") !=
+              std::string::npos);
+
+  // 4번째 LBA는 ERROR이므로 출력되지 않아야 함
+  EXPECT_TRUE(output.find("[Full Write] LBA: 3") == std::string::npos);
+}
+
+TEST_F(TestShellFixture, FullWriteInvalidArgumentCount) {
+  vector<string> args{"42", "extraArgs"};
+
+  EXPECT_CALL(ssd, write(_, _))
+    .Times(0);
+  EXPECT_CALL(ssd, getResult())
+    .Times(0);
+
+  CaptureStdout();
+  ts.fullwrite(args);
+  std::string output = GetCapturedStdout();
+
+  EXPECT_EQ("INVALID COMMAND\n", output);
+}
+
+TEST_F(TestShellFixture, FullWriteNoArguments) {
+  vector<string> args{};
+
+  EXPECT_CALL(ssd, write(_, _))
+    .Times(0);
+  EXPECT_CALL(ssd, getResult())
+    .Times(0);
+
+  CaptureStdout();
+  ts.fullwrite(args);
+  std::string output = GetCapturedStdout();
+
+  EXPECT_EQ("INVALID COMMAND\n", output);
+}
+
+TEST_F(TestShellFixture, FullWriteInvalidValue) {
+  vector<string> args{"invalid_number"};
+
+  EXPECT_CALL(ssd, write(_, _))
+    .Times(0);
+  EXPECT_CALL(ssd, getResult())
+    .Times(0);
+
+  CaptureStdout();
+  ts.fullwrite(args);
+  std::string output = GetCapturedStdout();
+
+  EXPECT_EQ("INVALID COMMAND\n", output);
 }
 
 int main() {
