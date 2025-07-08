@@ -113,9 +113,19 @@ public:
     return false;
   }
 
+  // Split the userInput string into command and arguments
+  // first word is the command, rest are arguments
   Command parsing(const string &userInput) {
-    return Command{userInput,
-                   vector<string>()}; // Simplified parsing for demonstration
+    std::istringstream iss(userInput);
+    string cmd;
+    vector<string> args;
+    if (iss >> cmd) {
+      string arg;
+      while (iss >> arg) {
+        args.push_back(arg);
+      }
+    }
+    return Command{cmd, args};
   }
 
   void exitTestShell(const Command &command) {
