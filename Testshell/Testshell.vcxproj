@@ -132,13 +132,13 @@
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'"> %(AdditionalOptions)</AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'"> %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
-    <ClCompile Include="SSD_EXE.cpp" />
-    <ClCompile Include="SSD_EXE_test.cpp" />
     <ClCompile Include="exit_command.cpp" />
     <ClCompile Include="fullread_command.cpp" />
     <ClCompile Include="fullwrite_command.cpp" />
     <ClCompile Include="help_command.cpp" />
     <ClCompile Include="read_command.cpp" />
+    <ClCompile Include="ssd_exe.cpp" />
+    <ClCompile Include="ssd_exe_test.cpp" />
     <ClCompile Include="test_script_command.cpp" />
     <ClCompile Include="test_shell.cpp" />
     <ClCompile Include="write_command.cpp" />
