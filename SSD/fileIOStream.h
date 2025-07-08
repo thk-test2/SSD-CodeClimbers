@@ -4,11 +4,14 @@
 #include <iomanip>
 #include <sstream>
 #include <iostream>
-#include <string>
 #include <vector>
 
-using namespace std;
 using std::string;
+using std::vector;
+using std::string;
+using std::ofstream;
+using std::istringstream;
+using std::ifstream;
 using std::cout;
 
 class IoStream {
@@ -18,7 +21,6 @@ public:
     output_file_name = "ssd_output.txt";
     storageSize = size;
     buffer = buf;
-    initSsdNand();
   };
   string readFileAsString(const string &filename);
   void writeError();
@@ -38,7 +40,7 @@ public:
 
 private:
   int storageSize = 0;
-  unsigned long *buffer ;
+  unsigned long *buffer;
   bool isValid_nand_file = true;
   bool isValid_output_file = true;
 };

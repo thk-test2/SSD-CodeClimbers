@@ -6,7 +6,7 @@ void IoStream::writeError() {
 }
 
 void IoStream::clearOutput() {
-  ofstream ofs(output_file_name, ios::trunc); // 빈 파일로 만듦
+  ofstream ofs(output_file_name, std::ios::trunc); // 빈 파일로 만듦
 }
 
 string IoStream::readFileAsString(const string &filename) {
@@ -24,12 +24,14 @@ string IoStream::readFileAsString(const string &filename) {
 void IoStream::initSsdNand() {
   ofstream ofs(nand_file_name);
   if (!ofs) {
-    cerr << "file create fail : " << nand_file_name << endl;
+    std::cerr << "file create fail : " << nand_file_name << std::endl;
     return;
   }
 
   for (int i = 0; i < storageSize; ++i) {
-    ofs << dec << i << " 0x" << setfill('0') << setw(8) << hex << uppercase << 0
+    ofs << std::dec << i << " 0x" << std::setfill('0') << std::setw(8)
+        << std::hex << std::uppercase
+        << 0
         << "\n";
   }
 }
