@@ -1,4 +1,5 @@
 #include "gmock/gmock.h"
+#include "SSD_EXE.cpp"
 
 #include <iostream>
 #include <string>
@@ -11,13 +12,6 @@ using std::vector;
 
 struct ShellExit : public std::exception {
   const char *what() const noexcept override { return "Shell exited."; }
-};
-
-class SSD_INTERFACE {
-public:
-  virtual void read(int lba) = 0;
-  virtual void write(int lba, unsigned long value) = 0;
-  virtual string getResult() = 0;
 };
 
 // MockDriver
