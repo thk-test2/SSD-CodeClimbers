@@ -269,6 +269,18 @@ TEST_F(TestShellFixture, FullWriteInvalidValue) {
   EXPECT_EQ("INVALID COMMAND\n", output);
 }
 
+TEST_F(TestShellFixture, ExitNormally) {
+  Command cmd{"exit", {}};
+  EXPECT_THROW(ts.executeCommand(cmd), ShellExit);
+}
+
+TEST_F(TestShellFixture, ExitInvalidArgs) {
+  Command cmd{"exit", {"..."}};
+  CaptureStdout();
+  EXPECT_NO_THROW(ts.executeCommand(cmd));
+  std::string output = GetCapturedStdout();
+}
+
 TEST_F(TestShellFixture, TestScript1FAIL) {
   Command cmd{TEST_SCRIPT_1_FULLNAME, {"0xAAAABBBB"}};
 
