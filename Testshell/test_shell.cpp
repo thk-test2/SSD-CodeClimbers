@@ -72,7 +72,7 @@ public:
     } else if (cmd == "fullwrite") {
 
     } else if (cmd == "help") {
-
+      help();
     } else if (cmd == "1_" || cmd == "1_FullWriteAndReadCompare") {
       bool isFailed = executeScriptOne(command);
       if (isFailed) return;
@@ -95,6 +95,7 @@ public:
       }
 
       for (int i = 0; i < 4; i++) {
+        ssd->read(lba);
         string result = ssd->getResult();
         if (result != valueStr) {
           cout << "Script 1 execution failed." << endl;

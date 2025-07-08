@@ -10,6 +10,9 @@ class TestShellFixture: public ::testing::Test {
 public:
   NiceMock<MockSSD> ssd;
   TestShell ts{&ssd};
+
+  const string TEST_SCRIPT_1_FULLNAME = "1_FullWriteAndReadCompare";
+  const string TEST_SCRIPT_1_SHORTCUT = "1_";
 };
 
 class TestShellHelpTest : public ::testing::Test {
@@ -133,7 +136,7 @@ TEST_F(TestShellFixture, ReadLbaOverThanMaxOfInt) {
 }
 
 TEST_F(TestShellFixture, TestScript1FAIL) {
-  Command cmd{"1_FullWriteAndReadCompare", {"0xAAAABBBB"}};
+  Command cmd{TEST_SCRIPT_1_FULLNAME, {"0xAAAABBBB"}};
 
   EXPECT_CALL(ssd, write(_, 0xAAAABBBB)).Times(AtLeast(1));
   EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return("0xFFFFFFFF"));
@@ -146,7 +149,7 @@ TEST_F(TestShellFixture, TestScript1FAIL) {
 }
 
 TEST_F(TestShellFixture, TestScript1ShortcutFAIL) {
-  Command cmd{"1_", {"0xAAAABBBB"}};
+  Command cmd{TEST_SCRIPT_1_SHORTCUT, {"0xAAAABBBB"}};
 
   EXPECT_CALL(ssd, write(_, 0xAAAABBBB)).Times(AtLeast(1));
   EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return("0xFFFFFFFF"));
@@ -159,7 +162,7 @@ TEST_F(TestShellFixture, TestScript1ShortcutFAIL) {
 }
 
 TEST_F(TestShellFixture, TestScript1SUCCESS) {
-  Command cmd{"1_FullWriteAndReadCompare", {"0xAAAABBBB"}};
+  Command cmd{TEST_SCRIPT_1_FULLNAME, {"0xAAAABBBB"}};
 
   EXPECT_CALL(ssd, write(_, 0xAAAABBBB)).Times(100);
   EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return("0xAAAABBBB"));
@@ -172,7 +175,7 @@ TEST_F(TestShellFixture, TestScript1SUCCESS) {
 }
 
 TEST_F(TestShellFixture, TestScript1ShortcutSUCCESS) {
-  Command cmd{"1_", {"0xAAAABBBB"}};
+  Command cmd{TEST_SCRIPT_1_SHORTCUT, {"0xAAAABBBB"}};
 
   EXPECT_CALL(ssd, write(_, 0xAAAABBBB)).Times(100);
   EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return("0xAAAABBBB"));
