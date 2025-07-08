@@ -1,18 +1,10 @@
 #include "device.h"
 #include "fileIOStream.h"
 
-using std::ofstream;
-#include <string>
-#include <vector>
-
-using std::string;
-using std::vector;
-
 class SSDDriver : public Device {
 public:
   SSDDriver() {
     stream = new IoStream(MAX_NAND_MEMORY_MAP_SIZE, buf);
-    stream->initSsdNand();
   }
   void run(int argc, char *argv[]) {
     vector<string> params = parseParams(argc, argv);
@@ -46,32 +38,34 @@ public:
       return false;
   }
   bool read(int lba) override {
-    stream->loadNandFile();
-
     if (!isValid_LBA_Range(lba)) {
       stream->writeError();
       return false;
     }
 
-    ofstream ofs = stream->getOutputWriteStream();
+    stream->loadNandFile();
 
-    ofs << "0x" << setfill('0') << setw(8) << hex << uppercase << buf[lba];
+    ofstream ofs = stream->getOutputWriteStream();
+    ofs << "0x" << std::setfill('0') << std::setw(8) << std::hex
+        << std::uppercase
+        << buf[lba];
 
     return true;
   }
   bool write(int lba, unsigned long value) override {
-    stream->loadNandFile();
-
     if (!isValid_LBA_Range(lba)) {
       stream->writeError();
       return false;
     }
+
+    stream->loadNandFile();
 
     buf[lba] = value;
 
     ofstream ofs = stream->getNandWriteStream();
     for (int i = 0; i < MAX_NAND_MEMORY_MAP_SIZE; ++i) {
-      ofs << dec << i << " 0x" << setfill('0') << setw(8) << hex << uppercase
+      ofs << std::dec << i << " 0x" << std::setfill('0') << std::setw(8)
+          << std::hex << std::uppercase
           << buf[i] << "\n";
     }
 
