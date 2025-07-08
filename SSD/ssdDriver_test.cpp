@@ -37,30 +37,42 @@ TEST(SSD_TS, WriteFailOutOfRange) {
   EXPECT_FALSE(ssdDriver.write(200, 0x12345678));
 }
 
-TEST(TS, RunInvalidParam1) {
-    SSDDriver ssd;
-
+TEST(SSD_TS, RunInvalidParam1) {
+    SSDDriver ssdDriver;
     //ssd.exe R 10 0x00010001 
     int argc = 1;
     char* argv[1];
     argv[0] = const_cast<char*>("ssd.exe");
 
-    vector<string> params = ssd.parseParams(argc, argv);
+    vector<string> params = ssdDriver.parseParams(argc, argv);
 
     EXPECT_EQ(params.size(), 0);
 }
 
-TEST(TS, RunInvalidParam2) {
-    SSDDriver ssd;
-
+TEST(SSD_TS, RunInvalidParam2) {
+    SSDDriver ssdDriver;
     int argc = 3;
     char* argv[3];
     argv[0] = const_cast<char*>("ssd.exe");
     argv[1] = const_cast<char*>("R");
     argv[2] = const_cast<char*>("10");
-    vector<string> params = ssd.parseParams(argc, argv);
+    vector<string> params = ssdDriver.parseParams(argc, argv);
 
     EXPECT_EQ(params.size(), 2);
 }
 
+TEST(SSD_TS, WriteParams)
+{
+    SSDDriver ssdDriver;
+    int argc = 4;
+    char* argv[4];
+    argv[0] = const_cast<char*>("ssd.exe");
+    argv[1] = const_cast<char*>("W");
+    argv[2] = const_cast<char*>("10");
+    argv[3] = const_cast<char*>("0x12345678");
+
+    vector<string> args = ssdDriver.parseParams(argc, argv);
+
+    EXPECT_EQ(args.size(), 3);
+}
 
