@@ -3,14 +3,9 @@
 #include <sstream>
 #include <direct.h>
 
-using std::string;
+#include "ssd_interface.h"
 
-class SSD_INTERFACE {
-public:
-  virtual void read(int lba) = 0;
-  virtual void write(int lba, unsigned long value) = 0;
-  virtual string getResult() = 0;
-};
+using std::string;
 
 class SSD_EXE : public SSD_INTERFACE {
 public:

@@ -1,4 +1,4 @@
-#include "ssd_exe.cpp"
+#include "SSD_EXE.cpp"
 #include "gmock/gmock.h"
 using testing::internal::CaptureStdout;
 using testing::internal::GetCapturedStdout;
