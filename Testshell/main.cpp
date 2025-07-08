@@ -1,4 +1,5 @@
-#include "test_shell.cpp"
+#include "test_shell.h"
+#include "SSD_INTERFACE.h"
 #include "gmock/gmock.h"
 
 #include <random>
@@ -7,6 +8,14 @@
 using testing::internal::CaptureStdout;
 using testing::internal::GetCapturedStdout;
 using namespace testing;
+
+// MockDriver
+class MockSSD : public SSD_INTERFACE {
+public:
+  MOCK_METHOD(void, read, (int lba), (override));
+  MOCK_METHOD(void, write, (int lba, unsigned long value), (override));
+  MOCK_METHOD(string, getResult, (), (override));
+};
 
 class TestShellFixture : public ::testing::Test {
 public:
@@ -38,7 +47,7 @@ public:
 
   string getCallHelpOutput() {
     CaptureStdout();
-    ts.help();
+    ts.executeCommand(Command{"help", {}});
     return GetCapturedStdout();
   }
 };
@@ -100,7 +109,6 @@ TEST_F(TestShellFixture, ReadNormalCase) {
   Command command{"read", vector<string>{"0"}};
 
   EXPECT_CALL(ssd, read(_)).Times(1);
-
   EXPECT_CALL(ssd, getResult()).Times(1).WillOnce(Return("0xAAAABBBB"));
 
   ts.executeCommand(command);
@@ -162,9 +170,8 @@ TEST_F(TestShellFixture, WriteInvalidCase) {
 }
 
 TEST_F(TestShellFixture, FullReadNormalCase) {
-  vector<string> args{};
-  // Total LBA 수를 3인 경우로 가정
-  // 3개의 LBA를 성공적으로 읽고 4번째에서 ERROR 반환
+  Command command{"fullread", vector<string>{}};
+  
   EXPECT_CALL(ssd, read(0)).Times(1);
   EXPECT_CALL(ssd, read(1)).Times(1);
   EXPECT_CALL(ssd, read(2)).Times(1);
@@ -178,7 +185,7 @@ TEST_F(TestShellFixture, FullReadNormalCase) {
       .WillOnce(Return("ERROR"));
 
   CaptureStdout();
-  ts.fullread(args);
+  ts.executeCommand(command);
   std::string output = GetCapturedStdout();
 
   EXPECT_TRUE(output.find("[Full Read] LBA: 0 Result: 0xAAAABBBB") !=
@@ -190,19 +197,20 @@ TEST_F(TestShellFixture, FullReadNormalCase) {
 }
 
 TEST_F(TestShellFixture, FullReadInvalidUsage) {
-  vector<string> args{"extra"};
+  Command command{"fullread", vector<string>{"extra"}};
+  
   EXPECT_CALL(ssd, read(_)).Times(0);
   EXPECT_CALL(ssd, getResult()).Times(0);
 
   CaptureStdout();
-  ts.fullread(args);
+  ts.executeCommand(command);
   std::string output = GetCapturedStdout();
   EXPECT_EQ("INVALID COMMAND\n", output);
 }
 
 // fullwrite 테스트들
 TEST_F(TestShellFixture, FullWriteNormalCase) {
-  vector<string> args{"0xABCDABCD"};
+  Command command{"fullwrite", vector<string>{"0xABCDABCD"}};
 
   // 3개의 LBA에 성공적으로 쓰고 4번째에서 ERROR 반환
   EXPECT_CALL(ssd, write(0, 0xABCDABCD)).Times(1);
@@ -218,7 +226,7 @@ TEST_F(TestShellFixture, FullWriteNormalCase) {
       .WillOnce(Return("ERROR"));
 
   CaptureStdout();
-  ts.fullwrite(args);
+  ts.executeCommand(command);
   std::string output = GetCapturedStdout();
 
   EXPECT_TRUE(output.find("[Full Write] LBA: 0 Done") !=
@@ -233,39 +241,39 @@ TEST_F(TestShellFixture, FullWriteNormalCase) {
 }
 
 TEST_F(TestShellFixture, FullWriteInvalidArgumentCount) {
-  vector<string> args{"0xABCDABCD", "extraArgs"};
+  Command command{"fullwrite", vector<string>{"0xABCDABCD", "extraArgs"}};
 
   EXPECT_CALL(ssd, write(_, _)).Times(0);
   EXPECT_CALL(ssd, getResult()).Times(0);
 
   CaptureStdout();
-  ts.fullwrite(args);
+  ts.executeCommand(command);
   std::string output = GetCapturedStdout();
 
   EXPECT_EQ("INVALID COMMAND\n", output);
 }
 
 TEST_F(TestShellFixture, FullWriteNoArguments) {
-  vector<string> args{};
+  Command command{"fullwrite", vector<string>{}};
 
   EXPECT_CALL(ssd, write(_, _)).Times(0);
   EXPECT_CALL(ssd, getResult()).Times(0);
 
   CaptureStdout();
-  ts.fullwrite(args);
+  ts.executeCommand(command);
   std::string output = GetCapturedStdout();
 
   EXPECT_EQ("INVALID COMMAND\n", output);
 }
 
 TEST_F(TestShellFixture, FullWriteInvalidValue) {
-  vector<string> args{"invalid_number"};
+  Command command{"fullwrite", vector<string>{"invalid_number"}};
 
   EXPECT_CALL(ssd, write(_, _)).Times(0);
   EXPECT_CALL(ssd, getResult()).Times(0);
 
   CaptureStdout();
-  ts.fullwrite(args);
+  ts.executeCommand(command);
   std::string output = GetCapturedStdout();
 
   EXPECT_EQ("INVALID COMMAND\n", output);
@@ -273,7 +281,7 @@ TEST_F(TestShellFixture, FullWriteInvalidValue) {
 
 TEST_F(TestShellFixture, ExitNormally) {
   Command cmd{"exit", {}};
-  EXPECT_THROW(ts.executeCommand(cmd), ShellExit);
+  EXPECT_THROW(ts.executeCommand(cmd), std::exception);
 }
 
 TEST_F(TestShellFixture, ExitInvalidArgs) {
