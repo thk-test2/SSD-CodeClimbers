@@ -1,5 +1,5 @@
-#include "device.h"
-#include "fileIOStream.h"
+#include "ssd_driver.h"
+#include "file_iostream.h"
 
 class SSDDriver : public Device {
 public:
