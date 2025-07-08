@@ -20,14 +20,14 @@ public:
     return dist(gen);
   }
 
-  std::string changeToString(unsigned long value) {
+  std::string convertHexToString(unsigned long value) {
     char buf[11];
     std::snprintf(buf, sizeof(buf), "0x%08lX", value);
     return std::string{buf};
   }
 
   unsigned long randomValue = getRandomValue();
-  std::string randomValueStr = changeToString(randomValue);
+  std::string randomValueStr = convertHexToString(randomValue);
 
   const string TEST_SCRIPT_1_FULLNAME = "1_FullWriteAndReadCompare";
   const string TEST_SCRIPT_1_SHORTCUT = "1_";
