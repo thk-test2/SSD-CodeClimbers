@@ -1,5 +1,5 @@
 #include "gmock/gmock.h"
-#include "SSD_EXE.cpp"
+#include "ssd_exe.cpp"
 
 #include <iostream>
 #include <string>
