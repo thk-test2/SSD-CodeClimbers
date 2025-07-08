@@ -74,11 +74,11 @@ public:
     } else if (cmd == "help") {
       help();
     } else if (cmd == "1_" || cmd == "1_FullWriteAndReadCompare") {
-      bool isFailed = executeScriptOne(command);
+      bool isFailed = isScriptOneExecutionSuccessful(command);
       if (isFailed)
         return;
     } else if (cmd == "2_" || cmd == "2_PartialLBAWrite") {
-      bool isFailed = executeScriptTwo(command);
+      bool isFailed = isScriptTwoExecutionSuccessful(command);
       if (isFailed)
         return;
     } else if (cmd == "3_") {
@@ -88,7 +88,7 @@ public:
     }
   }
 
-  bool executeScriptOne(const Command &command) {
+  bool isScriptOneExecutionSuccessful(const Command &command) {
     string valueStr = command.args[0];
     unsigned long value = std::stoul(valueStr, nullptr, 16);
 
@@ -110,28 +110,27 @@ public:
     return false;
   }
 
-  bool executeScriptTwo(const Command &command) {
+  bool isScriptTwoExecutionSuccessful(const Command &command) {
     string valueStr = command.args[0];
-    unsigned long value = std::stoul(valueStr, nullptr, 16);
+    vector<int> lbaList{4, 0, 3, 1, 2};
 
     for (int turn = 0; turn < 30; ++turn) {
-      ssd->write(4, value);
-      ssd->write(0, value);
-      ssd->write(3, value);
-      ssd->write(1, value);
-      ssd->write(2, value);
-
-      for (int i = 0; i < 4; i++) {
-        ssd->read(i);
-        string result = ssd->getResult();
-        if (result != valueStr) {
-          cout << "Script 2 execution failed." << endl;
-          return true;
-        }
+      for (auto lba : lbaList) {
+        if (!checkPartialWriteSuccess(lba, valueStr))
+          return false;
       }
     }
     cout << "Script 2 executed successfully." << endl;
-    return false;
+    return true;
+  }
+
+  bool checkPartialWriteSuccess(int lba, std::string &valueStr) {
+    ssd->write(lba, std::stoul(valueStr, nullptr, 16));
+    if (ssd->getResult() == "ERROR" || ssd->getResult() != valueStr) {
+      cout << "Script 2 execution failed." << endl;
+      return false;
+    }
+    return true;
   }
 
   Command parsing(const string &userInput) {

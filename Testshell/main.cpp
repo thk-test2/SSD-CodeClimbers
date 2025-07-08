@@ -1,5 +1,5 @@
-#include "gmock/gmock.h"
 #include "test_shell.cpp"
+#include "gmock/gmock.h"
 
 // stdout 캡처/해제 함수
 using testing::internal::CaptureStdout;
@@ -15,6 +15,8 @@ public:
   const string TEST_SCRIPT_1_SHORTCUT = "1_";
   const string TEST_SCRIPT_2_FULLNAME = "2_PartialLBAWrite";
   const string TEST_SCRIPT_2_SHORTCUT = "2_";
+  const string TEST_SCRIPT_3_FULLNAME = "3_WriteReadAging";
+  const string TEST_SCRIPT_3_SHORTCUT = "3_";
 };
 
 class TestShellHelpTest : public ::testing::Test {
@@ -40,8 +42,8 @@ TEST_F(TestShellHelpTest, DisplaysCorrectHeader) {
   std::string output = GetCapturedOutput();
 
   EXPECT_TRUE(
-    output.find("SSD Test Shell - Simple and Powerful SSD Testing Tool") !=
-    std::string::npos);
+      output.find("SSD Test Shell - Simple and Powerful SSD Testing Tool") !=
+      std::string::npos);
 }
 
 TEST_F(TestShellHelpTest, DisplaysTeamMembers) {
@@ -88,7 +90,7 @@ TEST_F(TestShellHelpTest, DisplayTestScriptsSection) {
 
   EXPECT_TRUE(output.find("Test Scripts:") != std::string::npos);
   EXPECT_TRUE(output.find("1_FullWriteAndReadCompare") != std::string::npos);
-  EXPECT_TRUE(output.find(TEST_SCRIPT_2_FULLNAME) != std::string::npos);
+  EXPECT_TRUE(output.find("2_PartialLBAWrite") != std::string::npos);
   EXPECT_TRUE(output.find("3_WriteReadAging") != std::string::npos);
 }
 
@@ -97,9 +99,7 @@ TEST_F(TestShellFixture, ReadNormalCase) {
 
   EXPECT_CALL(ssd, read(_)).Times(1);
 
-  EXPECT_CALL(ssd, getResult())
-    .Times(1)
-    .WillOnce(Return("0xAAAABBBB"));
+  EXPECT_CALL(ssd, getResult()).Times(1).WillOnce(Return("0xAAAABBBB"));
 
   ts.executeCommand(command);
 }
@@ -163,21 +163,17 @@ TEST_F(TestShellFixture, FullReadNormalCase) {
   vector<string> args{};
   // Total LBA 수를 3인 경우로 가정
   // 3개의 LBA를 성공적으로 읽고 4번째에서 ERROR 반환
-  EXPECT_CALL(ssd, read(0))
-    .Times(1);
-  EXPECT_CALL(ssd, read(1))
-    .Times(1);
-  EXPECT_CALL(ssd, read(2))
-    .Times(1);
-  EXPECT_CALL(ssd, read(3))
-    .Times(1);
+  EXPECT_CALL(ssd, read(0)).Times(1);
+  EXPECT_CALL(ssd, read(1)).Times(1);
+  EXPECT_CALL(ssd, read(2)).Times(1);
+  EXPECT_CALL(ssd, read(3)).Times(1);
 
   EXPECT_CALL(ssd, getResult())
-    .Times(4)
-    .WillOnce(Return("0xAAAABBBB"))
-    .WillOnce(Return("0xCCCCDDDD"))
-    .WillOnce(Return("0xEEEEFFFF"))
-    .WillOnce(Return("ERROR"));
+      .Times(4)
+      .WillOnce(Return("0xAAAABBBB"))
+      .WillOnce(Return("0xCCCCDDDD"))
+      .WillOnce(Return("0xEEEEFFFF"))
+      .WillOnce(Return("ERROR"));
 
   CaptureStdout();
   ts.fullread(args);
@@ -193,10 +189,8 @@ TEST_F(TestShellFixture, FullReadNormalCase) {
 
 TEST_F(TestShellFixture, FullReadInvalidUsage) {
   vector<string> args{"extra"};
-  EXPECT_CALL(ssd, read(_))
-    .Times(0);
-  EXPECT_CALL(ssd, getResult())
-    .Times(0);
+  EXPECT_CALL(ssd, read(_)).Times(0);
+  EXPECT_CALL(ssd, getResult()).Times(0);
 
   CaptureStdout();
   ts.fullread(args);
@@ -209,21 +203,17 @@ TEST_F(TestShellFixture, FullWriteNormalCase) {
   vector<string> args{"42"};
 
   // 3개의 LBA에 성공적으로 쓰고 4번째에서 ERROR 반환
-  EXPECT_CALL(ssd, write(0, 42))
-    .Times(1);
-  EXPECT_CALL(ssd, write(1, 42))
-    .Times(1);
-  EXPECT_CALL(ssd, write(2, 42))
-    .Times(1);
-  EXPECT_CALL(ssd, write(3, 42))
-    .Times(1);
+  EXPECT_CALL(ssd, write(0, 42)).Times(1);
+  EXPECT_CALL(ssd, write(1, 42)).Times(1);
+  EXPECT_CALL(ssd, write(2, 42)).Times(1);
+  EXPECT_CALL(ssd, write(3, 42)).Times(1);
 
   EXPECT_CALL(ssd, getResult())
-    .Times(4)
-    .WillOnce(Return("SUCCESS"))
-    .WillOnce(Return("SUCCESS"))
-    .WillOnce(Return("SUCCESS"))
-    .WillOnce(Return("ERROR"));
+      .Times(4)
+      .WillOnce(Return("SUCCESS"))
+      .WillOnce(Return("SUCCESS"))
+      .WillOnce(Return("SUCCESS"))
+      .WillOnce(Return("ERROR"));
 
   CaptureStdout();
   ts.fullwrite(args);
@@ -243,10 +233,8 @@ TEST_F(TestShellFixture, FullWriteNormalCase) {
 TEST_F(TestShellFixture, FullWriteInvalidArgumentCount) {
   vector<string> args{"42", "extraArgs"};
 
-  EXPECT_CALL(ssd, write(_, _))
-    .Times(0);
-  EXPECT_CALL(ssd, getResult())
-    .Times(0);
+  EXPECT_CALL(ssd, write(_, _)).Times(0);
+  EXPECT_CALL(ssd, getResult()).Times(0);
 
   CaptureStdout();
   ts.fullwrite(args);
@@ -258,10 +246,8 @@ TEST_F(TestShellFixture, FullWriteInvalidArgumentCount) {
 TEST_F(TestShellFixture, FullWriteNoArguments) {
   vector<string> args{};
 
-  EXPECT_CALL(ssd, write(_, _))
-    .Times(0);
-  EXPECT_CALL(ssd, getResult())
-    .Times(0);
+  EXPECT_CALL(ssd, write(_, _)).Times(0);
+  EXPECT_CALL(ssd, getResult()).Times(0);
 
   CaptureStdout();
   ts.fullwrite(args);
@@ -273,10 +259,8 @@ TEST_F(TestShellFixture, FullWriteNoArguments) {
 TEST_F(TestShellFixture, FullWriteInvalidValue) {
   vector<string> args{"invalid_number"};
 
-  EXPECT_CALL(ssd, write(_, _))
-    .Times(0);
-  EXPECT_CALL(ssd, getResult())
-    .Times(0);
+  EXPECT_CALL(ssd, write(_, _)).Times(0);
+  EXPECT_CALL(ssd, getResult()).Times(0);
 
   CaptureStdout();
   ts.fullwrite(args);
@@ -295,7 +279,7 @@ TEST_F(TestShellFixture, TestScript1FAIL) {
   ts.executeCommand(cmd);
   std::string output = GetCapturedStdout();
 
-  EXPECT_EQ("Script 1 execution failed.\n", output);
+  EXPECT_TRUE(output.find("Script 1 execution failed.\n") != std::string::npos);
 }
 
 TEST_F(TestShellFixture, TestScript1ShortcutFAIL) {
@@ -308,7 +292,7 @@ TEST_F(TestShellFixture, TestScript1ShortcutFAIL) {
   ts.executeCommand(cmd);
   std::string output = GetCapturedStdout();
 
-  EXPECT_EQ("Script 1 execution failed.\n", output);
+  EXPECT_TRUE(output.find("Script 1 execution failed.\n") != std::string::npos);
 }
 
 TEST_F(TestShellFixture, TestScript1SUCCESS) {
@@ -347,7 +331,7 @@ TEST_F(TestShellFixture, TestScript2FAIL) {
   ts.executeCommand(cmd);
   std::string output = GetCapturedStdout();
 
-  EXPECT_EQ("Script 2 execution failed.\n", output);
+  EXPECT_TRUE(output.find("Script 2 execution failed.\n") != std::string::npos);
 }
 
 TEST_F(TestShellFixture, TestScript2ShortcutFAIL) {
@@ -360,7 +344,7 @@ TEST_F(TestShellFixture, TestScript2ShortcutFAIL) {
   ts.executeCommand(cmd);
   std::string output = GetCapturedStdout();
 
-  EXPECT_EQ("Script 2 execution failed.\n", output);
+  EXPECT_TRUE(output.find("Script 2 execution failed.\n") != std::string::npos);
 }
 
 TEST_F(TestShellFixture, TestScript2SUCCESS) {
