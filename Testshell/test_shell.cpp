@@ -83,8 +83,10 @@ public:
       bool isFailed = isScriptTwoExecutionSuccessful(command);
       if (isFailed)
         return;
-    } else if (cmd == "3_") {
-
+    } else if (cmd == "3_" || cmd == "3_WriteReadAging") {
+      bool isFailed = isScriptThreeExcutionSuccessful(command);
+      if (isFailed)
+        return;
     } else {
       cout << "INVALID COMMAND" << endl;
     }
@@ -118,18 +120,43 @@ public:
 
     for (int turn = 0; turn < 30; ++turn) {
       for (auto lba : lbaList) {
-        if (!checkPartialWriteSuccess(lba, valueStr))
+        unsigned long value = std::stoul(valueStr, nullptr, 16);
+        ssd->write(lba, value);
+        if (!checkWriteSuccess(lba, valueStr)) {
+          cout << "Script 2 execution failed." << endl;
           return false;
+        }
       }
     }
     cout << "Script 2 executed successfully." << endl;
     return true;
   }
 
-  bool checkPartialWriteSuccess(int lba, std::string &valueStr) {
-    ssd->write(lba, std::stoul(valueStr, nullptr, 16));
+  bool isScriptThreeExcutionSuccessful(const Command &command) {
+    string valueStr = command.args[0];
+    unsigned long value = std::stoul(valueStr, nullptr, 16);
+
+    for (int i = 0; i < 200; i++) {
+      ssd->write(0, value);
+      if (!checkWriteSuccess(0, valueStr)) {
+        cout << "Script 3 execution failed." << endl;
+        return false;
+      }
+
+      ssd->write(99, value);
+      if (!checkWriteSuccess(99, valueStr)) {
+        cout << "Script 3 execution failed." << endl;
+        return false;
+      }
+    }
+    cout << "Script 3 executed successfully." << endl;
+    return true;
+  }
+
+  bool checkWriteSuccess(int lba, const string &valueStr) {
+    ssd->read(lba);
+
     if (ssd->getResult() == "ERROR" || ssd->getResult() != valueStr) {
-      cout << "Script 2 execution failed." << endl;
       return false;
     }
     return true;
@@ -262,7 +289,8 @@ public:
       cout << "INVALID COMMAND\n";
       return;
     }
-    ssd->write(stoi(command.args[0]), stoul(command.args[1], nullptr, HEX_BASE));
+    ssd->write(stoi(command.args[0]),
+               stoul(command.args[1], nullptr, HEX_BASE));
     string result = ssd->getResult();
     if (result == "")
       result = "Done";

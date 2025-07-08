@@ -1,6 +1,8 @@
 #include "test_shell.cpp"
 #include "gmock/gmock.h"
 
+#include <random>
+
 // stdout 캡처/해제 함수
 using testing::internal::CaptureStdout;
 using testing::internal::GetCapturedStdout;
@@ -10,6 +12,22 @@ class TestShellFixture : public ::testing::Test {
 public:
   NiceMock<MockSSD> ssd;
   TestShell ts{&ssd};
+
+  unsigned long getRandomValue() {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<uint32_t> dist(0x00000000u, 0xFFFFFFFFu);
+    return dist(gen);
+  }
+
+  std::string convertHexToString(unsigned long value) {
+    char buf[11];
+    std::snprintf(buf, sizeof(buf), "0x%08lX", value);
+    return std::string{buf};
+  }
+
+  unsigned long randomValue = getRandomValue();
+  std::string randomValueStr = convertHexToString(randomValue);
 
   const string TEST_SCRIPT_1_FULLNAME = "1_FullWriteAndReadCompare";
   const string TEST_SCRIPT_1_SHORTCUT = "1_";
@@ -367,6 +385,60 @@ TEST_F(TestShellFixture, TestScript2ShortcutSUCCESS) {
   std::string output = GetCapturedStdout();
 
   EXPECT_EQ("Script 2 executed successfully.\n", output);
+}
+
+TEST_F(TestShellFixture, TestScript3FAIL) {
+  Command cmd{TEST_SCRIPT_3_FULLNAME, {randomValueStr}};
+
+  EXPECT_CALL(ssd, write(_, _)).Times(AtLeast(1));
+  EXPECT_CALL(ssd, read(_)).Times(AtLeast(1));
+
+  CaptureStdout();
+  ts.executeCommand(cmd);
+  std::string output = GetCapturedStdout();
+
+  EXPECT_TRUE(output.find("Script 3 execution failed.\n") != std::string::npos);
+}
+
+TEST_F(TestShellFixture, TestScript3ShortcutFAIL) {
+  Command cmd{TEST_SCRIPT_3_SHORTCUT, {randomValueStr}};
+
+  EXPECT_CALL(ssd, write(_, _)).Times(AtLeast(1));
+  EXPECT_CALL(ssd, read(_)).Times(AtLeast(1));
+
+  CaptureStdout();
+  ts.executeCommand(cmd);
+  std::string output = GetCapturedStdout();
+
+  EXPECT_TRUE(output.find("Script 3 execution failed.\n") != std::string::npos);
+}
+
+TEST_F(TestShellFixture, TestScript3SUCCESS) {
+  Command cmd{TEST_SCRIPT_3_FULLNAME, {randomValueStr}};
+
+  EXPECT_CALL(ssd, write(_, _)).Times(400);
+  EXPECT_CALL(ssd, read(_)).Times(400);
+  EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return(randomValueStr));
+
+  CaptureStdout();
+  ts.executeCommand(cmd);
+  std::string output = GetCapturedStdout();
+
+  EXPECT_EQ("Script 3 executed successfully.\n", output);
+}
+
+TEST_F(TestShellFixture, TestScript3ShortcutSUCCESS) {
+  Command cmd{TEST_SCRIPT_3_SHORTCUT, {randomValueStr}};
+
+  EXPECT_CALL(ssd, write(_, _)).Times(400);
+  EXPECT_CALL(ssd, read(_)).Times(400);
+  EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return(randomValueStr));
+
+  CaptureStdout();
+  ts.executeCommand(cmd);
+  std::string output = GetCapturedStdout();
+
+  EXPECT_EQ("Script 3 executed successfully.\n", output);
 }
 
 TEST_F(TestShellFixture, InvalidCommand) {
