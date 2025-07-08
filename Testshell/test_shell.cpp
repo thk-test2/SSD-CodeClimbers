@@ -12,7 +12,7 @@ using std::vector;
 class SSD_INTERFACE {
 public:
   virtual void read(int lba) = 0;
-  virtual void write(int lba, int value) = 0;
+  virtual void write(int lba, unsigned long value) = 0;
   virtual string getResult() = 0;
 };
 
@@ -20,7 +20,7 @@ public:
 class MockSSD : public SSD_INTERFACE {
 public:
   MOCK_METHOD(void, read, (int lba), (override));
-  MOCK_METHOD(void, write, (int lba, int value), (override));
+  MOCK_METHOD(void, write, (int lba, unsigned long value), (override));
   MOCK_METHOD(string, getResult, (), (override));
 };
 
@@ -67,9 +67,9 @@ public:
     } else if (command.command == "write") {
 
     } else if (command.command == "fullread") {
-
+      fullread(command.args);
     } else if (command.command == "fullwrite") {
-
+      
     } else if (command.command == "help") {
       help();
     } else if (command.command == "1_") {
@@ -86,6 +86,22 @@ public:
   Command parsing(const string &userInput) {
     return Command{userInput,
                    vector<string>()}; // Simplified parsing for demonstration
+  }
+
+  void fullread(vector<string> args) {
+    if (args.size() != 0) {
+      cout << "INVALID COMMAND\n";
+      return;
+    }
+    int lba = 0;
+    ssd->read(lba);
+    string result = ssd->getResult();
+    while (result != "ERROR") {
+      cout << "[Full Read] LBA: " << lba << " Result: " << result << endl;
+      lba++;
+      ssd->read(lba);
+      result = ssd->getResult();
+    }
   }
 
   void help() {
