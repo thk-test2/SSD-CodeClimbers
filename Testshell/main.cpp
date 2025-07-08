@@ -12,21 +12,6 @@ public:
   TestShell ts{&ssd};
 };
 
-
-TEST(SampleTest, HandlesTrue) {
-  EXPECT_TRUE(true);
-}
-
-TEST_F(TestShellFixture, InvalidCommand) {
-  Command cmd{"INVALID"};
-  
-  CaptureStdout();
-  ts.executeCommand(cmd);
-  std::string output = GetCapturedStdout();
-
-  EXPECT_EQ("INVALID COMMAND\n", output);
-}
-
 TEST_F(TestShellFixture, ReadNormalCase) {
   Command command{"read", vector<string>{"0"}};
 
@@ -70,6 +55,60 @@ TEST_F(TestShellFixture, ReadLbaOverThanMaxOfInt) {
   EXPECT_CALL(ssd, getResult()).Times(0);
 
   ts.executeCommand(command);
+}
+
+TEST(TestShell, TestScript1FAIL) {
+  TestShell ts;
+  Command cmd{"1_FullWriteAndReadCompare"};
+
+  CaptureStdout();
+  ts.executeCommand(cmd);
+  std::string output = GetCapturedStdout();
+
+  EXPECT_EQ("Script 1 execution failed.", output);
+}
+
+TEST(TestShell, TestScript1SUCCESS) {
+  TestShell ts;
+  Command cmd{"1_FullWriteAndReadCompare"};
+
+  CaptureStdout();
+  ts.executeCommand(cmd);
+  std::string output = GetCapturedStdout();
+
+  EXPECT_EQ("Script 1 executed successfully.", output);
+}
+
+TEST(TestShell, TestScript1ShortcutFAIL) {
+  TestShell ts;
+  Command cmd{"1_"};
+
+  CaptureStdout();
+  ts.executeCommand(cmd);
+  std::string output = GetCapturedStdout();
+
+  EXPECT_EQ("Script 1 execution failed.", output);
+}
+
+TEST(TestShell, TestScript1ShortcutSUCCESS) {
+  TestShell ts;
+  Command cmd{"1_"};
+
+  CaptureStdout();
+  ts.executeCommand(cmd);
+  std::string output = GetCapturedStdout();
+
+  EXPECT_EQ("Script 1 executed successfully.", output);
+}
+
+TEST_F(TestShellFixture, InvalidCommand) {
+  Command cmd{"INVALID"};
+
+  CaptureStdout();
+  ts.executeCommand(cmd);
+  std::string output = GetCapturedStdout();
+
+  EXPECT_EQ("INVALID COMMAND\n", output);
 }
 
 int main() {
