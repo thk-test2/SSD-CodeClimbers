@@ -125,7 +125,7 @@ public:
   }
 
   void printTestScripts() {
-    cout << "\n\033[1mTest Scripts:\033[0m\n";
+    cout << "\033[1mTest Scripts:\033[0m\n";
     printCommandInfo("1_FullWriteAndReadCompare", "",
                      "Run comprehensive write/read test for entire SSD",
                      "'1_' or '1_FullWriteAndReadCompare'");
