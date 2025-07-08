@@ -65,7 +65,7 @@ public:
     if (command.command == "read") {
       read(command);
     } else if (command.command == "write") {
-
+      write(command);
     } else if (command.command == "fullread") {
       fullread(command.args);
     } else if (command.command == "fullwrite") {
@@ -182,6 +182,38 @@ public:
     }
     cout << "\n    Description: " << description << "\n"
          << "    Example: " << example << "\n\n";
+  }
+
+  void write(const Command &command) {
+    if (!isValidWriteUsage(command)) {
+      cout << "INVALID COMMAND\n";
+      return;
+    }
+    ssd->write(stoi(command.args[0]), stringToUnsignedLong(command.args[1]));
+    string result = ssd->getResult();
+    if (result == "")
+      result = "Done";
+    cout << "[Write] " << result << "\n";
+  }
+
+  bool isValidWriteUsage(const Command &command) {
+    if (command.args.size() != 2)
+      return false;
+    try {
+      int lba = stoi(command.args[0]);
+      unsigned long value = stringToUnsignedLong(command.args[1]);
+    } catch (std::exception &e) {
+      return false;
+    }
+    return true;
+  }
+
+  unsigned long stringToUnsignedLong(const string &str) {
+    if (str.substr(0, 2) == "0x") {
+      return stoul(str.substr(2), nullptr, 16);
+    } else {
+      return stoul(str);
+    }
   }
 
   void read(const Command &command) {
