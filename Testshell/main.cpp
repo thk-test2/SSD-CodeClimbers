@@ -65,7 +65,7 @@ TEST(TestShell, TestScript1FAIL) {
   ts.executeCommand(cmd);
   std::string output = GetCapturedStdout();
 
-  EXPECT_EQ("Script 1 execution failed.", output);
+  EXPECT_EQ("Script 1 execution failed.\n", output);
 }
 
 TEST(TestShell, TestScript1SUCCESS) {
@@ -76,7 +76,7 @@ TEST(TestShell, TestScript1SUCCESS) {
   ts.executeCommand(cmd);
   std::string output = GetCapturedStdout();
 
-  EXPECT_EQ("Script 1 executed successfully.", output);
+  EXPECT_EQ("Script 1 executed successfully.\n", output);
 }
 
 TEST(TestShell, TestScript1ShortcutFAIL) {
@@ -87,7 +87,7 @@ TEST(TestShell, TestScript1ShortcutFAIL) {
   ts.executeCommand(cmd);
   std::string output = GetCapturedStdout();
 
-  EXPECT_EQ("Script 1 execution failed.", output);
+  EXPECT_EQ("Script 1 execution failed.\n", output);
 }
 
 TEST(TestShell, TestScript1ShortcutSUCCESS) {
@@ -98,7 +98,7 @@ TEST(TestShell, TestScript1ShortcutSUCCESS) {
   ts.executeCommand(cmd);
   std::string output = GetCapturedStdout();
 
-  EXPECT_EQ("Script 1 executed successfully.", output);
+  EXPECT_EQ("Script 1 executed successfully.\n", output);
 }
 
 TEST_F(TestShellFixture, InvalidCommand) {

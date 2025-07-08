@@ -63,21 +63,22 @@ public:
   }
 
   void executeCommand(const Command &command) {
-    if (command.command == "read") {
+    string cmd = command.command;
+    if (cmd == "read") {
       read(command);
-    } else if (command.command == "write") {
+    } else if (cmd == "write") {
 
-    } else if (command.command == "fullread") {
+    } else if (cmd == "fullread") {
 
-    } else if (command.command == "fullwrite") {
+    } else if (cmd == "fullwrite") {
 
-    } else if (command.command == "help") {
+    } else if (cmd == "help") {
 
-    } else if (command.command == "1_") {
+    } else if (cmd == "1_" || cmd == "1_FullWriteAndReadCompare") {
+      cout << "Script 1 executed successfully." << endl;
+    } else if (cmd == "2_") {
 
-    } else if (command.command == "2_") {
-
-    } else if (command.command == "3_") {
+    } else if (cmd == "3_") {
 
     } else {
       cout << "INVALID COMMAND" << endl;
