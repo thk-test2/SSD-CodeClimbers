@@ -9,6 +9,10 @@ using std::endl;
 using std::string;
 using std::vector;
 
+struct ShellExit : public std::exception {
+  const char *what() const noexcept override { return "Shell exited."; }
+};
+
 class SSD_INTERFACE {
 public:
   virtual void read(int lba) = 0;
@@ -43,6 +47,8 @@ private:
   SSD_INTERFACE *ssd;
   Command command;
 
+  const int HEX_BASE = 16;
+
 public:
   TestShell() : ctrl(new StdInOutCtrl()), parser(new ArgParser()) {}
   TestShell(SSD_INTERFACE *_ssd)
@@ -67,6 +73,8 @@ public:
       read(command);
     } else if (cmd == "write") {
       write(command);
+    } else if (cmd == "exit") {
+      exitTestShell(command);
     } else if (cmd == "fullread") {
       fullread(command.args);
     } else if (cmd == "fullwrite") {
@@ -74,10 +82,13 @@ public:
     } else if (cmd == "help") {
       help();
     } else if (cmd == "1_" || cmd == "1_FullWriteAndReadCompare") {
-      bool isFailed = executeScriptOne(command);
-      if (isFailed) return;
-    } else if (cmd == "2_") {
-
+      bool isFailed = isScriptOneExecutionSuccessful(command);
+      if (isFailed)
+        return;
+    } else if (cmd == "2_" || cmd == "2_PartialLBAWrite") {
+      bool isFailed = isScriptTwoExecutionSuccessful(command);
+      if (isFailed)
+        return;
     } else if (cmd == "3_") {
 
     } else {
@@ -85,9 +96,9 @@ public:
     }
   }
 
-  bool executeScriptOne(const Command &command) {
+  bool isScriptOneExecutionSuccessful(const Command &command) {
     string valueStr = command.args[0];
-    unsigned long value = std::stoul(valueStr, nullptr, 16);
+    unsigned long value = std::stoul(valueStr, nullptr, HEX_BASE);
 
     for (int lba = 0; lba < 100; lba += 4) {
       for (int i = 0; i < 4; i++) {
@@ -107,9 +118,51 @@ public:
     return false;
   }
 
+  bool isScriptTwoExecutionSuccessful(const Command &command) {
+    string valueStr = command.args[0];
+    vector<int> lbaList{4, 0, 3, 1, 2};
+
+    for (int turn = 0; turn < 30; ++turn) {
+      for (auto lba : lbaList) {
+        if (!checkPartialWriteSuccess(lba, valueStr))
+          return false;
+      }
+    }
+    cout << "Script 2 executed successfully." << endl;
+    return true;
+  }
+
+  bool checkPartialWriteSuccess(int lba, std::string &valueStr) {
+    ssd->write(lba, std::stoul(valueStr, nullptr, 16));
+    if (ssd->getResult() == "ERROR" || ssd->getResult() != valueStr) {
+      cout << "Script 2 execution failed." << endl;
+      return false;
+    }
+    return true;
+  }
+
+  // Split the userInput string into command and arguments
+  // first word is the command, rest are arguments
   Command parsing(const string &userInput) {
-    return Command{userInput,
-                   vector<string>()}; // Simplified parsing for demonstration
+    std::istringstream iss(userInput);
+    string cmd;
+    vector<string> args;
+    if (iss >> cmd) {
+      string arg;
+      while (iss >> arg) {
+        args.push_back(arg);
+      }
+    }
+    return Command{cmd, args};
+  }
+
+  void exitTestShell(const Command &command) {
+    if (command.args.size() != 0) {
+      cout << "INVALID COMMAND\n";
+      return;
+    }
+    cout << "Exiting shell..." << endl;
+    throw ShellExit();
   }
 
   void fullread(vector<string> args) {
@@ -135,17 +188,19 @@ public:
     }
     unsigned long value;
     try {
-      value = stoul(args[0]);
+      value = stoul(args[0], nullptr, HEX_BASE);
     } catch (std::exception &e) {
       cout << "INVALID COMMAND\n";
       return;
     }
     int lba = 0;
+    string result = ssd->getResult();
     ssd->write(lba, value);
-    while (ssd->getResult() != "ERROR") {
-      cout << "[Full Write] LBA: " << lba << " Value: " << value << endl;
+    while (result != "ERROR") {
+      cout << "[Full Write] LBA: " << lba << " Done" << endl;
       lba++;
       ssd->write(lba, value);
+      result = ssd->getResult();
     }
   }
 
@@ -213,7 +268,7 @@ public:
       cout << "INVALID COMMAND\n";
       return;
     }
-    ssd->write(stoi(command.args[0]), stringToUnsignedLong(command.args[1]));
+    ssd->write(stoi(command.args[0]), stoul(command.args[1], nullptr, HEX_BASE));
     string result = ssd->getResult();
     if (result == "")
       result = "Done";
@@ -225,19 +280,11 @@ public:
       return false;
     try {
       int lba = stoi(command.args[0]);
-      unsigned long value = stringToUnsignedLong(command.args[1]);
+      unsigned long value = stoul(command.args[1], nullptr, HEX_BASE);
     } catch (std::exception &e) {
       return false;
     }
     return true;
-  }
-
-  unsigned long stringToUnsignedLong(const string &str) {
-    if (str.substr(0, 2) == "0x") {
-      return stoul(str.substr(2), nullptr, 16);
-    } else {
-      return stoul(str);
-    }
   }
 
   void read(const Command &command) {
