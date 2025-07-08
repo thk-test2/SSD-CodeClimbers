@@ -5,7 +5,7 @@ using namespace testing;
 
 class MockSSD : public Device {
 public:
-  MOCK_METHOD(bool, write, (int, unsigned int), (override));
+  MOCK_METHOD(bool, write, (int, unsigned long), (override));
   MOCK_METHOD(bool, read, (int), (override));
   MOCK_METHOD(void, run, (int, char *[]), (override));
 };

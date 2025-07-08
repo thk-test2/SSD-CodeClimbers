@@ -9,6 +9,7 @@ using std::vector;
 class SSDDriver : public Device {
 public:
   void run(int argc, char *argv[]) {
+    bool result = false;
     if (argc < 3)
       std::exception();
     if (argv[0] != "ssd.exe")
@@ -18,10 +19,12 @@ public:
 
     string command = params[1];
     int lba = std::stoi(params[2]);
-    int value = std::stoul(params[3]);
+    unsigned long value = std::stoul(params[3]);
 
     if (command == "W") {
+      result = write(lba, value);
     } else if (command == "R") {
+      result = read(lba);
     } else {
       std::exception();
     }
@@ -41,7 +44,7 @@ public:
     else
       return true;
   }
-  bool write(int lba, unsigned int value) override {
+  bool write(int lba, unsigned long value) override {
     if (lba < 0 || lba > 100)
       return false;
     else
