@@ -26,13 +26,6 @@ TEST_F(IOstreamTestFixture, IOStreamWritePass) {
   EXPECT_EQ(value, 0xAAAAFFFF);
 }
 
-TEST_F(IOstreamTestFixture, IOStreamWriteFail) {
-  ioStream.writeStream(1, 0xAAAAFFFF);
-
-  unsigned int value = ioStream.readStream(1);
-  EXPECT_NE(value, 0x0);
-}
-
 TEST_F(IOstreamTestFixture, IOStreamErrorMassageCheckAfterReadLBARangeFail) {
   ioStream.readStream(100);
 

@@ -46,32 +46,25 @@ void IoStream::loadNandFile() {
   if (!ifs) {
     isValid_nand_file = false;
     cout << "[DEBUG] nand_file_is_invalid: " << nand_file_name << "\n";
-  } else {
-    cout << "[DEBUG] nand_file_is_valid: " << nand_file_name << "\n";
+    return;
   }
 
   int idx = 0;
   string hexVal;
 
-  if (isValid_nand_file) {
-    while (ifs >> idx >> hexVal) {
+  while (ifs >> idx >> hexVal) {
 
-      if (idx < 0 || idx >= MAX_NAND_MEMORY_MAP_SIZE) {
-        cout << "[DEBUG] Skipped invalid idx=" << idx << "\n";
-        continue;
-      }
-
-      try {
-        nandMemoryMap.value[idx] = stoul(hexVal, nullptr, 16);
-      } catch (const std::exception &e) {
-        cout << "[DEBUG] Error parsing hexVal at idx=" << idx << ": "
-             << e.what() << "\n";
-        nandMemoryMap.value[idx] = 0;
-      }
+    if (idx < 0 || idx >= MAX_NAND_MEMORY_MAP_SIZE) {
+      cout << "[DEBUG] Skipped invalid idx=" << idx << "\n";
+      continue;
     }
-  } else {
-    for (int i = 0; i < MAX_NAND_MEMORY_MAP_SIZE; ++i) {
-      nandMemoryMap.value[i] = 0;
+
+    try {
+      nandMemoryMap.value[idx] = stoul(hexVal, nullptr, 16);
+    } catch (const std::exception &e) {
+      cout << "[DEBUG] Error parsing hexVal at idx=" << idx << ": " << e.what()
+           << "\n";
+      nandMemoryMap.value[idx] = 0;
     }
   }
 }
