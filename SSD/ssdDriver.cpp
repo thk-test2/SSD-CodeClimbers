@@ -6,7 +6,7 @@
 using std::vector;
 using std::string;
 
-class SSDDriver : public Device{
+class SSDDriver : public Device {
 public:
     void run(int argc, char* argv[]) {
         if (argc < 3) std::exception();
@@ -35,16 +35,16 @@ public:
         return params;
     }
 
-  bool read(int lba) override {
-    if (lba < 0 || lba > 100)
-      return false;
-    else
-      return true;
-  }
-  bool write(int lba, unsigned int value) override {
-    if (lba < 0 || lba > 100)
-      return false;
-    else
-      return true;
-  }
+    bool read(int lba) override {
+        if (lba < 0 || lba > 100)
+            return false;
+        else
+            return true;
+    }
+    bool write(int lba, unsigned int value) override {
+        if (lba < 0 || lba > 100)
+            return false;
+        else
+            return true;
+    }
 };
