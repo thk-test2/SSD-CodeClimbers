@@ -57,9 +57,11 @@ TEST_F(TestShellFixture, ReadLbaOverThanMaxOfInt) {
   ts.executeCommand(command);
 }
 
-TEST(TestShell, TestScript1FAIL) {
-  TestShell ts;
-  Command cmd{"1_FullWriteAndReadCompare"};
+TEST_F(TestShellFixture, TestScript1FAIL) {
+  Command cmd{"1_FullWriteAndReadCompare", {"0xAAAABBBB"}};
+
+  EXPECT_CALL(ssd, write(_, 0xAAAABBBB)).Times(AtLeast(1));
+  EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return("0xFFFFFFFF"));
 
   CaptureStdout();
   ts.executeCommand(cmd);
@@ -68,9 +70,24 @@ TEST(TestShell, TestScript1FAIL) {
   EXPECT_EQ("Script 1 execution failed.\n", output);
 }
 
-TEST(TestShell, TestScript1SUCCESS) {
-  TestShell ts;
-  Command cmd{"1_FullWriteAndReadCompare"};
+TEST_F(TestShellFixture, TestScript1ShortcutFAIL) {
+  Command cmd{"1_", {"0xAAAABBBB"}};
+
+  EXPECT_CALL(ssd, write(_, 0xAAAABBBB)).Times(AtLeast(1));
+  EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return("0xFFFFFFFF"));
+
+  CaptureStdout();
+  ts.executeCommand(cmd);
+  std::string output = GetCapturedStdout();
+
+  EXPECT_EQ("Script 1 execution failed.\n", output);
+}
+
+TEST_F(TestShellFixture, TestScript1SUCCESS) {
+  Command cmd{"1_FullWriteAndReadCompare", {"0xAAAABBBB"}};
+
+  EXPECT_CALL(ssd, write(_, 0xAAAABBBB)).Times(100);
+  EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return("0xAAAABBBB"));
 
   CaptureStdout();
   ts.executeCommand(cmd);
@@ -79,20 +96,11 @@ TEST(TestShell, TestScript1SUCCESS) {
   EXPECT_EQ("Script 1 executed successfully.\n", output);
 }
 
-TEST(TestShell, TestScript1ShortcutFAIL) {
-  TestShell ts;
-  Command cmd{"1_"};
+TEST_F(TestShellFixture, TestScript1ShortcutSUCCESS) {
+  Command cmd{"1_", {"0xAAAABBBB"}};
 
-  CaptureStdout();
-  ts.executeCommand(cmd);
-  std::string output = GetCapturedStdout();
-
-  EXPECT_EQ("Script 1 execution failed.\n", output);
-}
-
-TEST(TestShell, TestScript1ShortcutSUCCESS) {
-  TestShell ts;
-  Command cmd{"1_"};
+  EXPECT_CALL(ssd, write(_, 0xAAAABBBB)).Times(100);
+  EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return("0xAAAABBBB"));
 
   CaptureStdout();
   ts.executeCommand(cmd);

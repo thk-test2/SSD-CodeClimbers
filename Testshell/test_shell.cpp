@@ -12,7 +12,7 @@ using std::vector;
 class SSD_INTERFACE {
 public:
   virtual void read(int lba) = 0;
-  virtual void write(int lba, int value) = 0;
+  virtual void write(int lba, unsigned long value) = 0;
   virtual string getResult() = 0;
 };
 
@@ -20,7 +20,7 @@ public:
 class MockSSD : public SSD_INTERFACE {
 public:
   MOCK_METHOD(void, read, (int lba), (override));
-  MOCK_METHOD(void, write, (int lba, int value), (override));
+  MOCK_METHOD(void, write, (int lba, unsigned long value), (override));
   MOCK_METHOD(string, getResult, (), (override));
 };
 
@@ -75,7 +75,8 @@ public:
     } else if (cmd == "help") {
 
     } else if (cmd == "1_" || cmd == "1_FullWriteAndReadCompare") {
-      cout << "Script 1 executed successfully." << endl;
+      bool isFailed = executeScriptOne(command);
+      if (isFailed) return;
     } else if (cmd == "2_") {
 
     } else if (cmd == "3_") {
@@ -83,6 +84,27 @@ public:
     } else {
       cout << "INVALID COMMAND" << endl;
     }
+  }
+
+  bool executeScriptOne(const Command &command) {
+    string valueStr = command.args[0];
+    unsigned long value = std::stoul(valueStr, nullptr, 16);
+
+    for (int lba = 0; lba < 100; lba += 4) {
+      for (int i = 0; i < 4; i++) {
+        ssd->write(lba + i, value);
+      }
+
+      for (int i = 0; i < 4; i++) {
+        string result = ssd->getResult();
+        if (result != valueStr) {
+          cout << "Script 1 execution failed." << endl;
+          return true;
+        }
+      }
+    }
+    cout << "Script 1 executed successfully." << endl;
+    return false;
   }
 
   Command parsing(const string &userInput) {
