@@ -1,11 +1,11 @@
 #pragma once
-#include "ssd_buffer.h"
+#include "ssd_cmd_buffer.h"
 #include <vector>
 #include <string>
 
-class BufferControl {
+class CmdBufferControl {
 public:
-  static BufferControl &getInstance();
+  static CmdBufferControl &getInstance();
 
   std::string getBufferNameList() const;
   bool updateToNextEmpty(const std::string &cmd);
@@ -18,10 +18,10 @@ public:
   const int MAX_BUFFER_SIZE = 5;
 
 private:
-  BufferControl(); // 생성자에서 bufferPath 설정
-  BufferControl(const BufferControl &) = delete;
-  BufferControl &operator=(const BufferControl &) = delete;
+  CmdBufferControl(); // 생성자에서 bufferPath 설정
+  CmdBufferControl(const CmdBufferControl &) = delete;
+  CmdBufferControl &operator=(const CmdBufferControl &) = delete;
 
-  std::vector<Buffer> buffers;
+  std::vector<CmdBuffer> cmdBuffer;
   std::string bufferPath = "./buffer";
 };

@@ -1,9 +1,9 @@
 #pragma once
 #include <string>
 
-class Buffer {
+class CmdBuffer {
 public:
-  Buffer(const std::string &path);
+  CmdBuffer(const std::string &path);
 
   std::string getName() const;
   void updateCommand(const std::string &cmd);
