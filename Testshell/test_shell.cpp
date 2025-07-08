@@ -50,7 +50,6 @@ public:
 
   void run() {
     string userInput;
-    cout << "SSD Test Shell - Type 'help' for userInputs" << endl;
     while (true) {
       cout << "> ";
       getline(std::cin, userInput);
@@ -72,7 +71,7 @@ public:
     } else if (command.command == "fullwrite") {
 
     } else if (command.command == "help") {
-
+      help();
     } else if (command.command == "1_") {
 
     } else if (command.command == "2_") {
@@ -87,6 +86,65 @@ public:
   Command parsing(const string &userInput) {
     return Command{userInput,
                    vector<string>()}; // Simplified parsing for demonstration
+  }
+
+  void help() {
+    printHeader();
+    printTeamInfo();
+    printCommands();
+    printTestScripts();
+  }
+
+  void printHeader() {
+    cout << "\033[1;36m"
+         << "SSD Test Shell - Simple and Powerful SSD Testing Tool\n"
+         << "\033[0m";
+  }
+
+  void printTeamInfo() {
+    cout << "\n\033[1mTeam: CodeClimbers\n\033[0m";
+    cout << "\n\033[1mTeam Members:\033[0m\n"
+         << "  Taehyun Kyong, Sunghwan Kim, Hyeonseok Sim\n"
+         << "  Yerim Yun, Hoenhwi Jeong, Jeseong Kim\n"
+
+         << "  Repository: https://github.com/thk-test2/SSD-CodeClimbers\n";
+  }
+
+  void printCommands() {
+    cout << "\n\033[1mCommands:\033[0m\n";
+    printCommandInfo("read", "<lba>",
+                     "Read from SSD at logical block address <lba>", "read 10");
+    printCommandInfo("write", "<lba> <value>",
+                     "Write <value> to SSD at logical block address <lba>",
+                     "write 5 0xFF");
+    printCommandInfo("fullread", "", "Read the entire SSD", "fullread");
+    printCommandInfo("fullwrite", "<value>", "Write <value> to the entire SSD",
+                     "fullwrite 0x00");
+    printCommandInfo("help", "", "Show this help message", "help");
+    printCommandInfo("exit", "", "Exit the shell", "exit");
+  }
+
+  void printTestScripts() {
+    cout << "\033[1mTest Scripts:\033[0m\n";
+    printCommandInfo("1_FullWriteAndReadCompare", "",
+                     "Run comprehensive write/read test for entire SSD",
+                     "'1_' or '1_FullWriteAndReadCompare'");
+    printCommandInfo("2_PartialLBAWrite", "",
+                     "Run partial LBA write consistency test (30 iterations)",
+                     "'2_' or '2_PartialLBAWrite'");
+    printCommandInfo("3_WriteReadAging", "",
+                     "Run write/read aging test (200 iterations)",
+                     "'3_' or '3_WriteReadAging'");
+  }
+
+  void printCommandInfo(const string &command, const string &args,
+                        const string &description, const string &example) {
+    cout << "  \033[1m" << command << "\033[0m";
+    if (!args.empty()) {
+      cout << " " << args;
+    }
+    cout << "\n    Description: " << description << "\n"
+         << "    Example: " << example << "\n\n";
   }
 
   void read(const Command &command) {
