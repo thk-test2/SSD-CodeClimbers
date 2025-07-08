@@ -7,6 +7,7 @@ class MockSSD : public Device {
 public:
   MOCK_METHOD(bool, write, (int, unsigned int), (override));
   MOCK_METHOD(bool, read, (int), (override));
+  MOCK_METHOD(void, run, (int, char*[]), (override));
 };
 
 TEST(SSD_TS, ReadPass) {
@@ -35,6 +36,19 @@ TEST(SSD_TS, WriteFailOutOfRange) {
   EXPECT_CALL(ssdDriver, write(AnyOf(Lt(0), Ge(100)),_))
       .WillRepeatedly(Return(false));
   EXPECT_FALSE(ssdDriver.write(200, 0x12345678));
+}
+
+TEST(SSD_TS, Run) {
+    MockSSD ssdDriver;
+    int argc = 3;
+    char* argv[3];
+    argv[0] = const_cast<char*>("ssd.exe");
+    argv[1] = const_cast<char*>("R");
+    argv[2] = const_cast<char*>("10");
+
+    EXPECT_CALL(ssdDriver, run(argc, argv))
+        .Times(1);
+    ssdDriver.run(argc, argv);
 }
 
 TEST(SSD_TS, RunInvalidParam1) {
