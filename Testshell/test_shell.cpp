@@ -211,12 +211,6 @@ public:
     printTestScripts();
   }
 
-  string getHexNumberString(unsigned long value) {
-    char buffer[20];
-    snprintf(buffer, sizeof(buffer), "0x%lX", value);
-    return string(buffer);
-  }
-
   void printHeader() {
     cout << "\033[1;36m"
          << "SSD Test Shell - Simple and Powerful SSD Testing Tool\n"
