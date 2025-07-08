@@ -56,7 +56,7 @@ private:
   string lastResult;
   const string SSD_EXE_NAME = "ssd.exe";
   const string SSD_OUTPUT_FILE = "ssd_output.txt";
-  const string ERROR_MSG = ERROR_MSG;
+  const string ERROR_MSG = "ERROR";
 
   // 현재 디렉토리 기준 ../../../SSD/x64/Release 를 절대경로로 변환
   string getSSDExePath() {
