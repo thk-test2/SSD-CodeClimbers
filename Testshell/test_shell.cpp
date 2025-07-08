@@ -99,6 +99,7 @@ public:
     printHeader();
     printTeamInfo();
     printCommands();
+    printTestScripts();
   }
 
   void printHeader() {
@@ -110,7 +111,7 @@ public:
   void printTeamInfo() {
     cout << "\n\033[1mTeam: CodeClimbers\n\033[0m";
     cout << "\n\033[1mTeam Members:\033[0m\n"
-         << "  Taehyeon Kyung, Sunghwan Kim, Hyeonseok Sim\n"
+         << "  Taehyun Kyong, Sunghwan Kim, Hyeonseok Sim\n"
          << "  Yerim Yun, Hoenhwi Jeong, Jeseong Kim\n"
 
          << "  Repository: https://github.com/thk-test2/SSD-CodeClimbers\n";
@@ -128,6 +129,19 @@ public:
                      "fullwrite 0x00");
     printCommandInfo("help", "", "Show this help message", "help");
     printCommandInfo("exit", "", "Exit the shell", "exit");
+  }
+
+  void printTestScripts() {
+    cout << "\n\033[1mTest Scripts:\033[0m\n";
+    printCommandInfo("1_FullWriteAndReadCompare", "",
+                     "Run comprehensive write/read test for entire SSD",
+                     "'1_' or '1_FullWriteAndReadCompare'");
+    printCommandInfo("2_PartialLBAWrite", "",
+                     "Run partial LBA write consistency test (30 iterations)",
+                     "'2_' or '2_PartialLBAWrite'");
+    printCommandInfo("3_WriteReadAging", "",
+                     "Run write/read aging test (200 iterations)",
+                     "'3_' or '3_WriteReadAging'");
   }
 
   void printCommandInfo(const string &command, const string &args,

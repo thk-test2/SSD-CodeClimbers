@@ -36,6 +36,19 @@ TEST_F(TestShellHelpTest, DisplaysCorrectHeader) {
       std::string::npos);
 }
 
+TEST_F(TestShellHelpTest, DisplaysTeamMembers) {
+  CallHelp();
+  std::string output = GetCapturedOutput();
+
+  EXPECT_TRUE(output.find("Team Members:") != std::string::npos);
+  EXPECT_TRUE(output.find("Taehyun Kyong") != std::string::npos);
+  EXPECT_TRUE(output.find("Sunghwan Kim") != std::string::npos);
+  EXPECT_TRUE(output.find("Hyeonseok Sim") != std::string::npos);
+  EXPECT_TRUE(output.find("Yerim Yun") != std::string::npos);
+  EXPECT_TRUE(output.find("Hoenhwi Jeong") != std::string::npos);
+  EXPECT_TRUE(output.find("Jeseong Kim") != std::string::npos);
+}
+
 TEST_F(TestShellHelpTest, DisplaysCommandsSection) {
   CallHelp();
   std::string output = GetCapturedOutput();
@@ -61,17 +74,14 @@ TEST_F(TestShellHelpTest, DisplaysCommandsSection) {
   EXPECT_TRUE(output.find("Exit the shell") != std::string::npos);
 }
 
-TEST_F(TestShellHelpTest, DisplaysTeamMembers) {
+TEST_F(TestShellHelpTest, DisplayTestScriptsSection) {
   CallHelp();
   std::string output = GetCapturedOutput();
 
-  EXPECT_TRUE(output.find("Team Members:") != std::string::npos);
-  EXPECT_TRUE(output.find("Taehyeon Kyung") != std::string::npos);
-  EXPECT_TRUE(output.find("Sunghwan Kim") != std::string::npos);
-  EXPECT_TRUE(output.find("Hyeonseok Sim") != std::string::npos);
-  EXPECT_TRUE(output.find("Yerim Yun") != std::string::npos);
-  EXPECT_TRUE(output.find("Hoenhwi Jeong") != std::string::npos);
-  EXPECT_TRUE(output.find("Jeseong Kim") != std::string::npos);
+  EXPECT_TRUE(output.find("Test Scripts:") != std::string::npos);
+  EXPECT_TRUE(output.find("1_FullWriteAndReadCompare") != std::string::npos);
+  EXPECT_TRUE(output.find("2_PartialLBAWrite") != std::string::npos);
+  EXPECT_TRUE(output.find("3_WriteReadAging") != std::string::npos);
 }
 
 TEST(TestShell, InvalidCommand) {
