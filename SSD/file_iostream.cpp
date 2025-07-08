@@ -1,4 +1,4 @@
-#include "fileIOStream.h"
+#include "file_iostream.h"
 
 void IoStream::writeError() {
   ofstream ofs(output_file_name);
