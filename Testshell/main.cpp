@@ -335,6 +335,58 @@ TEST_F(TestShellFixture, TestScript1ShortcutSUCCESS) {
   EXPECT_EQ("Script 1 executed successfully.\n", output);
 }
 
+TEST_F(TestShellFixture, TestScript2FAIL) {
+  Command cmd{"2_PartialLBAWrite", {"0xAAAABBBB"}};
+
+  EXPECT_CALL(ssd, write(_, 0xAAAABBBB)).Times(AtLeast(1));
+  EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return("0xFFFFFFFF"));
+
+  CaptureStdout();
+  ts.executeCommand(cmd);
+  std::string output = GetCapturedStdout();
+
+  EXPECT_EQ("Script 2 execution failed.\n", output);
+}
+
+TEST_F(TestShellFixture, TestScript2ShortcutFAIL) {
+  Command cmd{"2_", {"0xAAAABBBB"}};
+
+  EXPECT_CALL(ssd, write(_, 0xAAAABBBB)).Times(AtLeast(1));
+  EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return("0xFFFFFFFF"));
+
+  CaptureStdout();
+  ts.executeCommand(cmd);
+  std::string output = GetCapturedStdout();
+
+  EXPECT_EQ("Script 2 execution failed.\n", output);
+}
+
+TEST_F(TestShellFixture, TestScript2SUCCESS) {
+  Command cmd{"2_PartialLBAWrite", {"0xAAAABBBB"}};
+
+  EXPECT_CALL(ssd, write(_, 0xAAAABBBB)).Times(150);
+  EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return("0xAAAABBBB"));
+
+  CaptureStdout();
+  ts.executeCommand(cmd);
+  std::string output = GetCapturedStdout();
+
+  EXPECT_EQ("Script 2 executed successfully.\n", output);
+}
+
+TEST_F(TestShellFixture, TestScript2ShortcutSUCCESS) {
+  Command cmd{"2_", {"0xAAAABBBB"}};
+
+  EXPECT_CALL(ssd, write(_, 0xAAAABBBB)).Times(150);
+  EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return("0xAAAABBBB"));
+
+  CaptureStdout();
+  ts.executeCommand(cmd);
+  std::string output = GetCapturedStdout();
+
+  EXPECT_EQ("Script 2 executed successfully.\n", output);
+}
+
 TEST_F(TestShellFixture, InvalidCommand) {
   Command cmd{"INVALID"};
 
