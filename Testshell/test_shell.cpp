@@ -75,9 +75,12 @@ public:
       help();
     } else if (cmd == "1_" || cmd == "1_FullWriteAndReadCompare") {
       bool isFailed = executeScriptOne(command);
-      if (isFailed) return;
-    } else if (cmd == "2_") {
-
+      if (isFailed)
+        return;
+    } else if (cmd == "2_" || cmd == "2_PartialLBAWrite") {
+      bool isFailed = executeScriptTwo(command);
+      if (isFailed)
+        return;
     } else if (cmd == "3_") {
 
     } else {
@@ -104,6 +107,30 @@ public:
       }
     }
     cout << "Script 1 executed successfully." << endl;
+    return false;
+  }
+
+  bool executeScriptTwo(const Command &command) {
+    string valueStr = command.args[0];
+    unsigned long value = std::stoul(valueStr, nullptr, 16);
+
+    for (int turn = 0; turn < 30; ++turn) {
+      ssd->write(4, value);
+      ssd->write(0, value);
+      ssd->write(3, value);
+      ssd->write(1, value);
+      ssd->write(2, value);
+
+      for (int i = 0; i < 4; i++) {
+        ssd->read(i);
+        string result = ssd->getResult();
+        if (result != valueStr) {
+          cout << "Script 2 execution failed." << endl;
+          return true;
+        }
+      }
+    }
+    cout << "Script 2 executed successfully." << endl;
     return false;
   }
 

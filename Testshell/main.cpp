@@ -13,6 +13,8 @@ public:
 
   const string TEST_SCRIPT_1_FULLNAME = "1_FullWriteAndReadCompare";
   const string TEST_SCRIPT_1_SHORTCUT = "1_";
+  const string TEST_SCRIPT_2_FULLNAME = "2_PartialLBAWrite";
+  const string TEST_SCRIPT_2_SHORTCUT = "2_";
 };
 
 class TestShellHelpTest : public ::testing::Test {
@@ -86,7 +88,7 @@ TEST_F(TestShellHelpTest, DisplayTestScriptsSection) {
 
   EXPECT_TRUE(output.find("Test Scripts:") != std::string::npos);
   EXPECT_TRUE(output.find("1_FullWriteAndReadCompare") != std::string::npos);
-  EXPECT_TRUE(output.find("2_PartialLBAWrite") != std::string::npos);
+  EXPECT_TRUE(output.find(TEST_SCRIPT_2_FULLNAME) != std::string::npos);
   EXPECT_TRUE(output.find("3_WriteReadAging") != std::string::npos);
 }
 
@@ -336,7 +338,7 @@ TEST_F(TestShellFixture, TestScript1ShortcutSUCCESS) {
 }
 
 TEST_F(TestShellFixture, TestScript2FAIL) {
-  Command cmd{"2_PartialLBAWrite", {"0xAAAABBBB"}};
+  Command cmd{TEST_SCRIPT_2_FULLNAME, {"0xAAAABBBB"}};
 
   EXPECT_CALL(ssd, write(_, 0xAAAABBBB)).Times(AtLeast(1));
   EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return("0xFFFFFFFF"));
@@ -349,7 +351,7 @@ TEST_F(TestShellFixture, TestScript2FAIL) {
 }
 
 TEST_F(TestShellFixture, TestScript2ShortcutFAIL) {
-  Command cmd{"2_", {"0xAAAABBBB"}};
+  Command cmd{TEST_SCRIPT_2_SHORTCUT, {"0xAAAABBBB"}};
 
   EXPECT_CALL(ssd, write(_, 0xAAAABBBB)).Times(AtLeast(1));
   EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return("0xFFFFFFFF"));
@@ -362,7 +364,7 @@ TEST_F(TestShellFixture, TestScript2ShortcutFAIL) {
 }
 
 TEST_F(TestShellFixture, TestScript2SUCCESS) {
-  Command cmd{"2_PartialLBAWrite", {"0xAAAABBBB"}};
+  Command cmd{TEST_SCRIPT_2_FULLNAME, {"0xAAAABBBB"}};
 
   EXPECT_CALL(ssd, write(_, 0xAAAABBBB)).Times(150);
   EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return("0xAAAABBBB"));
@@ -375,7 +377,7 @@ TEST_F(TestShellFixture, TestScript2SUCCESS) {
 }
 
 TEST_F(TestShellFixture, TestScript2ShortcutSUCCESS) {
-  Command cmd{"2_", {"0xAAAABBBB"}};
+  Command cmd{TEST_SCRIPT_2_SHORTCUT, {"0xAAAABBBB"}};
 
   EXPECT_CALL(ssd, write(_, 0xAAAABBBB)).Times(150);
   EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return("0xAAAABBBB"));
