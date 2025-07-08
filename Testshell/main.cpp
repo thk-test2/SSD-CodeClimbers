@@ -464,7 +464,8 @@ int main() {
   ::testing::InitGoogleTest();
   return RUN_ALL_TESTS();
 #else
-  TestShell testShell;
+  SSD_EXE ssd;
+  TestShell testShell{&ssd};
   testShell.run();
   return 0;
 #endif
