@@ -11,16 +11,16 @@ using std::vector;
 
 class SSD_INTERFACE {
 public:
-  virtual bool read(int lba) = 0;
-  virtual bool write(int lba, int value) = 0;
+  virtual void read(int lba) = 0;
+  virtual void write(int lba, int value) = 0;
   virtual string getResult() = 0;
 };
 
 // MockDriver
 class MockSSD : public SSD_INTERFACE {
 public:
-  MOCK_METHOD(bool, read, (int lba), (override));
-  MOCK_METHOD(bool, write, (int lba, int value), (override));
+  MOCK_METHOD(void, read, (int lba), (override));
+  MOCK_METHOD(void, write, (int lba, int value), (override));
   MOCK_METHOD(string, getResult, (), (override));
 };
 
@@ -89,17 +89,17 @@ public:
                    vector<string>()}; // Simplified parsing for demonstration
   }
 
-  bool read(const Command &command) {
+  void read(const Command &command) {
     if (!isValidReadUsage(command)) {
-      cout << "Invalid Usage.";
-      return false;
+      cout << "INVALID COMMAND\n";
+      return;
     }
 
     int lba = stoi(command.args[0]);
-    bool ret = ssd->read(lba);
+    ssd->read(lba);
     cout << "[Read] " << command.args[0] << " : " << ssd->getResult() << "\n";
-    return ret;
   }
+
   bool isValidReadUsage(const Command &command) {
     if (command.args.size() != 1)
       return false;
