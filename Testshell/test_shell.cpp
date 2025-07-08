@@ -90,24 +90,9 @@ public:
       if (isFailed)
         return;
     } else if (cmd == "3_" || cmd == "3_WriteReadAging") {
-      string valueStr = command.args[0];
-      unsigned long value = std::stoul(valueStr, nullptr, 16);
-
-      for (int i = 0; i < 200; i++) {
-        ssd->write(0, value);
-        if (!checkWriteSuccess(0, valueStr)) {
-          cout << "Script 3 execution failed." << endl;
-          return;
-        }
-
-        ssd->write(99, value);
-        if (!checkWriteSuccess(99, valueStr)) {
-          cout << "Script 3 execution failed." << endl;
-          return;
-        }
-      }
-      cout << "Script 3 executed successfully." << endl;
-
+      bool isFailed = isScriptThreeExcutionSuccessful(command);
+      if (isFailed)
+        return;
     } else {
       cout << "INVALID COMMAND" << endl;
     }
@@ -153,7 +138,28 @@ public:
     return true;
   }
 
-  bool checkWriteSuccess(int lba, const string& valueStr) {
+  bool isScriptThreeExcutionSuccessful(const Command &command) {
+    string valueStr = command.args[0];
+    unsigned long value = std::stoul(valueStr, nullptr, 16);
+
+    for (int i = 0; i < 200; i++) {
+      ssd->write(0, value);
+      if (!checkWriteSuccess(0, valueStr)) {
+        cout << "Script 3 execution failed." << endl;
+        return false;
+      }
+
+      ssd->write(99, value);
+      if (!checkWriteSuccess(99, valueStr)) {
+        cout << "Script 3 execution failed." << endl;
+        return false;
+      }
+    }
+    cout << "Script 3 executed successfully." << endl;
+    return true;
+  }
+
+  bool checkWriteSuccess(int lba, const string &valueStr) {
     ssd->read(lba);
 
     if (ssd->getResult() == "ERROR" || ssd->getResult() != valueStr) {
@@ -289,7 +295,8 @@ public:
       cout << "INVALID COMMAND\n";
       return;
     }
-    ssd->write(stoi(command.args[0]), stoul(command.args[1], nullptr, HEX_BASE));
+    ssd->write(stoi(command.args[0]),
+               stoul(command.args[1], nullptr, HEX_BASE));
     string result = ssd->getResult();
     if (result == "")
       result = "Done";
