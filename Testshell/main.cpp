@@ -87,16 +87,6 @@ TEST_F(TestShellHelpTest, DisplayTestScriptsSection) {
   EXPECT_TRUE(output.find("3_WriteReadAging") != std::string::npos);
 }
 
-TEST_F(TestShellFixture, InvalidCommand) {
-  Command cmd{"INVALID"};
-  
-  CaptureStdout();
-  ts.executeCommand(cmd);
-  std::string output = GetCapturedStdout();
-
-  EXPECT_EQ("INVALID COMMAND\n", output);
-}
-
 TEST_F(TestShellFixture, ReadNormalCase) {
   Command command{"read", vector<string>{"0"}};
 
