@@ -1,5 +1,7 @@
 #include "device.h"
-#include <iostream>
+#include "fileIOStream.h"
+
+using std::ofstream;
 #include <string>
 #include <vector>
 
@@ -8,7 +10,10 @@ using std::vector;
 
 class SSDDriver : public Device {
 public:
-
+  SSDDriver() {
+    stream = new IoStream(MAX_NAND_MEMORY_MAP_SIZE, buf);
+    stream->initSsdNand();
+  }
   void run(int argc, char *argv[]) {
     vector<string> params = parseParams(argc, argv);
 
@@ -17,9 +22,12 @@ public:
     unsigned long value = std::stoul(params[3]);
 
     bool result = false;
-    if (command == "W") result = write(lba, value);
-    if (command == "R") result = read(lba);
-    if (!result) throw std::runtime_error("Device operation failed.");
+    if (command == "W")
+      result = write(lba, value);
+    if (command == "R")
+      result = read(lba);
+    if (!result)
+      throw std::runtime_error("Device operation failed.");
   }
 
   vector<string> parseParams(int argc, char *argv[]) {
@@ -30,16 +38,52 @@ public:
     return params;
   }
 
-  bool read(int lba) override {
-    if (lba < 0 || lba > 100)
-      return false;
-    else
+  bool isValid_LBA_Range(int lba) {
+    if (lba >= 0 && lba < MAX_NAND_MEMORY_MAP_SIZE)
       return true;
+    else
+      return false;
+  }
+  bool read(int lba) override {
+    stream->loadNandFile();
+
+    if (!isValid_LBA_Range(lba)) {
+      stream->writeError();
+      return false;
+    }
+
+    ofstream ofs = stream->getOutputWriteStream();
+
+    ofs << "0x" << setfill('0') << setw(8) << hex << uppercase << buf[lba];
+
+    return true;
   }
   bool write(int lba, unsigned long value) override {
-    if (lba < 0 || lba > 100)
+    stream->loadNandFile();
+
+    if (!isValid_LBA_Range(lba)) {
+      stream->writeError();
       return false;
-    else
-      return true;
+    }
+
+    buf[lba] = value;
+
+    ofstream ofs = stream->getNandWriteStream();
+    for (int i = 0; i < MAX_NAND_MEMORY_MAP_SIZE; ++i) {
+      ofs << dec << i << " 0x" << setfill('0') << setw(8) << hex << uppercase
+          << buf[i] << "\n";
+    }
+
+    stream->clearOutput();
+    return true;
   }
+
+  IoStream *getIoStream() { return stream; }
+
+private:
+  static const int MAX_NAND_MEMORY_MAP_SIZE = 100;
+  unsigned long buf[MAX_NAND_MEMORY_MAP_SIZE] = {
+      0,
+  };
+  IoStream *stream;
 };
