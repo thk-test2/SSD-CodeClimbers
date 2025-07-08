@@ -35,38 +35,24 @@ public:
   const string TEST_SCRIPT_2_SHORTCUT = "2_";
   const string TEST_SCRIPT_3_FULLNAME = "3_WriteReadAging";
   const string TEST_SCRIPT_3_SHORTCUT = "3_";
-};
 
-class TestShellHelpTest : public ::testing::Test {
-protected:
-  void SetUp() override {
-    original_cout_buffer = std::cout.rdbuf();
-    std::cout.rdbuf(captured_output.rdbuf());
+  string getCallHelpOutput() {
+    CaptureStdout();
+    ts.help();
+    return GetCapturedStdout();
   }
-
-  void TearDown() override { std::cout.rdbuf(original_cout_buffer); }
-
-  std::string GetCapturedOutput() { return captured_output.str(); }
-
-  void CallHelp() { shell.help(); }
-
-  TestShell shell;
-  std::stringstream captured_output;
-  std::streambuf *original_cout_buffer;
 };
 
-TEST_F(TestShellHelpTest, DisplaysCorrectHeader) {
-  CallHelp();
-  std::string output = GetCapturedOutput();
+TEST_F(TestShellFixture, DisplaysCorrectHeader) {
+  std::string output = getCallHelpOutput();
 
   EXPECT_TRUE(
       output.find("SSD Test Shell - Simple and Powerful SSD Testing Tool") !=
       std::string::npos);
 }
 
-TEST_F(TestShellHelpTest, DisplaysTeamMembers) {
-  CallHelp();
-  std::string output = GetCapturedOutput();
+TEST_F(TestShellFixture, DisplaysTeamMembers) {
+  std::string output = getCallHelpOutput();
 
   EXPECT_TRUE(output.find("Team Members:") != std::string::npos);
   EXPECT_TRUE(output.find("Taehyun Kyong") != std::string::npos);
@@ -77,9 +63,8 @@ TEST_F(TestShellHelpTest, DisplaysTeamMembers) {
   EXPECT_TRUE(output.find("Jeseong Kim") != std::string::npos);
 }
 
-TEST_F(TestShellHelpTest, DisplaysCommandsSection) {
-  CallHelp();
-  std::string output = GetCapturedOutput();
+TEST_F(TestShellFixture, DisplaysCommandsSection) {
+  std::string output = getCallHelpOutput();
 
   EXPECT_TRUE(output.find("Commands:") != std::string::npos);
 
@@ -102,9 +87,8 @@ TEST_F(TestShellHelpTest, DisplaysCommandsSection) {
   EXPECT_TRUE(output.find("Exit the shell") != std::string::npos);
 }
 
-TEST_F(TestShellHelpTest, DisplayTestScriptsSection) {
-  CallHelp();
-  std::string output = GetCapturedOutput();
+TEST_F(TestShellFixture, DisplayTestScriptsSection) {
+  std::string output = getCallHelpOutput();
 
   EXPECT_TRUE(output.find("Test Scripts:") != std::string::npos);
   EXPECT_TRUE(output.find("1_FullWriteAndReadCompare") != std::string::npos);
@@ -218,30 +202,30 @@ TEST_F(TestShellFixture, FullReadInvalidUsage) {
 
 // fullwrite 테스트들
 TEST_F(TestShellFixture, FullWriteNormalCase) {
-  vector<string> args{"42"};
+  vector<string> args{"0xABCDABCD"};
 
   // 3개의 LBA에 성공적으로 쓰고 4번째에서 ERROR 반환
-  EXPECT_CALL(ssd, write(0, 42)).Times(1);
-  EXPECT_CALL(ssd, write(1, 42)).Times(1);
-  EXPECT_CALL(ssd, write(2, 42)).Times(1);
-  EXPECT_CALL(ssd, write(3, 42)).Times(1);
+  EXPECT_CALL(ssd, write(0, 0xABCDABCD)).Times(1);
+  EXPECT_CALL(ssd, write(1, 0xABCDABCD)).Times(1);
+  EXPECT_CALL(ssd, write(2, 0xABCDABCD)).Times(1);
+  EXPECT_CALL(ssd, write(3, 0xABCDABCD)).Times(1);
 
   EXPECT_CALL(ssd, getResult())
       .Times(4)
-      .WillOnce(Return("SUCCESS"))
-      .WillOnce(Return("SUCCESS"))
-      .WillOnce(Return("SUCCESS"))
+      .WillOnce(Return(""))
+      .WillOnce(Return(""))
+      .WillOnce(Return(""))
       .WillOnce(Return("ERROR"));
 
   CaptureStdout();
   ts.fullwrite(args);
   std::string output = GetCapturedStdout();
 
-  EXPECT_TRUE(output.find("[Full Write] LBA: 0 Value: 42") !=
+  EXPECT_TRUE(output.find("[Full Write] LBA: 0 Done") !=
               std::string::npos);
-  EXPECT_TRUE(output.find("[Full Write] LBA: 1 Value: 42") !=
+  EXPECT_TRUE(output.find("[Full Write] LBA: 1 Done") !=
               std::string::npos);
-  EXPECT_TRUE(output.find("[Full Write] LBA: 2 Value: 42") !=
+  EXPECT_TRUE(output.find("[Full Write] LBA: 2 Done") !=
               std::string::npos);
 
   // 4번째 LBA는 ERROR이므로 출력되지 않아야 함
@@ -249,7 +233,7 @@ TEST_F(TestShellFixture, FullWriteNormalCase) {
 }
 
 TEST_F(TestShellFixture, FullWriteInvalidArgumentCount) {
-  vector<string> args{"42", "extraArgs"};
+  vector<string> args{"0xABCDABCD", "extraArgs"};
 
   EXPECT_CALL(ssd, write(_, _)).Times(0);
   EXPECT_CALL(ssd, getResult()).Times(0);
