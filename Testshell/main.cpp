@@ -385,6 +385,66 @@ TEST_F(TestShellFixture, TestScript2ShortcutSUCCESS) {
   EXPECT_EQ("Script 2 executed successfully.\n", output);
 }
 
+TEST_F(TestShellFixture, TestScript3FAIL) {
+  Command cmd{TEST_SCRIPT_3_FULLNAME};
+
+  EXPECT_CALL(ssd, write(_, _)).Times(AtLeast(2));
+  EXPECT_CALL(ssd, read(_)).Times(AtLeast(2));
+  EXPECT_CALL(ssd, getResult())
+      .WillOnce(Return("0x00000000"))
+      .WillOnce(Return("0xFFFFFFFF"));
+
+  CaptureStdout();
+  ts.executeCommand(cmd);
+  std::string output = GetCapturedStdout();
+
+  EXPECT_EQ("Script 3 execution failed.\n", output);
+}
+
+TEST_F(TestShellFixture, TestScript3ShortcutFAIL) {
+  Command cmd{TEST_SCRIPT_3_SHORTCUT};
+
+  EXPECT_CALL(ssd, write(_, _)).Times(AtLeast(2));
+  EXPECT_CALL(ssd, read(_)).Times(AtLeast(2));
+  EXPECT_CALL(ssd, getResult())
+      .WillOnce(Return("0x00000000"))
+      .WillOnce(Return("0xFFFFFFFF"));
+
+  CaptureStdout();
+  ts.executeCommand(cmd);
+  std::string output = GetCapturedStdout();
+
+  EXPECT_EQ("Script 3 execution failed.\n", output);
+}
+
+TEST_F(TestShellFixture, TestScript3SUCCESS) {
+  Command cmd{TEST_SCRIPT_3_FULLNAME};
+
+  EXPECT_CALL(ssd, write(_, _)).Times(400);
+  EXPECT_CALL(ssd, read(0)).Times(200);
+  EXPECT_CALL(ssd, read(99)).Times(200);
+
+  CaptureStdout();
+  ts.executeCommand(cmd);
+  std::string output = GetCapturedStdout();
+
+  EXPECT_EQ("Script 3 executed successfully.\n", output);
+}
+
+TEST_F(TestShellFixture, TestScript3ShortcutSUCCESS) {
+  Command cmd{TEST_SCRIPT_3_SHORTCUT};
+
+  EXPECT_CALL(ssd, write(_, _)).Times(400);
+  EXPECT_CALL(ssd, read(0)).Times(200);
+  EXPECT_CALL(ssd, read(99)).Times(200);
+
+  CaptureStdout();
+  ts.executeCommand(cmd);
+  std::string output = GetCapturedStdout();
+
+  EXPECT_EQ("Script 3 executed successfully.\n", output);
+}
+
 TEST_F(TestShellFixture, InvalidCommand) {
   Command cmd{"INVALID"};
 
