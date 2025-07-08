@@ -1,6 +1,7 @@
 #include "test_shell.h"
 #include "SSD_INTERFACE.h"
 #include "gmock/gmock.h"
+#include "ssd_exe.cpp"
 
 #include <random>
 

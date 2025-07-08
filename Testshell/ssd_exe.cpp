@@ -9,7 +9,7 @@ using std::string;
 
 class SSD_EXE : public SSD_INTERFACE {
 public:
-  SSD_EXE() : ssdDir(getSSDExePath()) {}
+  SSD_EXE() : ssdDir(getCurWorkingDir()) {}
 
   void read(int lba) override {
     std::ostringstream cmd;
@@ -53,6 +53,15 @@ private:
   const string SSD_OUTPUT_FILE = "ssd_output.txt";
   const string ERROR_MSG = "ERROR";
 
+  string getCurWorkingDir() {
+    char cwd[1024];
+    if (!_getcwd(cwd, sizeof(cwd))) {
+      std::cerr << "[ERROR] 현재 경로를 얻을 수 없습니다." << std::endl;
+      std::exit(1);
+    }
+
+    return string(cwd);
+  }
   // 현재 디렉토리 기준 ../../../SSD/x64/Release 를 절대경로로 변환
   string getSSDExePath() {
     char cwd[1024];
