@@ -52,7 +52,6 @@ TEST(SSD_TS, Run) {
 
 TEST(SSD_TS, RunInvalidParam1) {
   SSDDriver ssdDriver;
-  // ssd.exe R 10 0x00010001
   int argc = 1;
   char *argv[1];
   argv[0] = const_cast<char *>("ssd.exe");
