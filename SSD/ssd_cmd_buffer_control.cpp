@@ -1,10 +1,10 @@
-#include "ssd_buffer_control.h"
+#include "ssd_cmd_buffer_control.h"
 #include <filesystem>
 #include <iostream>
 using std::cout;
 namespace fs = std::filesystem;
 
-BufferControl::BufferControl() {
+CmdBufferControl::CmdBufferControl() {
 
   if (!fs::exists(bufferPath)) {
     fs::create_directory(bufferPath);
@@ -12,27 +12,27 @@ BufferControl::BufferControl() {
 
   for (int i = 1; i <= MAX_BUFFER_SIZE; ++i) {
     std::string file = bufferPath + "/" + std::to_string(i) + "_empty";
-    buffers.emplace_back(file);
+    cmdBuffer.emplace_back(file);
   }
 }
 
-BufferControl &BufferControl::getInstance() {
-  static BufferControl instance;
+CmdBufferControl &CmdBufferControl::getInstance() {
+  static CmdBufferControl instance;
   return instance;
 }
 
-std::string BufferControl::getBufferNameList() const {
+std::string CmdBufferControl::getBufferNameList() const {
   std::string list = "";
 
-  for (const auto &buf : buffers) {
+  for (const auto &buf : cmdBuffer) {
     list += (buf.getName() + ",");
   }
 
   return list;
 }
 
-bool BufferControl::updateToNextEmpty(const std::string &cmd) {
-  for (auto &buf : buffers) {
+bool CmdBufferControl::updateToNextEmpty(const std::string &cmd) {
+  for (auto &buf : cmdBuffer) {
     if (buf.isEmpty()) {
       buf.updateCommand(cmd);
       return true;
@@ -41,37 +41,37 @@ bool BufferControl::updateToNextEmpty(const std::string &cmd) {
   return false; // no empty slot
 }
 
-bool BufferControl::updateBufferByIndex(int index, const std::string &cmd) {
+bool CmdBufferControl::updateBufferByIndex(int index, const std::string &cmd) {
 
   if (!isValidBufferIndex(index))
     return false;
 
-  buffers[index - 1].updateCommand(cmd);
+  cmdBuffer[index - 1].updateCommand(cmd);
   return true; // no empty slot
 }
 
-bool BufferControl::isValidBufferIndex(int index) {
+bool CmdBufferControl::isValidBufferIndex(int index) {
   return (index <= MAX_BUFFER_SIZE && index >= 1);
 }
 
-bool BufferControl::clearBufferByIndex(int index) {
+bool CmdBufferControl::clearBufferByIndex(int index) {
 
   if (index > MAX_BUFFER_SIZE || index < 1)
     return false;
-  buffers[index - 1].clear();
+  cmdBuffer[index - 1].clear();
   return true; // no empty slot
 }
 
-void BufferControl::clearAllBuffer(void) {
-  for (auto &buf : buffers) {
+void CmdBufferControl::clearAllBuffer(void) {
+  for (auto &buf : cmdBuffer) {
     if (!buf.isEmpty()) {
       buf.clear();
     }
   }
 }
 
-bool BufferControl::isBufferFull() const {
-  for (const auto &buf : buffers) {
+bool CmdBufferControl::isBufferFull() const {
+  for (const auto &buf : cmdBuffer) {
     if (buf.isEmpty()) {
       return false;
     }

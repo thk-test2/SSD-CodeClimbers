@@ -1,4 +1,4 @@
-#include "ssd_buffer.h"
+#include "ssd_cmd_buffer.h"
 #include <iostream>
 #include <filesystem>
 #include <fstream>
@@ -6,29 +6,29 @@
 namespace fs = std::filesystem;
 using std::cout;
 
-Buffer::Buffer(const std::string &path) : fileName(path) {
+CmdBuffer::CmdBuffer(const std::string &path) : fileName(path) {
   if (!fs::exists(fileName)) {
     std::ofstream ofs(fileName);
     ofs.close();
   }
 }
 
-std::string Buffer::getName() const {
+std::string CmdBuffer::getName() const {
   return fs::path(fileName).filename().string();
 }
 
-void Buffer::updateCommand(const std::string &cmd) {
+void CmdBuffer::updateCommand(const std::string &cmd) {
   fs::rename(fileName, fs::path(fileName).parent_path() / cmd);
   fileName = (fs::path(fileName).parent_path() / cmd).string();
 }
 
-void Buffer::clear() { updateCommand(std::to_string(getIndex()) + "_empty"); }
+void CmdBuffer::clear() { updateCommand(std::to_string(getIndex()) + "_empty"); }
 
-bool Buffer::isEmpty() const {
+bool CmdBuffer::isEmpty() const {
   return getName().find("empty") != std::string::npos;
 }
 
-int Buffer::getIndex() const {
+int CmdBuffer::getIndex() const {
   std::string name = getName();
   return std::stoi(name.substr(0, name.find('_')));
 }
