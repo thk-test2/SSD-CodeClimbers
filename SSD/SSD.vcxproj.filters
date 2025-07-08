@@ -15,31 +15,31 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="SSDDriver_test.cpp">
+    <ClCompile Include="file_iostream.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="ssdDriver.cpp">
+    <ClCompile Include="file_iostream_test.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="fileIOstream.cpp">
+    <ClCompile Include="ssd_driver.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="IOstream_test.cpp">
+    <ClCompile Include="ssd_driver_test.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="device.h">
+    <ClInclude Include="ssd_driver.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="fileIOStream.h">
-      <Filter>소스 파일</Filter>
+    <ClInclude Include="file_iostream.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
