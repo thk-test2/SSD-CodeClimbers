@@ -12,7 +12,7 @@ using std::vector;
 class SSD_INTERFACE {
 public:
   virtual void read(int lba) = 0;
-  virtual void write(int lba, int value) = 0;
+  virtual void write(int lba, unsigned long value) = 0;
   virtual string getResult() = 0;
 };
 
@@ -20,7 +20,7 @@ public:
 class MockSSD : public SSD_INTERFACE {
 public:
   MOCK_METHOD(void, read, (int lba), (override));
-  MOCK_METHOD(void, write, (int lba, int value), (override));
+  MOCK_METHOD(void, write, (int lba, unsigned long value), (override));
   MOCK_METHOD(string, getResult, (), (override));
 };
 
@@ -65,11 +65,11 @@ public:
     if (command.command == "read") {
       read(command);
     } else if (command.command == "write") {
-
+      write(command);
     } else if (command.command == "fullread") {
-
+      fullread(command.args);
     } else if (command.command == "fullwrite") {
-
+      fullwrite(command.args);
     } else if (command.command == "help") {
       help();
     } else if (command.command == "1_") {
@@ -86,6 +86,43 @@ public:
   Command parsing(const string &userInput) {
     return Command{userInput,
                    vector<string>()}; // Simplified parsing for demonstration
+  }
+
+  void fullread(vector<string> args) {
+    if (args.size() != 0) {
+      cout << "INVALID COMMAND\n";
+      return;
+    }
+    int lba = 0;
+    ssd->read(lba);
+    string result = ssd->getResult();
+    while (result != "ERROR") {
+      cout << "[Full Read] LBA: " << lba << " Result: " << result << endl;
+      lba++;
+      ssd->read(lba);
+      result = ssd->getResult();
+    }
+  }
+
+  void fullwrite(vector<string> args) {
+    if (args.size() != 1) {
+      cout << "INVALID COMMAND\n";
+      return;
+    }
+    unsigned long value;
+    try {
+      value = stoul(args[0]);
+    } catch (std::exception &e) {
+      cout << "INVALID COMMAND\n";
+      return;
+    }
+    int lba = 0;
+    ssd->write(lba, value);
+    while (ssd->getResult() != "ERROR") {
+      cout << "[Full Write] LBA: " << lba << " Value: " << value << endl;
+      lba++;
+      ssd->write(lba, value);
+    }
   }
 
   void help() {
@@ -145,6 +182,38 @@ public:
     }
     cout << "\n    Description: " << description << "\n"
          << "    Example: " << example << "\n\n";
+  }
+
+  void write(const Command &command) {
+    if (!isValidWriteUsage(command)) {
+      cout << "INVALID COMMAND\n";
+      return;
+    }
+    ssd->write(stoi(command.args[0]), stringToUnsignedLong(command.args[1]));
+    string result = ssd->getResult();
+    if (result == "")
+      result = "Done";
+    cout << "[Write] " << result << "\n";
+  }
+
+  bool isValidWriteUsage(const Command &command) {
+    if (command.args.size() != 2)
+      return false;
+    try {
+      int lba = stoi(command.args[0]);
+      unsigned long value = stringToUnsignedLong(command.args[1]);
+    } catch (std::exception &e) {
+      return false;
+    }
+    return true;
+  }
+
+  unsigned long stringToUnsignedLong(const string &str) {
+    if (str.substr(0, 2) == "0x") {
+      return stoul(str.substr(2), nullptr, 16);
+    } else {
+      return stoul(str);
+    }
   }
 
   void read(const Command &command) {
