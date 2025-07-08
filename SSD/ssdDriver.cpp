@@ -14,7 +14,7 @@ public:
 
     string command = params[1];
     int lba = std::stoi(params[2]);
-    unsigned int value = std::stoul(params[3]);
+    unsigned long value = std::stoul(params[3]);
 
     bool result = false;
     if (command == "W") result = write(lba, value);
