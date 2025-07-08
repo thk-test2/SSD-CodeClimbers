@@ -4,6 +4,13 @@
 // stdout 캡처/해제 함수
 using testing::internal::CaptureStdout;
 using testing::internal::GetCapturedStdout;
+using namespace testing;
+
+class TestShellFixture: public ::testing::Test {
+public:
+  NiceMock<MockSSD> ssd;
+  TestShell ts{&ssd};
+};
 
 TEST(SampleTest, HandlesTrue) {
   EXPECT_TRUE(true);
@@ -84,8 +91,7 @@ TEST_F(TestShellHelpTest, DisplayTestScriptsSection) {
   EXPECT_TRUE(output.find("3_WriteReadAging") != std::string::npos);
 }
 
-TEST(TestShell, InvalidCommand) {
-  TestShell ts;
+TEST_F(TestShellFixture, InvalidCommand) {
   Command cmd{"INVALID"};
   
   CaptureStdout();
@@ -93,6 +99,51 @@ TEST(TestShell, InvalidCommand) {
   std::string output = GetCapturedStdout();
 
   EXPECT_EQ("INVALID COMMAND\n", output);
+}
+
+TEST_F(TestShellFixture, ReadNormalCase) {
+  Command command{"read", vector<string>{"0"}};
+
+  EXPECT_CALL(ssd, read(_)).Times(1);
+
+  EXPECT_CALL(ssd, getResult())
+	  .Times(1)
+	  .WillOnce(Return("0xAAAABBBB"));
+
+  ts.executeCommand(command);
+}
+
+TEST_F(TestShellFixture, ReadInvalidLbaCase) {
+  Command command{"read", vector<string>{"100"}};
+
+  EXPECT_CALL(ssd, read(_)).Times(1);
+  
+  EXPECT_CALL(ssd, getResult())
+	  .Times(1)
+	  .WillOnce(Return("ERROR"));
+
+  ts.executeCommand(command);
+}
+
+TEST_F(TestShellFixture, ReadInvalidUsage) {
+  Command command{"read", vector<string>{"s", "2"}};
+
+  EXPECT_CALL(ssd, read(_)).Times(0);
+
+  EXPECT_CALL(ssd, getResult()).Times(0);
+
+  ts.executeCommand(command);
+}
+
+TEST_F(TestShellFixture, ReadLbaOverThanMaxOfInt) {
+  int MAX_INT = 2147483647; // Maximum value for a 32-bit signed integer
+  Command command{"read", vector<string>{"2147483648"}};
+
+  EXPECT_CALL(ssd, read(_)).Times(0);
+
+  EXPECT_CALL(ssd, getResult()).Times(0);
+
+  ts.executeCommand(command);
 }
 
 int main() {
