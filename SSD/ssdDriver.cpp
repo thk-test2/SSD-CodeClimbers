@@ -8,26 +8,18 @@ using std::vector;
 
 class SSDDriver : public Device {
 public:
-  void run(int argc, char *argv[]) {
-    bool result = false;
-    if (argc < 3)
-      std::exception();
-    if (argv[0] != "ssd.exe")
-      std::exception();
 
+  void run(int argc, char *argv[]) {
     vector<string> params = parseParams(argc, argv);
 
     string command = params[1];
     int lba = std::stoi(params[2]);
-    unsigned long value = std::stoul(params[3]);
+    unsigned int value = std::stoul(params[3]);
 
-    if (command == "W") {
-      result = write(lba, value);
-    } else if (command == "R") {
-      result = read(lba);
-    } else {
-      std::exception();
-    }
+    bool result = false;
+    if (command == "W") result = write(lba, value);
+    if (command == "R") result = read(lba);
+    if (!result) throw std::runtime_error("Device operation failed.");
   }
 
   vector<string> parseParams(int argc, char *argv[]) {
