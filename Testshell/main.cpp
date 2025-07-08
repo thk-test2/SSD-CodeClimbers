@@ -1,5 +1,5 @@
-#include "test_shell.cpp"
 #include "gmock/gmock.h"
+#include "test_shell.cpp"
 
 // stdout 캡처/해제 함수
 using testing::internal::CaptureStdout;
@@ -12,7 +12,9 @@ public:
   TestShell ts{&ssd};
 };
 
-TEST(SampleTest, HandlesTrue) { EXPECT_TRUE(true); }
+TEST(SampleTest, HandlesTrue) {
+  EXPECT_TRUE(true);
+}
 
 class TestShellHelpTest : public ::testing::Test {
 protected:
@@ -37,8 +39,8 @@ TEST_F(TestShellHelpTest, DisplaysCorrectHeader) {
   std::string output = GetCapturedOutput();
 
   EXPECT_TRUE(
-      output.find("SSD Test Shell - Simple and Powerful SSD Testing Tool") !=
-      std::string::npos);
+    output.find("SSD Test Shell - Simple and Powerful SSD Testing Tool") !=
+    std::string::npos);
 }
 
 TEST_F(TestShellHelpTest, DisplaysTeamMembers) {
@@ -104,7 +106,9 @@ TEST_F(TestShellFixture, ReadNormalCase) {
 
   EXPECT_CALL(ssd, read(_)).Times(1);
 
-  EXPECT_CALL(ssd, getResult()).Times(1).WillOnce(Return("0xAAAABBBB"));
+  EXPECT_CALL(ssd, getResult())
+    .Times(1)
+    .WillOnce(Return("0xAAAABBBB"));
 
   ts.executeCommand(command);
 }
@@ -112,9 +116,12 @@ TEST_F(TestShellFixture, ReadNormalCase) {
 TEST_F(TestShellFixture, ReadInvalidLbaCase) {
   Command command{"read", vector<string>{"100"}};
 
-  EXPECT_CALL(ssd, read(_)).Times(1);
+  EXPECT_CALL(ssd, read(_))
+    .Times(1);
 
-  EXPECT_CALL(ssd, getResult()).Times(1).WillOnce(Return("ERROR"));
+  EXPECT_CALL(ssd, getResult())
+    .Times(1)
+    .WillOnce(Return("ERROR"));
 
   ts.executeCommand(command);
 }
@@ -122,9 +129,11 @@ TEST_F(TestShellFixture, ReadInvalidLbaCase) {
 TEST_F(TestShellFixture, ReadInvalidUsage) {
   Command command{"read", vector<string>{"s", "2"}};
 
-  EXPECT_CALL(ssd, read(_)).Times(0);
+  EXPECT_CALL(ssd, read(_))
+    .Times(0);
 
-  EXPECT_CALL(ssd, getResult()).Times(0);
+  EXPECT_CALL(ssd, getResult())
+    .Times(0);
 
   ts.executeCommand(command);
 }
@@ -133,9 +142,11 @@ TEST_F(TestShellFixture, ReadLbaOverThanMaxOfInt) {
   int MAX_INT = 2147483647; // Maximum value for a 32-bit signed integer
   Command command{"read", vector<string>{"2147483648"}};
 
-  EXPECT_CALL(ssd, read(_)).Times(0);
+  EXPECT_CALL(ssd, read(_))
+    .Times(0);
 
-  EXPECT_CALL(ssd, getResult()).Times(0);
+  EXPECT_CALL(ssd, getResult())
+    .Times(0);
 
   ts.executeCommand(command);
 }
@@ -144,17 +155,21 @@ TEST_F(TestShellFixture, FullReadNormalCase) {
   vector<string> args{};
   // Total LBA 수를 3인 경우로 가정
   // 3개의 LBA를 성공적으로 읽고 4번째에서 ERROR 반환
-  EXPECT_CALL(ssd, read(0)).Times(1);
-  EXPECT_CALL(ssd, read(1)).Times(1);
-  EXPECT_CALL(ssd, read(2)).Times(1);
-  EXPECT_CALL(ssd, read(3)).Times(1);
+  EXPECT_CALL(ssd, read(0))
+    .Times(1);
+  EXPECT_CALL(ssd, read(1))
+    .Times(1);
+  EXPECT_CALL(ssd, read(2))
+    .Times(1);
+  EXPECT_CALL(ssd, read(3))
+    .Times(1);
 
   EXPECT_CALL(ssd, getResult())
-      .Times(4)
-      .WillOnce(Return("0xAAAABBBB"))
-      .WillOnce(Return("0xCCCCDDDD"))
-      .WillOnce(Return("0xEEEEFFFF"))
-      .WillOnce(Return("ERROR"));
+    .Times(4)
+    .WillOnce(Return("0xAAAABBBB"))
+    .WillOnce(Return("0xCCCCDDDD"))
+    .WillOnce(Return("0xEEEEFFFF"))
+    .WillOnce(Return("ERROR"));
 
   CaptureStdout();
   ts.fullread(args);
@@ -170,8 +185,11 @@ TEST_F(TestShellFixture, FullReadNormalCase) {
 
 TEST_F(TestShellFixture, FullReadInvalidUsage) {
   vector<string> args{"extra"};
-  EXPECT_CALL(ssd, read(_)).Times(0);
-  EXPECT_CALL(ssd, getResult()).Times(0);
+  EXPECT_CALL(ssd, read(_))
+    .Times(0);
+  EXPECT_CALL(ssd, getResult())
+    .Times(0);
+
   CaptureStdout();
   ts.fullread(args);
   std::string output = GetCapturedStdout();
@@ -183,17 +201,21 @@ TEST_F(TestShellFixture, FullWriteNormalCase) {
   vector<string> args{"42"};
 
   // 3개의 LBA에 성공적으로 쓰고 4번째에서 ERROR 반환
-  EXPECT_CALL(ssd, write(0, 42)).Times(1);
-  EXPECT_CALL(ssd, write(1, 42)).Times(1);
-  EXPECT_CALL(ssd, write(2, 42)).Times(1);
-  EXPECT_CALL(ssd, write(3, 42)).Times(1);
+  EXPECT_CALL(ssd, write(0, 42))
+    .Times(1);
+  EXPECT_CALL(ssd, write(1, 42))
+    .Times(1);
+  EXPECT_CALL(ssd, write(2, 42))
+    .Times(1);
+  EXPECT_CALL(ssd, write(3, 42))
+    .Times(1);
 
   EXPECT_CALL(ssd, getResult())
-      .Times(4)
-      .WillOnce(Return("SUCCESS"))
-      .WillOnce(Return("SUCCESS"))
-      .WillOnce(Return("SUCCESS"))
-      .WillOnce(Return("ERROR"));
+    .Times(4)
+    .WillOnce(Return("SUCCESS"))
+    .WillOnce(Return("SUCCESS"))
+    .WillOnce(Return("SUCCESS"))
+    .WillOnce(Return("ERROR"));
 
   CaptureStdout();
   ts.fullwrite(args);
@@ -210,8 +232,10 @@ TEST_F(TestShellFixture, FullWriteNormalCase) {
 TEST_F(TestShellFixture, FullWriteInvalidArgumentCount) {
   vector<string> args{"42", "extraArgs"};
 
-  EXPECT_CALL(ssd, write(_, _)).Times(0);
-  EXPECT_CALL(ssd, getResult()).Times(0);
+  EXPECT_CALL(ssd, write(_, _))
+    .Times(0);
+  EXPECT_CALL(ssd, getResult())
+    .Times(0);
 
   CaptureStdout();
   ts.fullwrite(args);
@@ -223,8 +247,10 @@ TEST_F(TestShellFixture, FullWriteInvalidArgumentCount) {
 TEST_F(TestShellFixture, FullWriteNoArguments) {
   vector<string> args{};
 
-  EXPECT_CALL(ssd, write(_, _)).Times(0);
-  EXPECT_CALL(ssd, getResult()).Times(0);
+  EXPECT_CALL(ssd, write(_, _))
+    .Times(0);
+  EXPECT_CALL(ssd, getResult())
+    .Times(0);
 
   CaptureStdout();
   ts.fullwrite(args);
@@ -236,8 +262,10 @@ TEST_F(TestShellFixture, FullWriteNoArguments) {
 TEST_F(TestShellFixture, FullWriteInvalidValue) {
   vector<string> args{"invalid_number"};
 
-  EXPECT_CALL(ssd, write(_, _)).Times(0);
-  EXPECT_CALL(ssd, getResult()).Times(0);
+  EXPECT_CALL(ssd, write(_, _))
+    .Times(0);
+  EXPECT_CALL(ssd, getResult())
+    .Times(0);
 
   CaptureStdout();
   ts.fullwrite(args);
