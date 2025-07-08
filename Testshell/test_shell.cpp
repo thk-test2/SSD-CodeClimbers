@@ -71,12 +71,7 @@ public:
     } else if (command.command == "write") {
       write(command);
     } else if (command.command == "exit") {
-      if (command.args.size() != 0) {
-        cout << "INVALID COMMAND\n";
-        return;
-      }
-      std::cout << "Exiting shell..." << std::endl;
-      throw ShellExit();
+      exitTestShell(command);
     } else if (command.command == "fullread") {
       fullread(command.args);
     } else if (command.command == "fullwrite") {
@@ -97,6 +92,15 @@ public:
   Command parsing(const string &userInput) {
     return Command{userInput,
                    vector<string>()}; // Simplified parsing for demonstration
+  }
+
+  void exitTestShell(const Command &command) {
+    if (command.args.size() != 0) {
+      cout << "INVALID COMMAND\n";
+      return;
+    }
+    cout << "Exiting shell..." << endl;
+    throw ShellExit();
   }
 
   void fullread(vector<string> args) {
