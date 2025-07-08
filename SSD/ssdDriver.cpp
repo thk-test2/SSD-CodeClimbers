@@ -16,7 +16,7 @@ public:
 
         string command = params[0];
         if (command == "W") {
-            //mock
+
         }
         else if (command == "R") {
 
@@ -26,7 +26,7 @@ public:
         }
     }
 
-    static vector<string> parseParams(int argc, char* argv[]) {
+    vector<string> parseParams(int argc, char* argv[]) {
         vector<string> params;
         for (int i = 1; i < argc; ++i) {
             params.push_back(argv[i]);
