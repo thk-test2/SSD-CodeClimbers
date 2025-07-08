@@ -294,6 +294,19 @@ TEST_F(TestShellFixture, FullWriteInvalidValue) {
   EXPECT_EQ("INVALID COMMAND\n", output);
 }
 
+TEST_F(TestShellFixture, ExitNormally) {
+  Command cmd{"exit", {}};
+  EXPECT_THROW(ts.executeCommand(cmd), ShellExit);
+}
+
+TEST_F(TestShellFixture, ExitInvalidArgs) {
+  Command cmd{"exit", {"..."}};
+  CaptureStdout();
+  EXPECT_NO_THROW(ts.executeCommand(cmd));
+  std::string output = GetCapturedStdout();
+  EXPECT_EQ("INVALID COMMAND\n", output);
+}
+
 int main() {
 #ifdef _DEBUG
   ::testing::InitGoogleTest();
