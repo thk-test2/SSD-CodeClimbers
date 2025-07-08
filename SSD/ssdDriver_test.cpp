@@ -1,9 +1,7 @@
 #include "ssdDriver.cpp"
 #include "gmock/gmock.h"
-#include "fileIOStream.h"
 
 using namespace testing;
-
 class MockSSD : public Device {
 public:
   MOCK_METHOD(bool, write, (int, unsigned long), (override));
@@ -87,7 +85,6 @@ TEST(SSD_TS, WriteParams) {
 
   EXPECT_EQ(args.size(), 3);
 }
-
 class SSDDriverTestFixture : public Test {
 public:
   SSDDriver ssd;

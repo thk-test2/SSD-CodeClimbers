@@ -2,6 +2,9 @@
 #include "fileIOStream.h"
 
 using std::ofstream;
+#include <string>
+#include <vector>
+
 using std::string;
 using std::vector;
 
@@ -11,7 +14,6 @@ public:
     stream = new IoStream(MAX_NAND_MEMORY_MAP_SIZE, buf);
     stream->initSsdNand();
   }
-
   void run(int argc, char *argv[]) {
     vector<string> params = parseParams(argc, argv);
 
@@ -20,9 +22,12 @@ public:
     unsigned long value = std::stoul(params[3]);
 
     bool result = false;
-    if (command == "W") result = write(lba, value);
-    if (command == "R") result = read(lba);
-    if (!result) throw std::runtime_error("Device operation failed.");
+    if (command == "W")
+      result = write(lba, value);
+    if (command == "R")
+      result = read(lba);
+    if (!result)
+      throw std::runtime_error("Device operation failed.");
   }
 
   vector<string> parseParams(int argc, char *argv[]) {
