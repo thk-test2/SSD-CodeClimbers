@@ -1,9 +1,6 @@
 #include "test_shell.h"
-#include "SSD_INTERFACE.h"
 #include "gmock/gmock.h"
 #include "ssd_exe.cpp"
-
-#include <random>
 
 // stdout 캡처/해제 함수
 using testing::internal::CaptureStdout;
@@ -407,11 +404,13 @@ TEST_F(TestShellFixture, TestScript3ShortcutFAIL) {
 }
 
 TEST_F(TestShellFixture, TestScript3SUCCESS) {
-  Command cmd{TEST_SCRIPT_3_FULLNAME};
+  unsigned long value = getRandomValue();
+  string valueStr = convertHexToString(value);
+  Command cmd{TEST_SCRIPT_3_FULLNAME, {valueStr}};
 
   EXPECT_CALL(ssd, write(_, _)).Times(400);
   EXPECT_CALL(ssd, read(_)).Times(400);
-  EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return(""));
+  EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return(valueStr));
 
   CaptureStdout();
   ts.executeCommand(cmd);
@@ -421,11 +420,13 @@ TEST_F(TestShellFixture, TestScript3SUCCESS) {
 }
 
 TEST_F(TestShellFixture, TestScript3ShortcutSUCCESS) {
-  Command cmd{TEST_SCRIPT_3_SHORTCUT};
+  unsigned long value = getRandomValue();
+  string valueStr = convertHexToString(value);
+  Command cmd{TEST_SCRIPT_3_SHORTCUT, {valueStr}};
 
   EXPECT_CALL(ssd, write(_, _)).Times(400);
   EXPECT_CALL(ssd, read(_)).Times(400);
-  EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return(""));
+  EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return(valueStr));
 
   CaptureStdout();
   ts.executeCommand(cmd);

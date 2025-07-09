@@ -1,22 +1,8 @@
 #include "command.h"
 #include "test_shell.h"
 
-#include <random>
-
-unsigned long getRandomValue() {
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_int_distribution<uint32_t> dist(0x00000000u, 0xFFFFFFFFu);
-  return dist(gen);
-}
-
-std::string convertHexToString(unsigned long value) {
-  char buf[11];
-  std::snprintf(buf, sizeof(buf), "0x%08lX", value);
-  return std::string{buf};
-}
-
-bool checkPartialWriteSuccess(TestShell *shell, int lba, unsigned long value) {
+bool checkPartialWriteSuccess(TestShell *shell, int lba,
+                                    unsigned long value) {
   shell->getSSD()->read(lba);
 
   string valueStr = convertHexToString(value);
@@ -65,7 +51,8 @@ void TestScript2::execute(TestShell *shell, const Command &command) {
 }
 
 void TestScript3::execute(TestShell *shell, const Command &command) {
-  unsigned long value = getRandomValue();
+  unsigned long value =
+      command.args.empty() ? getRandomValue() : stoul(command.args[0], nullptr, 16);
 
   for (int i = 0; i < 200; i++) {
     shell->getSSD()->write(0, value);
