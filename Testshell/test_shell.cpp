@@ -1,7 +1,7 @@
-#include "gmock/gmock.h"
-#include "ssd_exe.cpp"
 #include "test_shell.h"
 #include "command.h"
+#include "ssd_exe.cpp"
+#include "gmock/gmock.h"
 
 TestShell::TestShell() : ctrl(new StdInOutCtrl()), parser(new ArgParser()) {
   initializeCommandHandlers();
@@ -36,7 +36,8 @@ void TestShell::initializeCommandHandlers() {
 
   // Test scripts
   commandHandlers["1_"] = std::make_unique<TestScript1>();
-  commandHandlers["1_FullWriteAndReadCompare"] = std::make_unique<TestScript1>();
+  commandHandlers["1_FullWriteAndReadCompare"] =
+      std::make_unique<TestScript1>();
   commandHandlers["2_"] = std::make_unique<TestScript2>();
   commandHandlers["2_PartialLBAWrite"] = std::make_unique<TestScript2>();
   commandHandlers["3_"] = std::make_unique<TestScript3>();
@@ -44,39 +45,43 @@ void TestShell::initializeCommandHandlers() {
 }
 
 void TestShell::run() {
+  if (!shellScripts.empty()) {
+    runScripts();
+    return;
+  }
+  runInteractive();
+}
+
+void TestShell::runScripts() {
+  for (const auto &script : shellScripts) {
+    cout << std::left << std::setw(30) << script << "___   Run...";
+    command = parsing(script);
+    executeCommand(command);
+  }
+}
+
+void TestShell::runInteractive() {
   string userInput;
   while (true) {
-    if (shellScripts.empty()) {
-      cout << "> ";
-      getline(std::cin, userInput);
-      command = parsing(userInput);
-      if (command.command == "exit") {
-        break;
-      }
-      executeCommand(command);
-      continue;
-    }
-
-    int i = 0;
-    for (; i < shellScripts.size(); i++) {
-      cout << shellScripts[i] << endl;
-      command = parsing(shellScripts[i]);
-      executeCommand(command);
-    }
-    if (i == shellScripts.size())
+    cout << "> ";
+    getline(std::cin, userInput);
+    command = parsing(userInput);
+    if (command.command == "exit") {
       break;
+    }
+    executeCommand(command);
   }
 }
 
 void TestShell::executeCommand(const Command &command) {
   string cmd = command.command;
- 
+
   auto commandIt = commandHandlers.find(cmd);
   if (commandIt != commandHandlers.end()) {
     commandIt->second->execute(this, command);
     return;
   }
-  
+
   cout << "INVALID COMMAND" << endl;
 }
 
@@ -109,15 +114,16 @@ void TestShell::printTeamInfo() {
 
 void TestShell::printCommands() {
   cout << "\n\033[1mCommands:\033[0m\n";
-  
+
   // 명령어 순서를 고정하여 출력
-  vector<string> commandOrder = {"read", "write", "fullread", "fullwrite", "help", "exit"};
-  
-  for (const string& cmdName : commandOrder) {
+  vector<string> commandOrder = {"read",      "write", "fullread",
+                                 "fullwrite", "help",  "exit"};
+
+  for (const string &cmdName : commandOrder) {
     auto it = commandHandlers.find(cmdName);
     if (it != commandHandlers.end()) {
-      printCommandInfo(cmdName, it->second->getUsage(), 
-                      it->second->getDescription(), it->second->getExample());
+      printCommandInfo(cmdName, it->second->getUsage(),
+                       it->second->getDescription(), it->second->getExample());
     }
   }
 }
@@ -136,7 +142,8 @@ void TestShell::printTestScripts() {
 }
 
 void TestShell::printCommandInfo(const string &command, const string &args,
-                      const string &description, const string &example) {
+                                 const string &description,
+                                 const string &example) {
   cout << "  \033[1m" << command << "\033[0m";
   if (!args.empty()) {
     cout << " " << args;

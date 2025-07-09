@@ -57,6 +57,8 @@ private:
   const int HEX_BASE = 16;
 
   void initializeCommandHandlers();
+  void runInteractive();
+  void runScripts();
 
 public:
   TestShell();
@@ -80,7 +82,7 @@ public:
   void printCommandInfo(const string &command, const string &args,
                         const string &description, const string &example);
 
-  void setShellScripts(const vector<string>& scripts) {
+  void setShellScripts(const vector<string> &scripts) {
     this->shellScripts = scripts;
   }
 };
