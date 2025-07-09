@@ -2,16 +2,10 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
-#include <stdexcept>
 #include <sstream>
 
 namespace fs = std::filesystem;
 using std::cout;
-
-class CmdBufferEmptyException : public std::runtime_error {
-public:
-  CmdBufferEmptyException() : std::runtime_error("CmdBuffer is empty") {}
-};
 
 CmdBuffer::CmdBuffer(const std::string &path) : fileName(path) {
   if (!fs::exists(fileName)) {

@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <stdexcept>
 
 class CmdBuffer {
 public:
@@ -19,4 +20,9 @@ public:
 
 private:
   std::string fileName;
+};
+
+class CmdBufferEmptyException : public std::runtime_error {
+public:
+  CmdBufferEmptyException() : std::runtime_error("CmdBuffer is empty") {}
 };

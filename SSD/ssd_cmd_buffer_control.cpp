@@ -166,19 +166,31 @@ bool CmdBufferControl::emptyBufferShift() {
   return true;
 }
 
-char CmdBufferControl::getBufferCmd(int index) const {
+char CmdBufferControl::getBufferCmd(int index) {
+  if (!isValidBufferIndex(index))
+      throw CmdBufferInvalidIdexException();
+
   return cmdBuffer[index - 1].getCmd();
 }
 
-int CmdBufferControl::getBufferLba(int index) const {
+int CmdBufferControl::getBufferLba(int index) {
+  if (!isValidBufferIndex(index))
+    throw CmdBufferInvalidIdexException();
+
   return cmdBuffer[index - 1].getLba();
 }
 
-unsigned long CmdBufferControl::getBufferValue(int index) const {
+unsigned long CmdBufferControl::getBufferValue(int index) {
+  if (!isValidBufferIndex(index))
+    throw CmdBufferInvalidIdexException();
+
   return cmdBuffer[index - 1].getValue();
 }
 
-int CmdBufferControl::getBufferLbaSize(int index) const {
+int CmdBufferControl::getBufferLbaSize(int index) {
+  if (!isValidBufferIndex(index))
+    throw CmdBufferInvalidIdexException();
+
   return cmdBuffer[index - 1].getLbaSize();
 }
 

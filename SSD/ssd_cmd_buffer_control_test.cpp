@@ -129,6 +129,12 @@ TEST_F(BufferControlFixture, BufferGetParsingTest) {
   EXPECT_TRUE(cmdBuffer.getBufferValue(3), 0x11112222);
 }
 
+TEST_F(BufferControlFixture, BufferGetParsingInvalidIndexTest) {
+  EXPECT_THROW(cmdBuffer.getBufferCmd(0), CmdBufferInvalidIdexException);
+  EXPECT_THROW(cmdBuffer.getBufferCmd(-1), CmdBufferInvalidIdexException);
+  EXPECT_THROW(cmdBuffer.getBufferCmd(10), CmdBufferInvalidIdexException);
+}
+
 TEST_F(BufferControlFixture, BufferRunCommand) {
   char *argv[5];
   argv[0] = const_cast<char *>("ssd.exe");
