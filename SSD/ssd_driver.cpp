@@ -22,8 +22,12 @@ public:
     } else
       return;
 
-    if (!result)
-      throw std::runtime_error("Device operation failed.");
+    try {
+      if (!result)
+        throw std::runtime_error("Device operation failed.");
+    } catch (const std::exception &e) {
+      cout << e.what();
+    }
   }
 
   vector<string> parseParams(int argc, char *argv[]) {
