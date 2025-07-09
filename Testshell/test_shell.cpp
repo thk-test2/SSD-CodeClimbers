@@ -103,7 +103,8 @@ void TestShell::printCommands() {
   cout << "\n\033[1mCommands:\033[0m\n";
   
   // 명령어 순서를 고정하여 출력
-  vector<string> commandOrder = {"read", "write", "fullread", "fullwrite", "help", "exit"};
+  vector<string> commandOrder = {"read", "write", "fullread", "fullwrite",
+                                 "help", "exit",  "erase",    "erase_range"};
   
   for (const string& cmdName : commandOrder) {
     auto it = commandHandlers.find(cmdName);
@@ -125,6 +126,9 @@ void TestShell::printTestScripts() {
   printCommandInfo("3_WriteReadAging", "",
                    "Run write/read aging test (200 iterations)",
                    "'3_' or '3_WriteReadAging'");
+  printCommandInfo("4_EraseAndWriteAging", "",
+                   "Repeatedly erase LBA ranges and write random data to following LBAs in sequential loops (30 iteration)",
+                   "'4_' or '4_EraseAndWriteAging'");
 }
 
 void TestShell::printCommandInfo(const string &command, const string &args,
