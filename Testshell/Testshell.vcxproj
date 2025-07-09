@@ -143,6 +143,7 @@
     <ClCompile Include="fullwrite_command.cpp" />
     <ClCompile Include="help_command.cpp" />
     <ClCompile Include="read_command.cpp" />
+    <ClCompile Include="ssd_exe.cpp" />
     <ClCompile Include="ssd_exe.h" />
     <ClCompile Include="ssd_exe_test.cpp" />
     <ClCompile Include="test_script_command.cpp" />
