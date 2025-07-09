@@ -25,12 +25,6 @@ public:
   vector<string> args;
 };
 
-class StdInOutCtrl {
-public:
-};
-
-class ArgParser {};
-
 // Forward declarations
 class TestShell;
 
@@ -46,8 +40,6 @@ public:
 
 class TestShell {
 private:
-  StdInOutCtrl *ctrl;
-  ArgParser *parser;
   SSD_INTERFACE *ssd;
   Command command;
   std::unordered_map<string, std::unique_ptr<ICommandHandler>> commandHandlers;

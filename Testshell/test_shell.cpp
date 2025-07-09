@@ -4,18 +4,16 @@
 #include "command.h"
 #include "logger.h"
 
-TestShell::TestShell() : ctrl(new StdInOutCtrl()), parser(new ArgParser()) {
+TestShell::TestShell() {
   initializeCommandHandlers();
 }
 
 TestShell::TestShell(SSD_INTERFACE *_ssd)
-    : ctrl(new StdInOutCtrl()), parser(new ArgParser()), ssd{_ssd} {
+    : ssd{_ssd} {
   initializeCommandHandlers();
 }
 
 TestShell::~TestShell() {
-  delete ctrl;
-  delete parser;
 }
 
 // MockDriver
