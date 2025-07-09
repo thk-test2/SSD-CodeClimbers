@@ -1,9 +1,9 @@
+#include "ssd_cmd_buffer_control.h"
+#include "ssd_driver.cpp"
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
-#include "ssd_cmd_buffer_control.h"
-#include "ssd_driver.cpp"
 
 using std::invalid_argument;
 using std::string;
@@ -18,14 +18,10 @@ void CmdBufferControl::flush() {
   SSDDriver driver;
 
   for (const auto &cmd : cmdList) {
-    if (cmd.cmdType == "W") {
+    if (cmd.cmdType == "W")
       driver.write(cmd.LBA, cmd.value);
-      break;
-    }
-    if (cmd.cmdType == "E") {
+    if (cmd.cmdType == "E")
       driver.erase(cmd.LBA, cmd.value);
-      break;
-    }
     if (cmd.cmdType == "empty")
       break;
   }
@@ -36,7 +32,6 @@ vector<Cmd> CmdBufferControl::parseCommands(const string &bufNameList) {
   vector<Cmd> parsedCommands;
   stringstream ssComma(bufNameList);
   string cmdString;
-  
 
   while (getline(ssComma, cmdString, ',')) {
     if (cmdString.empty())
