@@ -40,6 +40,8 @@ void IoStream::loadNandFiletoBuf() {
   ifstream ifs(nand_file_name);
 
   if (!ifs) {
+    initSsdNand();
+    clearOutput();
     return;
   }
 
