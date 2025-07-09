@@ -59,6 +59,7 @@ public:
 class EraseCommand : public ICommandHandler {
 private:
   bool isValidEraseUsage(const Command &command);
+  const int MAX_SSD_ERASE_SIZE = 10;
 
 public:
   void execute(TestShell *shell, const Command &command) override;

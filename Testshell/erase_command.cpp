@@ -11,7 +11,7 @@ void EraseCommand::execute(TestShell *shell, const Command &command) {
   int size = stoi(command.args[1]);
 
   int remain_size = size;
-  int unit_size = std::min(10, size);
+  int unit_size = std::min(MAX_SSD_ERASE_SIZE, size);
   while (remain_size > 0) {
     shell->getSSD()->erase(lba, unit_size);
     string result = shell->getSSD()->getResult();
@@ -23,7 +23,7 @@ void EraseCommand::execute(TestShell *shell, const Command &command) {
 
     remain_size -= unit_size;
     lba += unit_size;
-    unit_size = std::min(10, remain_size);
+    unit_size = std::min(MAX_SSD_ERASE_SIZE, remain_size);
   }
 }
 
