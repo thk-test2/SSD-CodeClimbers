@@ -1,15 +1,16 @@
 #include "command.h"
 #include "test_shell.h"
 
-void ReadCommand::execute(TestShell* shell, const Command& command) {
+bool ReadCommand::execute(TestShell* shell, const Command& command) {
   if (!isValidReadUsage(command)) {
     cout << "INVALID COMMAND\n";
-    return;
+    return false;
   }
 
   int lba = stoi(command.args[0]);
   shell->getSSD()->read(lba);
   cout << "[Read] " << command.args[0] << " : " << shell->getSSD()->getResult() << "\n";
+  return true;
 }
 
 bool ReadCommand::isValidReadUsage(const Command &command) {

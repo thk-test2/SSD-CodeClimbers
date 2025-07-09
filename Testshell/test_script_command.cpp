@@ -12,10 +12,10 @@ bool checkPartialWriteSuccess(TestShell *shell, int lba, unsigned long value) {
   return true;
 }
 
-void TestScript1::execute(TestShell *shell, const Command &command) {
+bool TestScript1::execute(TestShell *shell, const Command &command) {
   if (command.args.size() != 0) {
     std::cout << "INVALID_COMMAND\n";
-    return;
+    return false;
   }
 
   unsigned long value = 0xAAAABBBB;
@@ -31,17 +31,18 @@ void TestScript1::execute(TestShell *shell, const Command &command) {
       string result = shell->getSSD()->getResult();
       if (result != valueStr) {
         cout << "FAIL!" << endl;
-        return;
+        return false;
       }
     }
   }
   cout << "Pass" << endl;
+  return true;
 }
 
-void TestScript2::execute(TestShell *shell, const Command &command) {
+bool TestScript2::execute(TestShell *shell, const Command &command) {
   if (command.args.size() != 0) {
     std::cout << "INVALID_COMMAND\n";
-    return;
+    return false;
   }
 
   unsigned long value = 0xAAAABBBB;
@@ -52,20 +53,21 @@ void TestScript2::execute(TestShell *shell, const Command &command) {
       shell->getSSD()->write(lba, value);
       if (!checkPartialWriteSuccess(shell, lba, value)) {
         cout << "FAIL!" << endl;
-        return;
+        return false;
       }
     }
   }
   cout << "Pass" << endl;
+  return true;
 }
 
-void TestScript3::execute(TestShell *shell, const Command &command) {
+bool TestScript3::execute(TestShell *shell, const Command &command) {
 #ifdef _DEBUG
   unsigned long value = stoul(command.args[0], nullptr, 16);
 #else
   if (command.args.size() != 0) {
     std::cout << "INVALID_COMMAND\n";
-    return;
+    return false;
   }
   unsigned long value = getRandomValue();
 #endif
@@ -74,22 +76,23 @@ void TestScript3::execute(TestShell *shell, const Command &command) {
     shell->getSSD()->write(0, value);
     if (!checkPartialWriteSuccess(shell, 0, value)) {
       cout << "FAIL!" << endl;
-      return;
+      return false;
     }
 
     shell->getSSD()->write(99, value);
     if (!checkPartialWriteSuccess(shell, 99, value)) {
       cout << "FAIL!" << endl;
-      return;
+      return false;
     }
   }
   cout << "Pass" << endl;
+  return true;
 }
 
-void TestScript4::execute(TestShell *shell, const Command &command) {
+bool TestScript4::execute(TestShell *shell, const Command &command) {
   if (command.args.size() != 0) {
     std::cout << "INVALID_COMMAND\n";
-    return;
+    return false;
   }
   unsigned long value1 = getRandomValue();
   unsigned long value2 = getRandomValue();
@@ -97,7 +100,7 @@ void TestScript4::execute(TestShell *shell, const Command &command) {
   shell->getSSD()->erase(0, 3);
   if (shell->getSSD()->getResult() == "ERROR") {
     cout << "FAIL!" << endl;
-    return;
+    return false;
   }
 
   for (int i = 0; i < 30; i++) {
@@ -106,20 +109,20 @@ void TestScript4::execute(TestShell *shell, const Command &command) {
       shell->getSSD()->write(slba, value1);
       if (shell->getSSD()->getResult() == "ERROR") {
         cout << "FAIL!" << endl;
-        return;
+        return false;
       }
       
       shell->getSSD()->write(slba, value2);
       if (shell->getSSD()->getResult() == "ERROR") {
         cout << "FAIL!" << endl;
-        return;
+        return false;
       }
 
       int size = elba - slba + 1;
       shell->getSSD()->erase(slba, size);
       if (shell->getSSD()->getResult() == "ERROR") {
         cout << "FAIL!" << endl;
-        return;
+        return false;
       }
 
       slba = elba;
@@ -129,4 +132,5 @@ void TestScript4::execute(TestShell *shell, const Command &command) {
     }
   }
   cout << "Pass" << endl;
+  return true;
 }

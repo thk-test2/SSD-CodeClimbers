@@ -2,10 +2,10 @@
 #include "test_shell.h"
 #include <algorithm>
 
-void EraseCommand::execute(TestShell *shell, const Command &command) {
+bool EraseCommand::execute(TestShell *shell, const Command &command) {
   if (!isValidEraseUsage(command)) {
     cout << "INVALID COMMAND\n";
-    return;
+    return false;
   }
   int lba = stoi(command.args[0]);
   int size = stoi(command.args[1]);
@@ -18,13 +18,14 @@ void EraseCommand::execute(TestShell *shell, const Command &command) {
     if (result == "ERROR") {
       cout << "ERROR during erase operation. lba : " << lba
            << " size : " << size << "\n";
-      return;
+      return false;
     }
 
     remain_size -= unit_size;
     lba += unit_size;
     unit_size = std::min(MAX_SSD_ERASE_SIZE, remain_size);
   }
+  return true;
 }
 
 bool EraseCommand::isValidEraseUsage(const Command &command) {

@@ -4,7 +4,7 @@
 
 class ExitCommand : public ICommandHandler {
 public:
-  void execute(TestShell *shell, const Command &command) override;
+  bool execute(TestShell *shell, const Command &command) override;
   string getUsage() const override { return ""; }
   string getDescription() const override { return "Exit the shell"; }
   string getExample() const override { return "exit"; }
@@ -12,7 +12,7 @@ public:
 
 class FullReadCommand : public ICommandHandler {
 public:
-  void execute(TestShell *shell, const Command &command) override;
+  bool execute(TestShell *shell, const Command &command) override;
   string getUsage() const override { return ""; }
   string getDescription() const override { return "Read the entire SSD"; }
   string getExample() const override { return "fullread"; }
@@ -20,7 +20,7 @@ public:
 
 class FullWriteCommand : public ICommandHandler {
 public:
-  void execute(TestShell *shell, const Command &command) override;
+  bool execute(TestShell *shell, const Command &command) override;
   string getUsage() const override { return "<value>"; }
   string getDescription() const override { return "Write <value> to the entire SSD"; }
   string getExample() const override { return "fullwrite 0x00"; }
@@ -28,7 +28,7 @@ public:
 
 class HelpCommand : public ICommandHandler {
 public:
-  void execute(TestShell *shell, const Command &command) override;
+  bool execute(TestShell *shell, const Command &command) override;
   string getUsage() const override { return ""; }
   string getDescription() const override { return "Show this help message"; }
   string getExample() const override { return "help"; }
@@ -39,7 +39,7 @@ private:
   bool isValidReadUsage(const Command &command);
 
 public:
-  void execute(TestShell *shell, const Command &command) override;
+  bool execute(TestShell *shell, const Command &command) override;
   string getUsage() const override { return "<lba>"; }
   string getDescription() const override { return "Read from SSD at logical block address <lba>"; }
   string getExample() const override { return "read 10"; }
@@ -50,7 +50,7 @@ private:
   bool isValidWriteUsage(const Command &command, int hexBase);
 
 public:
-  void execute(TestShell *shell, const Command &command) override;
+  bool execute(TestShell *shell, const Command &command) override;
   string getUsage() const override { return "<lba> <value>"; }
   string getDescription() const override { return "Write <value> to SSD at logical block address <lba>"; }
   string getExample() const override { return "write 5 0xFF"; }
@@ -62,7 +62,7 @@ private:
   const int MAX_SSD_ERASE_SIZE = 10;
 
 public:
-  void execute(TestShell *shell, const Command &command) override;
+  bool execute(TestShell *shell, const Command &command) override;
   string getUsage() const override { return "<lba> <size>"; }
   string getDescription() const override {
     return "Erase the logical blocks from <lba> for the specified <size>.";
@@ -76,7 +76,7 @@ private:
   const int MAX_SSD_ERASE_SIZE = 10;
 
 public:
-  void execute(TestShell *shell, const Command &command) override;
+  bool execute(TestShell *shell, const Command &command) override;
   string getUsage() const override { return "<st_lba> <en_lba>"; }
   string getDescription() const override {
     return "Erase the SSD's logical blocks from st_lba to en_lba";
@@ -86,7 +86,7 @@ public:
 
 class FlushCommand : public ICommandHandler {
 public:
-  void execute(TestShell *shell, const Command &command) override;
+  bool execute(TestShell *shell, const Command &command) override;
   string getUsage() const override { return ""; }
   string getDescription() const override {
     return "Flush all buffered commands to SSD";
@@ -96,7 +96,7 @@ public:
 
 class TestScript1 : public ICommandHandler {
 public:
-  void execute(TestShell *shell, const Command &command) override;
+  bool execute(TestShell *shell, const Command &command) override;
   string getUsage() const override { return "<value>"; }
   string getDescription() const override { return "Run comprehensive write/read test for entire SSD"; }
   string getExample() const override { return "'1_' or '1_FullWriteAndReadCompare'"; }
@@ -104,7 +104,7 @@ public:
 
 class TestScript2 : public ICommandHandler {
 public:
-  void execute(TestShell *shell, const Command &command) override;
+  bool execute(TestShell *shell, const Command &command) override;
   string getUsage() const override { return "<value>"; }
   string getDescription() const override { return "Run partial LBA write consistency test (30 iterations)"; }
   string getExample() const override { return "'2_' or '2_PartialLBAWrite'"; }
@@ -112,7 +112,7 @@ public:
 
 class TestScript3 : public ICommandHandler {
 public:
-  void execute(TestShell *shell, const Command &command) override;
+  bool execute(TestShell *shell, const Command &command) override;
   string getUsage() const override { return ""; }
   string getDescription() const override { return "Run write/read aging test (200 iterations)"; }
   string getExample() const override { return "'3_' or '3_WriteReadAging'"; }
@@ -120,7 +120,7 @@ public:
 
 class TestScript4 : public ICommandHandler {
 public:
-  void execute(TestShell *shell, const Command &command) override;
+  bool execute(TestShell *shell, const Command &command) override;
   string getUsage() const override { return ""; }
   string getDescription() const override {
     return "Repeatedly erase LBA ranges and write random data to following LBAs in sequential loops (30 iterations)";

@@ -1,10 +1,10 @@
 #include "command.h"
 #include "test_shell.h"
 
-void FullWriteCommand::execute(TestShell* shell, const Command& command) {
+bool FullWriteCommand::execute(TestShell* shell, const Command& command) {
   if (command.args.size() != 1) {
     cout << "INVALID COMMAND\n";
-    return;
+    return false;
   }
   
   unsigned long value;
@@ -12,7 +12,7 @@ void FullWriteCommand::execute(TestShell* shell, const Command& command) {
     value = stoul(command.args[0], nullptr, shell->getHexBase());
   } catch (std::exception &e) {
     cout << "INVALID COMMAND\n";
-    return;
+    return false;
   }
   
   int lba = 0;
@@ -24,4 +24,5 @@ void FullWriteCommand::execute(TestShell* shell, const Command& command) {
     shell->getSSD()->write(lba, value);
     result = shell->getSSD()->getResult();
   }
+  return true;
 }

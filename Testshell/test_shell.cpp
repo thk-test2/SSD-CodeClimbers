@@ -52,7 +52,8 @@ void TestShell::runScripts() {
   for (const auto &script : shellScripts) {
     cout << std::left << std::setw(30) << script << "___   Run...";
     command = parsing(script);
-    executeCommand(command);
+    if (!executeCommand(command))
+      break;
   }
 }
 
@@ -72,15 +73,19 @@ void TestShell::runInteractive() {
   }
 }
 
-void TestShell::executeCommand(const Command &command) {
+bool TestShell::executeCommand(const Command &command) {
   string cmd = command.command;
 
   auto commandIt = commandHandlers.find(cmd);
   if (commandIt != commandHandlers.end()) {
-    commandIt->second->execute(this, command);
+    if (commandIt->second->execute(this, command)) {
+      logger.print("TestShell.executeCommand()",
+                   "Successfully executed command - " + cmd);
+      return true;
+    }
     logger.print("TestShell.executeCommand()",
-        "Successfully executed command - " + cmd);
-    return;
+                 "Command execution was failed - " + cmd);
+    return false;
   }
 
   logger.print("TestShell.executeCommand()",
