@@ -36,7 +36,7 @@ void IoStream::initSsdNand() {
   }
 }
 
-void IoStream::loadNandFile() {
+void IoStream::loadNandFiletoBuf() {
   ifstream ifs(nand_file_name);
 
   if (!ifs) {

@@ -3,9 +3,7 @@
 
 class SSDDriver : public Device {
 public:
-  SSDDriver() {
-    stream = new IoStream(MAX_NAND_MEMORY_MAP_SIZE, buf);
-  }
+  SSDDriver() { stream = new IoStream(MAX_NAND_MEMORY_MAP_SIZE, buf); }
   void run(int argc, char *argv[]) {
     vector<string> params = parseParams(argc, argv);
 
@@ -13,12 +11,17 @@ public:
     int lba = std::stoi(params[1]);
 
     bool result = false;
-    if (command == "W") {
+    if (command == "W" && argc == 4) {
       unsigned long value = std::stoul(params[2], nullptr, HEX_BASE);
       result = write(lba, value);
-    }
-    if (command == "R")
+    } else if (command == "R" && argc == 3) {
       result = read(lba);
+    } else if (command == "E" && argc == 4) {
+      int size = std::stoi(params[2]);
+      result = erase(lba, size);
+    } else
+      throw std::runtime_error("Need to check parameter.");
+
     if (!result)
       throw std::runtime_error("Device operation failed.");
   }
@@ -43,33 +46,59 @@ public:
       return false;
     }
 
-    stream->loadNandFile();
+    stream->loadNandFiletoBuf();
 
     ofstream ofs = stream->getOutputWriteStream();
     ofs << "0x" << std::setfill('0') << std::setw(8) << std::hex
-        << std::uppercase
-        << buf[lba];
+        << std::uppercase << buf[lba];
 
     return true;
   }
+
+  void writeBufToNandFile() {
+    ofstream ofs = stream->getNandWriteStream();
+    for (int i = 0; i < MAX_NAND_MEMORY_MAP_SIZE; ++i) {
+      ofs << std::dec << i << " 0x" << std::setfill('0') << std::setw(8)
+          << std::hex << std::uppercase << buf[i] << "\n";
+    }
+  }
+
   bool write(int lba, unsigned long value) override {
     if (!isValid_LBA_Range(lba)) {
       stream->writeError();
       return false;
     }
 
-    stream->loadNandFile();
+    stream->loadNandFiletoBuf();
 
     buf[lba] = value;
 
-    ofstream ofs = stream->getNandWriteStream();
-    for (int i = 0; i < MAX_NAND_MEMORY_MAP_SIZE; ++i) {
-      ofs << std::dec << i << " 0x" << std::setfill('0') << std::setw(8)
-          << std::hex << std::uppercase
-          << buf[i] << "\n";
-    }
+    writeBufToNandFile();
 
     stream->clearOutput();
+
+    return true;
+  }
+
+  bool erase(int lba, int size) override {
+    if (size < 1 || size > 10)
+      return false;
+
+    if (lba + size > 100)
+      return false;
+
+    if (!isValid_LBA_Range(lba)) {
+      stream->writeError();
+      return false;
+    }
+
+    stream->loadNandFiletoBuf();
+
+    for (int i = lba; i < lba + size; i++)
+      buf[i] = 0;
+
+    writeBufToNandFile();
+
     return true;
   }
 
