@@ -128,7 +128,7 @@ void TestShell::printTestScripts() {
                    "Run write/read aging test (200 iterations)",
                    "'3_' or '3_WriteReadAging'");
   printCommandInfo("4_EraseAndWriteAging", "",
-                   "Repeatedly erase LBA ranges and write random data to following LBAs in sequential loops (30 iteration)",
+                   "Repeatedly erase LBA ranges and write random data to following LBAs in sequential loops (30 iterations)",
                    "'4_' or '4_EraseAndWriteAging'");
 }
 
