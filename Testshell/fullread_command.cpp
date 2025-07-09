@@ -1,10 +1,10 @@
 #include "command.h"
 #include "test_shell.h"
 
-void FullReadCommand::execute(TestShell* shell, const Command& command) {
+bool FullReadCommand::execute(TestShell* shell, const Command& command) {
   if (command.args.size() != 0) {
     cout << "INVALID COMMAND\n";
-    return;
+    return false;
   }
   
   int lba = 0;
@@ -16,4 +16,5 @@ void FullReadCommand::execute(TestShell* shell, const Command& command) {
     shell->getSSD()->read(lba);
     result = shell->getSSD()->getResult();
   }
+  return true;
 }

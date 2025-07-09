@@ -33,7 +33,7 @@ class TestShell;
 class ICommandHandler {
 public:
   virtual ~ICommandHandler() = default;
-  virtual void execute(TestShell *shell, const Command &command) = 0;
+  virtual bool execute(TestShell *shell, const Command &command) = 0;
   virtual string getUsage() const = 0;
   virtual string getDescription() const = 0;
   virtual string getExample() const = 0;
@@ -60,7 +60,7 @@ public:
   ~TestShell();
 
   void run();
-  void executeCommand(const Command &command);
+  bool executeCommand(const Command &command);
 
   // Public methods for command handlers to access
   SSD_INTERFACE *getSSD() { return ssd; }

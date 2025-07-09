@@ -1,10 +1,10 @@
 #include "command.h"
 #include "test_shell.h"
 
-void WriteCommand::execute(TestShell* shell, const Command& command) {
+bool WriteCommand::execute(TestShell* shell, const Command& command) {
   if (!isValidWriteUsage(command, shell->getHexBase())) {
     cout << "INVALID COMMAND\n";
-    return;
+    return false;
   }
   
   shell->getSSD()->write(stoi(command.args[0]), 
@@ -13,6 +13,7 @@ void WriteCommand::execute(TestShell* shell, const Command& command) {
   if (result == "")
     result = "Done";
   cout << "[Write] " << result << "\n";
+  return true;
 }
 
 bool WriteCommand::isValidWriteUsage(const Command &command, int hexBase) {

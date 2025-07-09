@@ -1,10 +1,10 @@
 #include "command.h"
 #include "test_shell.h"
 
-void FlushCommand::execute(TestShell *shell, const Command &command) {
+bool FlushCommand::execute(TestShell *shell, const Command &command) {
   if (command.args.size() != 0) {
     cout << "INVALID COMMAND\n";
-    return;
+    return false;
   }
 
   shell->getSSD()->flush();
@@ -15,4 +15,5 @@ void FlushCommand::execute(TestShell *shell, const Command &command) {
   } else {
     cout << "[Flush] Done\n";
   }
+  return true;
 }

@@ -2,10 +2,10 @@
 #include "test_shell.h"
 #include <algorithm>
 
-void EraseRangeCommand::execute(TestShell *shell, const Command &command) {
+bool EraseRangeCommand::execute(TestShell *shell, const Command &command) {
   if (!isValidEraseRangeUsage(command)) {
     cout << "INVALID COMMAND\n";
-    return;
+    return false;
   }
   int st_lba = stoi(command.args[0]);
   int en_lba = stoi(command.args[1]);
@@ -20,13 +20,14 @@ void EraseRangeCommand::execute(TestShell *shell, const Command &command) {
     if (result == "ERROR") {
       cout << "ERROR during erase operation. st_lba : " << st_lba
            << " en_lba : " << en_lba << "\n";
-      return;
+      return false;
     }
 
     remain_size -= unit_size;
     lba += unit_size;
     unit_size = std::min(10, remain_size);
   }
+  return true;
 }
 
 bool EraseRangeCommand::isValidEraseRangeUsage(const Command &command) {
