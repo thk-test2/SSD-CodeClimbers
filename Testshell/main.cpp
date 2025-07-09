@@ -1,7 +1,6 @@
+#include "ssd_exe.h"
 #include "test_shell.h"
-#include "ssd_interface.h"
 #include "gmock/gmock.h"
-#include "ssd_exe.cpp"
 
 // stdout 캡처/해제 함수
 using testing::internal::CaptureStdout;
@@ -282,13 +281,10 @@ TEST_F(TestShellFixture, FullWriteNormalCase) {
   ts.executeCommand(command);
   std::string output = GetCapturedStdout();
 
-  EXPECT_TRUE(output.find("[Full Write] LBA: 0 Done") !=
-              std::string::npos);
-  EXPECT_TRUE(output.find("[Full Write] LBA: 1 Done") !=
-              std::string::npos);
-  EXPECT_TRUE(output.find("[Full Write] LBA: 2 Done") !=
-              std::string::npos);
-              
+  EXPECT_TRUE(output.find("[Full Write] LBA: 0 Done") != std::string::npos);
+  EXPECT_TRUE(output.find("[Full Write] LBA: 1 Done") != std::string::npos);
+  EXPECT_TRUE(output.find("[Full Write] LBA: 2 Done") != std::string::npos);
+
   // 4번째 LBA는 ERROR이므로 출력되지 않아야 함
   EXPECT_TRUE(output.find("[Full Write] LBA: 3") == std::string::npos);
 }
@@ -354,7 +350,7 @@ TEST_F(TestShellFixture, TestScript1FAIL) {
   ts.executeCommand(cmd);
   std::string output = GetCapturedStdout();
 
-  EXPECT_TRUE(output.find("Script 1 execution failed.\n") != std::string::npos);
+  EXPECT_TRUE(output.find("FAIL!\n") != std::string::npos);
 }
 
 TEST_F(TestShellFixture, TestScript1ShortcutFAIL) {
@@ -367,7 +363,7 @@ TEST_F(TestShellFixture, TestScript1ShortcutFAIL) {
   ts.executeCommand(cmd);
   std::string output = GetCapturedStdout();
 
-  EXPECT_TRUE(output.find("Script 1 execution failed.\n") != std::string::npos);
+  EXPECT_TRUE(output.find("FAIL!\n") != std::string::npos);
 }
 
 TEST_F(TestShellFixture, TestScript1SUCCESS) {
@@ -380,7 +376,7 @@ TEST_F(TestShellFixture, TestScript1SUCCESS) {
   ts.executeCommand(cmd);
   std::string output = GetCapturedStdout();
 
-  EXPECT_EQ("Script 1 executed successfully.\n", output);
+  EXPECT_EQ("Pass\n", output);
 }
 
 TEST_F(TestShellFixture, TestScript1ShortcutSUCCESS) {
@@ -393,7 +389,7 @@ TEST_F(TestShellFixture, TestScript1ShortcutSUCCESS) {
   ts.executeCommand(cmd);
   std::string output = GetCapturedStdout();
 
-  EXPECT_EQ("Script 1 executed successfully.\n", output);
+  EXPECT_EQ("Pass\n", output);
 }
 
 TEST_F(TestShellFixture, TestScript2FAIL) {
@@ -406,7 +402,7 @@ TEST_F(TestShellFixture, TestScript2FAIL) {
   ts.executeCommand(cmd);
   std::string output = GetCapturedStdout();
 
-  EXPECT_TRUE(output.find("Script 2 execution failed.\n") != std::string::npos);
+  EXPECT_TRUE(output.find("FAIL!\n") != std::string::npos);
 }
 
 TEST_F(TestShellFixture, TestScript2ShortcutFAIL) {
@@ -419,7 +415,7 @@ TEST_F(TestShellFixture, TestScript2ShortcutFAIL) {
   ts.executeCommand(cmd);
   std::string output = GetCapturedStdout();
 
-  EXPECT_TRUE(output.find("Script 2 execution failed.\n") != std::string::npos);
+  EXPECT_TRUE(output.find("FAIL!\n") != std::string::npos);
 }
 
 TEST_F(TestShellFixture, TestScript2SUCCESS) {
@@ -432,7 +428,7 @@ TEST_F(TestShellFixture, TestScript2SUCCESS) {
   ts.executeCommand(cmd);
   std::string output = GetCapturedStdout();
 
-  EXPECT_EQ("Script 2 executed successfully.\n", output);
+  EXPECT_EQ("Pass\n", output);
 }
 
 TEST_F(TestShellFixture, TestScript2ShortcutSUCCESS) {
@@ -445,7 +441,7 @@ TEST_F(TestShellFixture, TestScript2ShortcutSUCCESS) {
   ts.executeCommand(cmd);
   std::string output = GetCapturedStdout();
 
-  EXPECT_EQ("Script 2 executed successfully.\n", output);
+  EXPECT_EQ("Pass\n", output);
 }
 
 TEST_F(TestShellFixture, TestScript3FAIL) {
@@ -458,7 +454,7 @@ TEST_F(TestShellFixture, TestScript3FAIL) {
   ts.executeCommand(cmd);
   std::string output = GetCapturedStdout();
 
-  EXPECT_TRUE(output.find("Script 3 execution failed.\n") != std::string::npos);
+  EXPECT_TRUE(output.find("FAIL!\n") != std::string::npos);
 }
 
 TEST_F(TestShellFixture, TestScript3ShortcutFAIL) {
@@ -471,7 +467,7 @@ TEST_F(TestShellFixture, TestScript3ShortcutFAIL) {
   ts.executeCommand(cmd);
   std::string output = GetCapturedStdout();
 
-  EXPECT_TRUE(output.find("Script 3 execution failed.\n") != std::string::npos);
+  EXPECT_TRUE(output.find("FAIL!\n") != std::string::npos);
 }
 
 TEST_F(TestShellFixture, TestScript3SUCCESS) {
@@ -485,7 +481,7 @@ TEST_F(TestShellFixture, TestScript3SUCCESS) {
   ts.executeCommand(cmd);
   std::string output = GetCapturedStdout();
 
-  EXPECT_EQ("Script 3 executed successfully.\n", output);
+  EXPECT_EQ("Pass\n", output);
 }
 
 TEST_F(TestShellFixture, TestScript3ShortcutSUCCESS) {
@@ -499,13 +495,12 @@ TEST_F(TestShellFixture, TestScript3ShortcutSUCCESS) {
   ts.executeCommand(cmd);
   std::string output = GetCapturedStdout();
 
-  EXPECT_EQ("Script 3 executed successfully.\n", output);
+  EXPECT_EQ("Pass\n", output);
 }
 
 TEST_F(TestShellFixture, TestScript4FAIL) {
-  vector<Command> commands = {
-      {TEST_SCRIPT_4_FULLNAME, {}},
-      {TEST_SCRIPT_4_SHORTCUT, {}}};
+  vector<Command> commands = {{TEST_SCRIPT_4_FULLNAME, {}},
+                              {TEST_SCRIPT_4_SHORTCUT, {}}};
 
   for (auto cmd : commands) {
     EXPECT_CALL(ssd, erase(_, _)).Times(AtLeast(1));
@@ -519,15 +514,13 @@ TEST_F(TestShellFixture, TestScript4FAIL) {
     ts.executeCommand(cmd);
     std::string output = GetCapturedStdout();
 
-    EXPECT_TRUE(output.find("Script 4 execution failed.\n") !=
-                std::string::npos);  
+    EXPECT_TRUE(output.find("FAIL!\n") != std::string::npos);
   }
 }
 
 TEST_F(TestShellFixture, TestScript4SUCCESS) {
-  vector<Command> commands = {
-      {TEST_SCRIPT_4_FULLNAME, {}},
-      {TEST_SCRIPT_4_SHORTCUT, {}}};
+  vector<Command> commands = {{TEST_SCRIPT_4_FULLNAME, {}},
+                              {TEST_SCRIPT_4_SHORTCUT, {}}};
 
   for (auto cmd : commands) {
     EXPECT_CALL(ssd, erase(_, _)).Times(49 * 30 + 1);
@@ -538,7 +531,7 @@ TEST_F(TestShellFixture, TestScript4SUCCESS) {
     ts.executeCommand(cmd);
     std::string output = GetCapturedStdout();
 
-    EXPECT_EQ("Script 4 executed successfully.\n", output);  
+    EXPECT_EQ("Pass\n", output);
   }
 }
 
@@ -552,13 +545,31 @@ TEST_F(TestShellFixture, InvalidCommand) {
   EXPECT_EQ("INVALID COMMAND\n", output);
 }
 
-int main() {
+std::vector<std::string> getScripts(const std::string &filename) {
+  std::ifstream in(filename);
+  std::vector<std::string> result;
+  if (!in) {
+    std::cerr << "파일 열기 실패: " << filename << "\n";
+    return result;
+  }
+  std::string script;
+  while (std::getline(in, script)) {
+    result.push_back(script);
+  }
+  return result;
+}
+
+int main(int argc, char *argv[]) {
 #ifdef _DEBUG
   ::testing::InitGoogleTest();
   return RUN_ALL_TESTS();
 #else
   SSD_EXE ssd;
   TestShell testShell{&ssd};
+
+  if (argc > 1) {
+    testShell.setShellScripts(getScripts(argv[1]));
+  }
   testShell.run();
   return 0;
 #endif

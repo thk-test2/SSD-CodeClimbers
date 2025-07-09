@@ -1,7 +1,8 @@
-#include "ssd_exe.cpp"
 #include "test_shell.h"
 #include "command.h"
 #include "logger.h"
+#include "ssd_exe.h"
+#include "gmock/gmock.h"
 
 TestShell::TestShell() {
   initializeCommandHandlers();
@@ -28,7 +29,8 @@ void TestShell::initializeCommandHandlers() {
 
   // Test scripts
   commandHandlers["1_"] = std::make_unique<TestScript1>();
-  commandHandlers["1_FullWriteAndReadCompare"] = std::make_unique<TestScript1>();
+  commandHandlers["1_FullWriteAndReadCompare"] =
+      std::make_unique<TestScript1>();
   commandHandlers["2_"] = std::make_unique<TestScript2>();
   commandHandlers["2_PartialLBAWrite"] = std::make_unique<TestScript2>();
   commandHandlers["3_"] = std::make_unique<TestScript3>();
@@ -38,6 +40,22 @@ void TestShell::initializeCommandHandlers() {
 }
 
 void TestShell::run() {
+  if (!shellScripts.empty()) {
+    runScripts();
+    return;
+  }
+  runInteractive();
+}
+
+void TestShell::runScripts() {
+  for (const auto &script : shellScripts) {
+    cout << std::left << std::setw(30) << script << "___   Run...";
+    command = parsing(script);
+    executeCommand(command);
+  }
+}
+
+void TestShell::runInteractive() {
   string userInput;
   while (true) {
     cout << "> ";
@@ -55,7 +73,7 @@ void TestShell::run() {
 
 void TestShell::executeCommand(const Command &command) {
   string cmd = command.command;
-  
+
   auto commandIt = commandHandlers.find(cmd);
   if (commandIt != commandHandlers.end()) {
     commandIt->second->execute(this, command);
@@ -63,7 +81,7 @@ void TestShell::executeCommand(const Command &command) {
         "Successfully executed command - " + cmd);
     return;
   }
-  
+
   logger.print("TestShell.executeCommand()",
       "Invalid command - " + cmd);
   cout << "INVALID COMMAND" << endl;
@@ -98,16 +116,16 @@ void TestShell::printTeamInfo() {
 
 void TestShell::printCommands() {
   cout << "\n\033[1mCommands:\033[0m\n";
-  
+
   // 명령어 순서를 고정하여 출력
   vector<string> commandOrder = {"read", "write", "fullread", "fullwrite",
                                  "help", "exit",  "erase",    "erase_range"};
-  
-  for (const string& cmdName : commandOrder) {
+
+  for (const string &cmdName : commandOrder) {
     auto it = commandHandlers.find(cmdName);
     if (it != commandHandlers.end()) {
-      printCommandInfo(cmdName, it->second->getUsage(), 
-                      it->second->getDescription(), it->second->getExample());
+      printCommandInfo(cmdName, it->second->getUsage(),
+                       it->second->getDescription(), it->second->getExample());
     }
   }
 }
@@ -124,12 +142,14 @@ void TestShell::printTestScripts() {
                    "Run write/read aging test (200 iterations)",
                    "'3_' or '3_WriteReadAging'");
   printCommandInfo("4_EraseAndWriteAging", "",
-                   "Repeatedly erase LBA ranges and write random data to following LBAs in sequential loops (30 iterations)",
+                   "Repeatedly erase LBA ranges and write random data to "
+                   "following LBAs in sequential loops (30 iterations)",
                    "'4_' or '4_EraseAndWriteAging'");
 }
 
 void TestShell::printCommandInfo(const string &command, const string &args,
-                      const string &description, const string &example) {
+                                 const string &description,
+                                 const string &example) {
   cout << "  \033[1m" << command << "\033[0m";
   if (!args.empty()) {
     cout << " " << args;

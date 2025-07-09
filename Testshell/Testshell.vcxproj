@@ -142,7 +142,7 @@
     <ClCompile Include="fullwrite_command.cpp" />
     <ClCompile Include="help_command.cpp" />
     <ClCompile Include="read_command.cpp" />
-    <ClCompile Include="ssd_exe.cpp" />
+    <ClCompile Include="ssd_exe.h" />
     <ClCompile Include="ssd_exe_test.cpp" />
     <ClCompile Include="test_script_command.cpp" />
     <ClCompile Include="test_shell.cpp" />
@@ -154,6 +154,9 @@
     <ClInclude Include="logger.h" />
     <ClInclude Include="ssd_interface.h" />
     <ClInclude Include="test_shell.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="shell_script.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
