@@ -41,6 +41,4 @@ public:
 private:
   int storageSize = 0;
   unsigned long *buffer;
-  bool isValid_nand_file = true;
-  bool isValid_output_file = true;
 };
