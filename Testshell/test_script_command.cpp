@@ -117,6 +117,10 @@ void TestScript4::execute(TestShell *shell, const Command &command) {
 
       int size = elba - slba + 1;
       shell->getSSD()->erase(slba, size);
+      if (shell->getSSD()->getResult() == "ERROR") {
+        cout << "Script 4 execution failed." << endl;
+        return;
+      }
 
       slba = elba;
       elba += 2;
