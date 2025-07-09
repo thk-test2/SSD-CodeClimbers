@@ -2,6 +2,7 @@
 #include "command.h"
 #include "ssd_exe.cpp"
 #include "gmock/gmock.h"
+#include "logger.h"
 
 TestShell::TestShell() : ctrl(new StdInOutCtrl()), parser(new ArgParser()) {
   initializeCommandHandlers();
@@ -33,6 +34,8 @@ void TestShell::initializeCommandHandlers() {
   commandHandlers["fullwrite"] = std::make_unique<FullWriteCommand>();
   commandHandlers["help"] = std::make_unique<HelpCommand>();
   commandHandlers["exit"] = std::make_unique<ExitCommand>();
+  commandHandlers["erase"] = std::make_unique<EraseCommand>();
+  commandHandlers["erase_range"] = std::make_unique<EraseRangeCommand>();
 
   // Test scripts
   commandHandlers["1_"] = std::make_unique<TestScript1>();

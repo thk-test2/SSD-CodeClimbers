@@ -126,6 +126,11 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="erase_command.cpp" />
+    <ClCompile Include="erase_range_command.cpp" />
+    <ClCompile Include="file_system_interface.cpp" />
+    <ClCompile Include="logger.cpp" />
+    <ClCompile Include="logger_test.cpp" />
     <ClCompile Include="main.cpp">
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'"> %(AdditionalOptions)</AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'"> %(AdditionalOptions)</AdditionalOptions>
@@ -145,6 +150,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="command.h" />
+    <ClInclude Include="file_system_interface.h" />
+    <ClInclude Include="logger.h" />
     <ClInclude Include="ssd_interface.h" />
     <ClInclude Include="test_shell.h" />
   </ItemGroup>

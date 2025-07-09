@@ -1,18 +1,34 @@
 #include "ssd_cmd_buffer_control.h"
 #include <filesystem>
-#include <iostream>
-using std::cout;
+#include <fstream>
+
 namespace fs = std::filesystem;
 
 CmdBufferControl::CmdBufferControl() {
-
   if (!fs::exists(bufferPath)) {
     fs::create_directory(bufferPath);
   }
 
   for (int i = 1; i <= MAX_BUFFER_SIZE; ++i) {
-    std::string file = bufferPath + "/" + std::to_string(i) + "_empty";
-    cmdBuffer.emplace_back(file);
+    std::string existingFile = "";
+    for (const auto &entry : fs::directory_iterator(bufferPath)) {
+      if (!entry.is_regular_file())
+        continue;
+
+      std::string fname = entry.path().filename().string();
+      if (fname.find(std::to_string(i) + "_") == 0) {
+        existingFile = fname;
+        break;
+      }
+    }
+
+    if (existingFile.empty()) {
+      existingFile = std::to_string(i) + "_empty";
+      std::ofstream ofs(bufferPath + "/" + existingFile);
+      ofs.close();
+    }
+
+    cmdBuffer.emplace_back(bufferPath + "/" + existingFile);
   }
 }
 
@@ -32,13 +48,15 @@ std::string CmdBufferControl::getBufferNameList() const {
 }
 
 bool CmdBufferControl::updateToNextEmpty(const std::string &cmd) {
+  int bufferIndex = 1;
   for (auto &buf : cmdBuffer) {
     if (buf.isEmpty()) {
-      buf.updateCommand(cmd);
+      buf.updateCommand(setBufferName(bufferIndex, cmd));
       return true;
     }
+    bufferIndex++;
   }
-  return false; // no empty slot
+  return false;
 }
 
 bool CmdBufferControl::updateBufferByIndex(int index, const std::string &cmd) {
@@ -46,8 +64,12 @@ bool CmdBufferControl::updateBufferByIndex(int index, const std::string &cmd) {
   if (!isValidBufferIndex(index))
     return false;
 
-  cmdBuffer[index - 1].updateCommand(cmd);
-  return true; // no empty slot
+  cmdBuffer[index - 1].updateCommand(setBufferName(index, cmd));
+  return true;
+}
+
+std::string CmdBufferControl::setBufferName(int index, const std::string &cmd) {
+  return std::to_string(index) + "_" + cmd;
 }
 
 bool CmdBufferControl::isValidBufferIndex(int index) {
@@ -56,10 +78,10 @@ bool CmdBufferControl::isValidBufferIndex(int index) {
 
 bool CmdBufferControl::clearBufferByIndex(int index) {
 
-  if (index > MAX_BUFFER_SIZE || index < 1)
+  if (!isValidBufferIndex(index))
     return false;
   cmdBuffer[index - 1].clear();
-  return true; // no empty slot
+  return true;
 }
 
 void CmdBufferControl::clearAllBuffer(void) {
