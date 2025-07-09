@@ -22,7 +22,7 @@ public:
   bool clearBufferByIndex(int index);
   void clearAllBuffer(void);
   void flush();
-  bool isBufferFull() const;
+  bool isBufferFull() const;    
   std::vector<Cmd> parseCommands(const std::string &bufNameList);
   const int MAX_BUFFER_SIZE = 5;
   const int HEX_BASE = 16;
