@@ -3,6 +3,7 @@
 #include "ssd_driver.cpp"
 #include <string>
 #include <vector>
+#include <stdexcept>
 
 struct Cmd {
   int index;
@@ -27,10 +28,10 @@ public:
   bool isBufferFull() const;
   std::vector<Cmd> parseCommands(const std::string &bufNameList);
   bool emptyBufferShift();
-  char getBufferCmd(int index) const;
-  int getBufferLba(int index) const;
-  unsigned long getBufferValue(int index) const;
-  int getBufferLbaSize(int index) const;
+  char getBufferCmd(int index);
+  int getBufferLba(int index);
+  unsigned long getBufferValue(int index);
+  int getBufferLbaSize(int index);
 
   const int HEX_BASE = 16;
   const int MAX_BUFFER_SIZE = 5;
@@ -43,4 +44,10 @@ private:
   std::vector<CmdBuffer> cmdBuffer;
   std::string bufferPath = "./buffer";
   SSDDriver *driver;
+};
+
+class CmdBufferInvalidIdexException : public std::runtime_error {
+public:
+  CmdBufferInvalidIdexException()
+      : std::runtime_error("Invalid Buffer Index") {}
 };
