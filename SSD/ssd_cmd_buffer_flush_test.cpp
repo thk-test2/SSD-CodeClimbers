@@ -33,7 +33,3 @@ TEST_F(BufctrlFlushFixture, IgnoresUnknownCmdType) {
   parse("1_UNKNOWN_123_ABC,");
   EXPECT_TRUE(result.empty());
 }
-
-TEST_F(BufctrlFlushFixture, IgnoresUnknownCmdType) {
-  EXPECT_NO_THROW(cmdBuffer.flush());
-}
