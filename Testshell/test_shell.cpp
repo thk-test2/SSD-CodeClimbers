@@ -26,6 +26,7 @@ void TestShell::initializeCommandHandlers() {
   commandHandlers["exit"] = std::make_unique<ExitCommand>();
   commandHandlers["erase"] = std::make_unique<EraseCommand>();
   commandHandlers["erase_range"] = std::make_unique<EraseRangeCommand>();
+  commandHandlers["flush"] = std::make_unique<FlushCommand>();
 
   // Test scripts
   commandHandlers["1_"] = std::make_unique<TestScript1>();
@@ -119,9 +120,9 @@ void TestShell::printCommands() {
 
   // 명령어 순서를 고정하여 출력
   vector<string> commandOrder = {"read", "write", "fullread", "fullwrite",
-                                 "help", "exit",  "erase",    "erase_range"};
+                                 "help", "exit",  "erase",    "erase_range", "flush"};
 
-  for (const string &cmdName : commandOrder) {
+  for (const string& cmdName : commandOrder) {
     auto it = commandHandlers.find(cmdName);
     if (it != commandHandlers.end()) {
       printCommandInfo(cmdName, it->second->getUsage(),

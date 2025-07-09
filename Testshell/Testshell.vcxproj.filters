@@ -16,6 +16,9 @@
     <Filter Include="소스 파일\commandHandler">
       <UniqueIdentifier>{ffb454d6-893e-4c11-8de7-4d51a690766f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\ssd_interface">
+      <UniqueIdentifier>{9cf0abb8-9183-4b24-a9fb-f335fea76ffa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -48,12 +51,6 @@
     <ClCompile Include="write_command.cpp">
       <Filter>소스 파일\commandHandler</Filter>
     </ClCompile>
-    <ClCompile Include="ssd_exe.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="ssd_exe_test.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\lib\native\src\gtest\gtest-all.cc">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -66,6 +63,24 @@
     <ClCompile Include="erase_range_command.cpp">
       <Filter>소스 파일\commandHandler</Filter>
     </ClCompile>
+    <ClCompile Include="file_system_interface.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="logger.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="logger_test.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ssd_exe.h">
+      <Filter>헤더 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ssd_exe_test.cpp">
+      <Filter>소스 파일\ssd_interface</Filter>
+    </ClCompile>
+    <ClCompile Include="ssd_exe.cpp">
+      <Filter>소스 파일\ssd_interface</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="test_shell.h">
@@ -77,5 +92,14 @@
     <ClInclude Include="ssd_interface.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="file_system_interface.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="logger.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="shell_script.txt" />
   </ItemGroup>
 </Project>

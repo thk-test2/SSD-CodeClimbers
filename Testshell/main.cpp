@@ -13,6 +13,7 @@ public:
   MOCK_METHOD(void, read, (int lba), (override));
   MOCK_METHOD(void, write, (int lba, unsigned long value), (override));
   MOCK_METHOD(void, erase, (int lba, int size), (override));
+  MOCK_METHOD(void, flush, (), (override));
   MOCK_METHOD(string, getResult, (), (override));
 };
 
@@ -87,6 +88,9 @@ TEST_F(TestShellFixture, DisplaysCommandsSection) {
 
   EXPECT_TRUE(output.find("erase_range") != std::string::npos);
   EXPECT_TRUE(output.find("erase_range 0 99") != std::string::npos);
+
+  EXPECT_TRUE(output.find("flush") != std::string::npos);
+  EXPECT_TRUE(output.find("Flush all buffered commands to SSD") != std::string::npos);
 }
 
 TEST_F(TestShellFixture, DisplayTestScriptsSection) {
@@ -219,6 +223,58 @@ TEST_F(TestShellFixture, EraseRangeInvalidCase) {
 
     EXPECT_EQ("INVALID COMMAND\n", output);
   }
+}
+
+TEST_F(TestShellFixture, FlushNormalCase) {
+  Command command{"flush", vector<string>{}};
+
+  EXPECT_CALL(ssd, flush()).Times(1);
+  EXPECT_CALL(ssd, getResult()).Times(1).WillOnce(Return(""));
+
+  CaptureStdout();
+  ts.executeCommand(command);
+  std::string output = GetCapturedStdout();
+
+  EXPECT_EQ("[Flush] Done\n", output);
+}
+
+TEST_F(TestShellFixture, FlushErrorCase) {
+  Command command{"flush", vector<string>{}};
+
+  EXPECT_CALL(ssd, flush()).Times(1);
+  EXPECT_CALL(ssd, getResult()).Times(1).WillOnce(Return("ERROR"));
+
+  CaptureStdout();
+  ts.executeCommand(command);
+  std::string output = GetCapturedStdout();
+
+  EXPECT_EQ("[Flush] ERROR\n", output);
+}
+
+TEST_F(TestShellFixture, FlushInvalidUsage) {
+  Command command{"flush", vector<string>{"extra_arg"}};
+
+  EXPECT_CALL(ssd, flush()).Times(0);
+  EXPECT_CALL(ssd, getResult()).Times(0);
+
+  CaptureStdout();
+  ts.executeCommand(command);
+  std::string output = GetCapturedStdout();
+
+  EXPECT_EQ("INVALID COMMAND\n", output);
+}
+
+TEST_F(TestShellFixture, FlushMultipleArgsInvalidUsage) {
+  Command command{"flush", vector<string>{"arg1", "arg2"}};
+
+  EXPECT_CALL(ssd, flush()).Times(0);
+  EXPECT_CALL(ssd, getResult()).Times(0);
+
+  CaptureStdout();
+  ts.executeCommand(command);
+  std::string output = GetCapturedStdout();
+
+  EXPECT_EQ("INVALID COMMAND\n", output);
 }
 
 TEST_F(TestShellFixture, FullReadNormalCase) {
