@@ -44,6 +44,24 @@ public:
 #endif
   }
 
+    void erase(int lba, int size) override {
+    std::ostringstream cmd;
+      cmd << "\"" << ssdDir << "\\" << SSD_EXE_NAME << "\" E " << lba
+          << " " << size;
+#ifdef _DEBUG
+    std::cout << cmd.str() << "\n";
+#else
+    int ret = system(cmd.str().c_str());
+
+    if (ret != 0) {
+      lastResult = ERROR_MSG;
+    } else {
+      string out = readOutputFile();
+      lastResult = out.empty() ? "" : ERROR_MSG;
+    }
+#endif
+  }
+
   string getResult() override { return lastResult; }
 
 private:

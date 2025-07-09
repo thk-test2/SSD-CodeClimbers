@@ -33,6 +33,7 @@ void TestShell::initializeCommandHandlers() {
   commandHandlers["fullwrite"] = std::make_unique<FullWriteCommand>();
   commandHandlers["help"] = std::make_unique<HelpCommand>();
   commandHandlers["exit"] = std::make_unique<ExitCommand>();
+  commandHandlers["erase"] = std::make_unique<EraseCommand>();
 
   // Test scripts
   commandHandlers["1_"] = std::make_unique<TestScript1>();

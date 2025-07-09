@@ -1,4 +1,5 @@
 #include "test_shell.h"
+#include "ssd_interface.h"
 #include "gmock/gmock.h"
 #include "ssd_exe.cpp"
 
@@ -12,6 +13,7 @@ class MockSSD : public SSD_INTERFACE {
 public:
   MOCK_METHOD(void, read, (int lba), (override));
   MOCK_METHOD(void, write, (int lba, unsigned long value), (override));
+  MOCK_METHOD(void, erase, (int lba, int size), (override));
   MOCK_METHOD(string, getResult, (), (override));
 };
 
@@ -153,9 +155,38 @@ TEST_F(TestShellFixture, WriteInvalidCase) {
   ts.executeCommand(OverflowValueCmd);
 }
 
+TEST_F(TestShellFixture, EraseNormalCase) {
+  Command command{"erase", vector<string>{"0", "12"}};
+
+  EXPECT_CALL(ssd, erase(_, _)).Times(2);
+  EXPECT_CALL(ssd, getResult()).Times(2).WillOnce(Return(""));
+
+  ts.executeCommand(command);
+}
+
+TEST_F(TestShellFixture, EraseInvalidCase) {
+
+  vector<Command> commands = {
+      {"erase", vector<string>{"-1", "10"}},
+      {"erase", vector<string>{"99", "10"}},
+      {"erase", vector<string>{"10", "0"}},
+      {"erase", vector<string>{"10", "101"}},
+  };
+  for (auto command : commands) {
+    EXPECT_CALL(ssd, erase(_, _)).Times(0);
+    EXPECT_CALL(ssd, getResult()).Times(0);
+
+    CaptureStdout();
+    ts.executeCommand(command);
+    std::string output = GetCapturedStdout();
+
+    EXPECT_EQ("INVALID COMMAND\n", output);
+  }
+}
+
 TEST_F(TestShellFixture, FullReadNormalCase) {
   Command command{"fullread", vector<string>{}};
-  
+
   EXPECT_CALL(ssd, read(0)).Times(1);
   EXPECT_CALL(ssd, read(1)).Times(1);
   EXPECT_CALL(ssd, read(2)).Times(1);
@@ -182,7 +213,7 @@ TEST_F(TestShellFixture, FullReadNormalCase) {
 
 TEST_F(TestShellFixture, FullReadInvalidUsage) {
   Command command{"fullread", vector<string>{"extra"}};
-  
+
   EXPECT_CALL(ssd, read(_)).Times(0);
   EXPECT_CALL(ssd, getResult()).Times(0);
 
@@ -219,7 +250,7 @@ TEST_F(TestShellFixture, FullWriteNormalCase) {
               std::string::npos);
   EXPECT_TRUE(output.find("[Full Write] LBA: 2 Done") !=
               std::string::npos);
-
+              
   // 4번째 LBA는 ERROR이므로 출력되지 않아야 함
   EXPECT_TRUE(output.find("[Full Write] LBA: 3") == std::string::npos);
 }
