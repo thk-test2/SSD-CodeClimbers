@@ -6,6 +6,7 @@ class MockSSD : public Device {
 public:
   MOCK_METHOD(bool, write, (int, unsigned long), (override));
   MOCK_METHOD(bool, read, (int), (override));
+  MOCK_METHOD(bool, erase, (int, int), (override));
   MOCK_METHOD(void, run, (int, char *[]), (override));
 };
 
@@ -188,6 +189,7 @@ TEST_F(SSDDriverTestFixture, SSDWrite2TimesCompare) {
   checkOutputFileValid("0xEEEEAAAA");
 }
 
+
 TEST_F(SSDDriverTestFixture, SSDCheckSsdNandFileValidAfterWrite) {
   std::vector<SSDDriverTestData> writeDataVector;
   std::istringstream backup_iss(
@@ -222,4 +224,48 @@ TEST_F(SSDDriverTestFixture, SSDCheckSsdNandFileValidAfterWrite) {
     }
     lineNo++;
   }
+}
+
+TEST_F(SSDDriverTestFixture, SSDEraseAfterWrite) {
+  string output;
+  int idx, startLBA, eraseSize;
+  startLBA = 5;
+  eraseSize = 10;
+
+  for (idx = startLBA; idx < startLBA + eraseSize; idx++)
+    ssd.write(idx, 0x5a5a5a5a);
+  
+  ssd.erase(startLBA, eraseSize);
+
+  for (idx = startLBA; idx < startLBA + eraseSize; idx++) {
+    checkSpecificLineInNandFile("0x00000000", idx);
+  }
+}
+
+TEST_F(SSDDriverTestFixture, SSDEraseOverSize) {
+  string output;
+  int idx, startLBA, eraseSize;
+  startLBA = 5;
+  eraseSize = 15;
+
+  for (idx = startLBA; idx < startLBA + eraseSize; idx++)
+    ssd.write(idx, 0x5A5A5A5A);
+
+  ssd.erase(startLBA, eraseSize);
+
+  for (idx = startLBA; idx < startLBA + eraseSize; idx++) {
+    checkSpecificLineInNandFile("0x5A5A5A5A", idx);
+  }
+}
+
+TEST_F(SSDDriverTestFixture, SSDEraseOverRange) {
+  int startLBA, eraseSize;
+  startLBA = 99;
+  eraseSize = 5;
+
+  ssd.write(startLBA, 0x5A5A5A5A);
+
+  ssd.erase(startLBA, eraseSize);
+  
+  checkSpecificLineInNandFile("0x5A5A5A5A", startLBA); // not erased because of overrange
 }
