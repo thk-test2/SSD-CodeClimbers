@@ -3,7 +3,7 @@ ssd_nand.txt
 ssd_output.txt
 *.log
 *.zip
-**/SSD/buffer/
+**/buffer/
 *.exe
 
 ## Ignore Visual Studio temporary files, build results, and
