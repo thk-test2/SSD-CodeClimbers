@@ -65,9 +65,6 @@ public:
 };
 
 class TestScript2 : public ICommandHandler {
-private:
-  bool checkPartialWriteSuccess(TestShell *shell, int lba, string &valueStr);
-
 public:
   void execute(TestShell *shell, const Command &command) override;
   string getUsage() const override { return "<value>"; }
@@ -76,9 +73,6 @@ public:
 };
 
 class TestScript3 : public ICommandHandler {
-private:
-  bool checkPartialWriteSuccess(TestShell *shell, int lba, string &valueStr);
-
 public:
   void execute(TestShell *shell, const Command &command) override;
   string getUsage() const override { return ""; }

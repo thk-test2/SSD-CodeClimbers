@@ -1,9 +1,6 @@
 #include "test_shell.h"
-#include "SSD_INTERFACE.h"
 #include "gmock/gmock.h"
 #include "ssd_exe.cpp"
-
-#include <random>
 
 // stdout 캡처/해제 함수
 using testing::internal::CaptureStdout;
@@ -23,21 +20,7 @@ public:
   NiceMock<MockSSD> ssd;
   TestShell ts{&ssd};
 
-  unsigned long getRandomValue() {
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<uint32_t> dist(0x00000000u, 0xFFFFFFFFu);
-    return dist(gen);
-  }
-
-  std::string convertHexToString(unsigned long value) {
-    char buf[11];
-    std::snprintf(buf, sizeof(buf), "0x%08lX", value);
-    return std::string{buf};
-  }
-
-  unsigned long randomValue = getRandomValue();
-  std::string randomValueStr = convertHexToString(randomValue);
+  string randomValue = convertHexToString(getRandomValue());
 
   const string TEST_SCRIPT_1_FULLNAME = "1_FullWriteAndReadCompare";
   const string TEST_SCRIPT_1_SHORTCUT = "1_";
@@ -293,7 +276,7 @@ TEST_F(TestShellFixture, ExitInvalidArgs) {
 }
 
 TEST_F(TestShellFixture, TestScript1FAIL) {
-  Command cmd{TEST_SCRIPT_1_FULLNAME, {"0xAAAABBBB"}};
+  Command cmd{TEST_SCRIPT_1_FULLNAME};
 
   EXPECT_CALL(ssd, write(_, 0xAAAABBBB)).Times(AtLeast(1));
   EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return("0xFFFFFFFF"));
@@ -306,7 +289,7 @@ TEST_F(TestShellFixture, TestScript1FAIL) {
 }
 
 TEST_F(TestShellFixture, TestScript1ShortcutFAIL) {
-  Command cmd{TEST_SCRIPT_1_SHORTCUT, {"0xAAAABBBB"}};
+  Command cmd{TEST_SCRIPT_1_SHORTCUT};
 
   EXPECT_CALL(ssd, write(_, 0xAAAABBBB)).Times(AtLeast(1));
   EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return("0xFFFFFFFF"));
@@ -319,7 +302,7 @@ TEST_F(TestShellFixture, TestScript1ShortcutFAIL) {
 }
 
 TEST_F(TestShellFixture, TestScript1SUCCESS) {
-  Command cmd{TEST_SCRIPT_1_FULLNAME, {"0xAAAABBBB"}};
+  Command cmd{TEST_SCRIPT_1_FULLNAME};
 
   EXPECT_CALL(ssd, write(_, 0xAAAABBBB)).Times(100);
   EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return("0xAAAABBBB"));
@@ -332,7 +315,7 @@ TEST_F(TestShellFixture, TestScript1SUCCESS) {
 }
 
 TEST_F(TestShellFixture, TestScript1ShortcutSUCCESS) {
-  Command cmd{TEST_SCRIPT_1_SHORTCUT, {"0xAAAABBBB"}};
+  Command cmd{TEST_SCRIPT_1_SHORTCUT};
 
   EXPECT_CALL(ssd, write(_, 0xAAAABBBB)).Times(100);
   EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return("0xAAAABBBB"));
@@ -345,7 +328,7 @@ TEST_F(TestShellFixture, TestScript1ShortcutSUCCESS) {
 }
 
 TEST_F(TestShellFixture, TestScript2FAIL) {
-  Command cmd{TEST_SCRIPT_2_FULLNAME, {"0xAAAABBBB"}};
+  Command cmd{TEST_SCRIPT_2_FULLNAME};
 
   EXPECT_CALL(ssd, write(_, 0xAAAABBBB)).Times(AtLeast(1));
   EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return("0xFFFFFFFF"));
@@ -358,7 +341,7 @@ TEST_F(TestShellFixture, TestScript2FAIL) {
 }
 
 TEST_F(TestShellFixture, TestScript2ShortcutFAIL) {
-  Command cmd{TEST_SCRIPT_2_SHORTCUT, {"0xAAAABBBB"}};
+  Command cmd{TEST_SCRIPT_2_SHORTCUT};
 
   EXPECT_CALL(ssd, write(_, 0xAAAABBBB)).Times(AtLeast(1));
   EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return("0xFFFFFFFF"));
@@ -371,7 +354,7 @@ TEST_F(TestShellFixture, TestScript2ShortcutFAIL) {
 }
 
 TEST_F(TestShellFixture, TestScript2SUCCESS) {
-  Command cmd{TEST_SCRIPT_2_FULLNAME, {"0xAAAABBBB"}};
+  Command cmd{TEST_SCRIPT_2_FULLNAME};
 
   EXPECT_CALL(ssd, write(_, 0xAAAABBBB)).Times(150);
   EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return("0xAAAABBBB"));
@@ -384,7 +367,7 @@ TEST_F(TestShellFixture, TestScript2SUCCESS) {
 }
 
 TEST_F(TestShellFixture, TestScript2ShortcutSUCCESS) {
-  Command cmd{TEST_SCRIPT_2_SHORTCUT, {"0xAAAABBBB"}};
+  Command cmd{TEST_SCRIPT_2_SHORTCUT};
 
   EXPECT_CALL(ssd, write(_, 0xAAAABBBB)).Times(150);
   EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return("0xAAAABBBB"));
@@ -397,7 +380,7 @@ TEST_F(TestShellFixture, TestScript2ShortcutSUCCESS) {
 }
 
 TEST_F(TestShellFixture, TestScript3FAIL) {
-  Command cmd{TEST_SCRIPT_3_FULLNAME, {randomValueStr}};
+  Command cmd{TEST_SCRIPT_3_FULLNAME, {randomValue}};
 
   EXPECT_CALL(ssd, write(_, _)).Times(AtLeast(1));
   EXPECT_CALL(ssd, read(_)).Times(AtLeast(1));
@@ -410,7 +393,7 @@ TEST_F(TestShellFixture, TestScript3FAIL) {
 }
 
 TEST_F(TestShellFixture, TestScript3ShortcutFAIL) {
-  Command cmd{TEST_SCRIPT_3_SHORTCUT, {randomValueStr}};
+  Command cmd{TEST_SCRIPT_3_SHORTCUT, {randomValue}};
 
   EXPECT_CALL(ssd, write(_, _)).Times(AtLeast(1));
   EXPECT_CALL(ssd, read(_)).Times(AtLeast(1));
@@ -423,11 +406,11 @@ TEST_F(TestShellFixture, TestScript3ShortcutFAIL) {
 }
 
 TEST_F(TestShellFixture, TestScript3SUCCESS) {
-  Command cmd{TEST_SCRIPT_3_FULLNAME, {randomValueStr}};
+  Command cmd{TEST_SCRIPT_3_FULLNAME, {randomValue}};
 
   EXPECT_CALL(ssd, write(_, _)).Times(400);
   EXPECT_CALL(ssd, read(_)).Times(400);
-  EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return(randomValueStr));
+  EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return(randomValue));
 
   CaptureStdout();
   ts.executeCommand(cmd);
@@ -437,11 +420,11 @@ TEST_F(TestShellFixture, TestScript3SUCCESS) {
 }
 
 TEST_F(TestShellFixture, TestScript3ShortcutSUCCESS) {
-  Command cmd{TEST_SCRIPT_3_SHORTCUT, {randomValueStr}};
+  Command cmd{TEST_SCRIPT_3_SHORTCUT, {randomValue}};
 
   EXPECT_CALL(ssd, write(_, _)).Times(400);
   EXPECT_CALL(ssd, read(_)).Times(400);
-  EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return(randomValueStr));
+  EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return(randomValue));
 
   CaptureStdout();
   ts.executeCommand(cmd);
