@@ -85,3 +85,48 @@ void TestScript3::execute(TestShell *shell, const Command &command) {
   }
   cout << "Pass" << endl;
 }
+
+void TestScript4::execute(TestShell *shell, const Command &command) {
+  if (command.args.size() != 0) {
+    std::cout << "INVALID_COMMAND\n";
+    return;
+  }
+  unsigned long value1 = getRandomValue();
+  unsigned long value2 = getRandomValue();
+
+  shell->getSSD()->erase(0, 3);
+  if (shell->getSSD()->getResult() == "ERROR") {
+    cout << "Script 4 execution failed." << endl;
+    return;
+  }
+
+  for (int i = 0; i < 30; i++) {
+    int slba = 2, elba = 4;
+    while (slba < 99) {
+      shell->getSSD()->write(slba, value1);
+      if (shell->getSSD()->getResult() == "ERROR") {
+        cout << "Script 4 execution failed." << endl;
+        return;
+      }
+      
+      shell->getSSD()->write(slba, value2);
+      if (shell->getSSD()->getResult() == "ERROR") {
+        cout << "Script 4 execution failed." << endl;
+        return;
+      }
+
+      int size = elba - slba + 1;
+      shell->getSSD()->erase(slba, size);
+      if (shell->getSSD()->getResult() == "ERROR") {
+        cout << "Script 4 execution failed." << endl;
+        return;
+      }
+
+      slba = elba;
+      elba += 2;
+      if (elba == 100)
+        elba = 99;
+    }
+  }
+  cout << "Script 4 executed successfully." << endl;
+}

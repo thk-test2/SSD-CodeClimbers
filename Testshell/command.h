@@ -107,3 +107,13 @@ public:
   string getDescription() const override { return "Run write/read aging test (200 iterations)"; }
   string getExample() const override { return "'3_' or '3_WriteReadAging'"; }
 };
+
+class TestScript4 : public ICommandHandler {
+public:
+  void execute(TestShell *shell, const Command &command) override;
+  string getUsage() const override { return ""; }
+  string getDescription() const override {
+    return "Repeatedly erase LBA ranges and write random data to following LBAs in sequential loops (30 iterations)";
+  }
+  string getExample() const override { return "'4_' or '4_EraseAndWriteAging'"; }
+};
