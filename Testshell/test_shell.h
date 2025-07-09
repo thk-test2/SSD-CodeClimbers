@@ -6,9 +6,11 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <numeric>
 #include <random>
 
 #include "ssd_interface.h"
+#include "logger.h"
 
 using std::cout;
 using std::endl;
@@ -43,6 +45,7 @@ private:
   SSD_INTERFACE *ssd;
   Command command;
   std::unordered_map<string, std::unique_ptr<ICommandHandler>> commandHandlers;
+  Logger &logger = Logger::getInstance();
 
   const int HEX_BASE = 16;
 
