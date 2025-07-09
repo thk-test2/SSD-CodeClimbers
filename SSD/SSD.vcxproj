@@ -138,7 +138,7 @@
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'"> %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="sdd_cmd_buffer_control_test.cpp" />
+    <ClCompile Include="ssd_cmd_buffer_control_test.cpp" />
     <ClCompile Include="ssd_cmd_buffer.cpp" />
     <ClCompile Include="ssd_cmd_buffer_control.cpp" />
     <ClCompile Include="ssd_cmd_buffer_flush.cpp" />

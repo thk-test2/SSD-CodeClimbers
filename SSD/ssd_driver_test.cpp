@@ -201,7 +201,7 @@ TEST_F(SSDDriverTestFixture, SSDCheckSsdNandFileValidAfterWrite) {
   writeDataVector.push_back(SSDDriverTestData(2, 0x00000002));
   writeDataVector.push_back(SSDDriverTestData(3, 0x00000003));
   writeDataVector.push_back(SSDDriverTestData(10, 0x00000010));
-  writeDataVector.push_back(SSDDriverTestData(99, 0x00000099));
+  writeDataVector.push_back(SSDDriverTestData(MAX_NAND_MEMORY_MAP_SIZE-1, 0x00000099));
 
   for (const auto &data : writeDataVector) {
     ssd.write(data.lba, data.value);
