@@ -4,27 +4,17 @@
 #include "ssd_exe.h"
 #include "gmock/gmock.h"
 
-TestShell::TestShell() : ctrl(new StdInOutCtrl()), parser(new ArgParser()) {
+TestShell::TestShell() {
   initializeCommandHandlers();
 }
 
 TestShell::TestShell(SSD_INTERFACE *_ssd)
-    : ctrl(new StdInOutCtrl()), parser(new ArgParser()), ssd{_ssd} {
+    : ssd{_ssd} {
   initializeCommandHandlers();
 }
 
 TestShell::~TestShell() {
-  delete ctrl;
-  delete parser;
 }
-
-// MockDriver
-class MockSSD : public SSD_INTERFACE {
-public:
-  MOCK_METHOD(void, read, (int lba), (override));
-  MOCK_METHOD(void, write, (int lba, unsigned long value), (override));
-  MOCK_METHOD(string, getResult, (), (override));
-};
 
 void TestShell::initializeCommandHandlers() {
   // Regular commands
@@ -71,7 +61,10 @@ void TestShell::runInteractive() {
     cout << "> ";
     getline(std::cin, userInput);
     command = parsing(userInput);
+    logger.print("TestShell.run()",
+        "Successfully parsed command - " + command.command);
     if (command.command == "exit") {
+      logger.print("TestShell.run()", "Exiting shell.");
       break;
     }
     executeCommand(command);
@@ -84,9 +77,13 @@ void TestShell::executeCommand(const Command &command) {
   auto commandIt = commandHandlers.find(cmd);
   if (commandIt != commandHandlers.end()) {
     commandIt->second->execute(this, command);
+    logger.print("TestShell.executeCommand()",
+        "Successfully executed command - " + cmd);
     return;
   }
 
+  logger.print("TestShell.executeCommand()",
+      "Invalid command - " + cmd);
   cout << "INVALID COMMAND" << endl;
 }
 

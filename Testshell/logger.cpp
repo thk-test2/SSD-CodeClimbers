@@ -34,8 +34,11 @@ void Logger::resetInstance() {
 
 void Logger::print(const std::string &className, const std::string &message) {
   std::string timestamp = getCurrentTimestamp();
-  std::string logEntry =
-      "[" + timestamp + "] " + className + " : " + message + ".";
+  
+  std::ostringstream oss;
+  oss << "[" << timestamp << "] " << std::left << std::setw(30) << className
+      << ": " << message << ".";
+  std::string logEntry = oss.str();
 
   writeToFile(logEntry);
   checkFileRotation();
