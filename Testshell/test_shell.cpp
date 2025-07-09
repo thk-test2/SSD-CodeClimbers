@@ -1,7 +1,7 @@
 #include "test_shell.h"
 #include "command.h"
 #include "logger.h"
-#include "ssd_exe.cpp"
+#include "ssd_exe.h"
 #include "gmock/gmock.h"
 
 TestShell::TestShell() : ctrl(new StdInOutCtrl()), parser(new ArgParser()) {

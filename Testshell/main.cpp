@@ -1,5 +1,4 @@
-#include "ssd_exe.cpp"
-#include "ssd_interface.h"
+#include "ssd_exe.h"
 #include "test_shell.h"
 #include "gmock/gmock.h"
 
