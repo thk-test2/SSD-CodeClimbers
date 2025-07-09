@@ -8,7 +8,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "ssd_interface.h"
+#include "ssd_exe.h"
 #include "logger.h"
 
 using std::cout;
