@@ -1,6 +1,8 @@
 ## SSD Temporary Files
 ssd_nand.txt
 ssd_output.txt
+*.log
+*.zip
 **/SSD/buffer/
 *.exe
 

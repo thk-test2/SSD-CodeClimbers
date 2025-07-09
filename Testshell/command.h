@@ -84,6 +84,16 @@ public:
   string getExample() const override { return "erase_range 0 99"; }
 };
 
+class FlushCommand : public ICommandHandler {
+public:
+  void execute(TestShell *shell, const Command &command) override;
+  string getUsage() const override { return ""; }
+  string getDescription() const override {
+    return "Flush all buffered commands to SSD";
+  }
+  string getExample() const override { return "flush"; }
+};
+
 class TestScript1 : public ICommandHandler {
 public:
   void execute(TestShell *shell, const Command &command) override;

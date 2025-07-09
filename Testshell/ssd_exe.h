@@ -63,6 +63,18 @@ public:
 #endif
   }
 
+  void flush() override {
+    std::ostringstream cmd;
+    cmd << "\"" << ssdDir << "\\" << SSD_EXE_NAME << "\" F";
+#ifdef _DEBUG
+    std::cout << cmd.str() << "\n";
+#else
+    int ret = system(cmd.str().c_str());
+
+    lastResult = ret != 0 ? ERROR_MSG : "";
+#endif
+  }
+
   string getResult() override { return lastResult; }
 
 private:
