@@ -3,6 +3,13 @@
 #include <vector>
 #include <string>
 
+struct Cmd {
+  int index;
+  std::string cmdType;
+  int LBA = -1;
+  unsigned long value;
+
+};
 class CmdBufferControl {
 public:
   static CmdBufferControl &getInstance();
@@ -15,7 +22,9 @@ public:
   void clearAllBuffer(void); 
   void flush();
   bool isBufferFull() const;
+  std::vector<Cmd> parseCommands(const std::string &bufNameList);
   const int MAX_BUFFER_SIZE = 5;
+  const int HEX_BASE = 16;
 
 private:
   CmdBufferControl(); // 생성자에서 bufferPath 설정
