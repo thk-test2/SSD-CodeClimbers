@@ -56,6 +56,16 @@ public:
   string getExample() const override { return "write 5 0xFF"; }
 };
 
+class EraseCommand : public ICommandHandler {
+public:
+  void execute(TestShell *shell, const Command &command) override;
+  string getUsage() const override { return "<lba> <size>"; }
+  string getDescription() const override {
+    return "Erase the logical blocks from <lba> for the specified <size>.";
+  }
+  string getExample() const override { return "erase 0 10"; }
+};
+
 class TestScript1 : public ICommandHandler {
 public:
   void execute(TestShell *shell, const Command &command) override;

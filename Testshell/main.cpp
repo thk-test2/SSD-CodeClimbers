@@ -15,6 +15,7 @@ class MockSSD : public SSD_INTERFACE {
 public:
   MOCK_METHOD(void, read, (int lba), (override));
   MOCK_METHOD(void, write, (int lba, unsigned long value), (override));
+  MOCK_METHOD(void, erase, (int lba, int size), (override));
   MOCK_METHOD(string, getResult, (), (override));
 };
 
@@ -168,6 +169,52 @@ TEST_F(TestShellFixture, WriteInvalidCase) {
   EXPECT_CALL(ssd, getResult()).Times(0);
 
   ts.executeCommand(OverflowValueCmd);
+}
+
+TEST_F(TestShellFixture, EraseNormalCase) {
+  Command command{"erase", vector<string>{"0", "12"}};
+
+  EXPECT_CALL(ssd, erase(_, _)).Times(2);
+  EXPECT_CALL(ssd, getResult()).Times(2).WillOnce(Return(""));
+
+  ts.executeCommand(command);
+}
+
+TEST_F(TestShellFixture, EraseInvalidCase) {
+  Command command{"erase", vector<string>{"-1", "0"}};
+
+  EXPECT_CALL(ssd, erase(_, _)).Times(0);
+  EXPECT_CALL(ssd, getResult()).Times(0);
+
+  CaptureStdout();
+  ts.executeCommand(command);
+  std::string output = GetCapturedStdout();
+
+  EXPECT_EQ("INVALID COMMAND\n", output);
+
+
+  Command command1{"erase", vector<string>{"99", "10"}};
+
+  EXPECT_CALL(ssd, erase(_, _)).Times(0);
+  EXPECT_CALL(ssd, getResult()).Times(0);
+
+  CaptureStdout();
+  ts.executeCommand(command1);
+  output = GetCapturedStdout();
+
+  EXPECT_EQ("INVALID COMMAND\n", output);
+
+
+  Command command2{"erase", vector<string>{"10", "0"}};
+
+  EXPECT_CALL(ssd, erase(_, _)).Times(0);
+  EXPECT_CALL(ssd, getResult()).Times(0);
+
+  CaptureStdout();
+  ts.executeCommand(command2);
+  output = GetCapturedStdout();
+
+  EXPECT_EQ("INVALID COMMAND\n", output);
 }
 
 TEST_F(TestShellFixture, FullReadNormalCase) {
