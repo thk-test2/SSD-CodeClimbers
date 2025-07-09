@@ -30,6 +30,8 @@ public:
   const string TEST_SCRIPT_2_SHORTCUT = "2_";
   const string TEST_SCRIPT_3_FULLNAME = "3_WriteReadAging";
   const string TEST_SCRIPT_3_SHORTCUT = "3_";
+  const string TEST_SCRIPT_4_FULLNAME = "4_EraseAndWriteAging";
+  const string TEST_SCRIPT_4_SHORTCUT = "4_";
 
   string getCallHelpOutput() {
     CaptureStdout();
@@ -491,6 +493,46 @@ TEST_F(TestShellFixture, TestScript3ShortcutSUCCESS) {
   std::string output = GetCapturedStdout();
 
   EXPECT_EQ("Script 3 executed successfully.\n", output);
+}
+
+TEST_F(TestShellFixture, TestScript4FAIL) {
+  vector<Command> commands = {
+      {TEST_SCRIPT_4_FULLNAME, {}},
+      {TEST_SCRIPT_4_SHORTCUT, {}}};
+
+  for (auto cmd : commands) {
+    EXPECT_CALL(ssd, erase(_, _)).Times(AtLeast(1));
+    EXPECT_CALL(ssd, write(_, _)).Times(AtLeast(1));
+    EXPECT_CALL(ssd, getResult())
+        .Times(AtLeast(1))
+        .WillOnce(Return(""))
+        .WillOnce(Return("ERROR"));
+
+    CaptureStdout();
+    ts.executeCommand(cmd);
+    std::string output = GetCapturedStdout();
+
+    EXPECT_TRUE(output.find("Script 4 execution failed.\n") !=
+                std::string::npos);  
+  }
+}
+
+TEST_F(TestShellFixture, TestScript4SUCCESS) {
+  vector<Command> commands = {
+      {TEST_SCRIPT_4_FULLNAME, {}},
+      {TEST_SCRIPT_4_SHORTCUT, {}}};
+
+  for (auto cmd : commands) {
+    EXPECT_CALL(ssd, erase(_, _)).Times(49 * 30 + 1);
+    EXPECT_CALL(ssd, write(_, _)).Times(98 * 30);
+    EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return(""));
+
+    CaptureStdout();
+    ts.executeCommand(cmd);
+    std::string output = GetCapturedStdout();
+
+    EXPECT_EQ("Script 4 executed successfully.\n", output);  
+  }
 }
 
 TEST_F(TestShellFixture, InvalidCommand) {
