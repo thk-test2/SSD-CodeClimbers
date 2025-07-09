@@ -34,14 +34,12 @@ public:
     return params;
   }
 
-  bool isValid_LBA_Range(int lba) {
-    if (lba >= 0 && lba < MAX_NAND_MEMORY_MAP_SIZE)
-      return true;
-    else
-      return false;
-  }
+  bool isValid_LBA(int lba) { return (lba >= 0 && lba < MAX_NAND_MEMORY_MAP_SIZE); }
+  bool isSizeAllowed(int size) { return size >= 1 && size <= 10; }
+  bool isWithinBounds(int lba, int size) { return (lba + size) < 100; }
+
   bool read(int lba) override {
-    if (!isValid_LBA_Range(lba)) {
+    if (!isValid_LBA(lba)) {
       stream->writeError();
       return false;
     }
@@ -64,7 +62,7 @@ public:
   }
 
   bool write(int lba, unsigned long value) override {
-    if (!isValid_LBA_Range(lba)) {
+    if (!isValid_LBA(lba)) {
       stream->writeError();
       return false;
     }
@@ -81,13 +79,7 @@ public:
   }
 
   bool erase(int lba, int size) override {
-    if (size < 1 || size > 10)
-      return false;
-
-    if (lba + size > 100)
-      return false;
-
-    if (!isValid_LBA_Range(lba)) {
+    if (!isValid_LBA(lba) || !isSizeAllowed(size) || !isWithinBounds(lba, size)) {
       stream->writeError();
       return false;
     }
@@ -98,6 +90,8 @@ public:
       buf[i] = 0;
 
     writeBufToNandFile();
+
+    stream->clearOutput();
 
     return true;
   }
