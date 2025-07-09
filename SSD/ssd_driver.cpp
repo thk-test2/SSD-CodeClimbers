@@ -23,7 +23,7 @@ public:
     return size >= MIN_ERASE_SIZE && size <= MAX_ERASE_SIZE;
   }
   bool isWithinBounds(int lba, int size) {
-    return (lba + size) < MAX_NAND_MEMORY_MAP_SIZE;
+    return (lba + size) <= MAX_NAND_MEMORY_MAP_SIZE;
   }
 
   bool read(int lba) override {
