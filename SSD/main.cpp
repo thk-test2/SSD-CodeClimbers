@@ -11,7 +11,10 @@ int main(int argc, char *argv[]) {
   CmdBufferControl &cmdBuffer = CmdBufferControl::getInstance();
   if (!cmdBuffer.getDriver()->isValidParam(argc, argv))
     return 0;
-  
-  return cmdBuffer.runCommandBuffer(argv);
+   
+  if (!cmdBuffer.runCommandBuffer(argv))
+    cout << "SSD Opreation Failed" << std::endl;
+
+  return 0;
 }
 #endif
