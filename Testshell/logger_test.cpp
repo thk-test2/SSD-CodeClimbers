@@ -141,7 +141,7 @@ TEST_F(LoggerTest, LogEntryFormat_CorrectTimestampAndMessage) {
   EXPECT_THAT(
       capturedLogEntry,
       ::testing::MatchesRegex(
-          R"(\[\d\d\.\d\d\.\d\d \d\d:\d\d\] TestClass : Test message\.)"));
+          R"(\[\d\d\.\d\d\.\d\d \d\d:\d\d\] TestClass\s+: Test message\.)"));
 }
 
 TEST_F(LoggerTest, FileOperationFailure_HandlesGracefully) {
