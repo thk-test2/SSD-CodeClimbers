@@ -51,6 +51,16 @@ public:
   SSDDriver ssd;
   const int MAX_NAND_MEMORY_MAP_SIZE = 100;
 
+  void SetUp() override {
+    ssd.getIoStream()->initSsdNand();
+    ssd.getIoStream()->clearOutput();
+  }
+
+  void TearDown() {
+    ssd.getIoStream()->initSsdNand();
+    ssd.getIoStream()->clearOutput();
+  }
+
   void checkOutputFileValid(const string &expected_value) {
     EXPECT_EQ(expected_value, ssd.getIoStream()->readFileAsString(
                                   ssd.getIoStream()->output_file_name));
@@ -140,7 +150,6 @@ TEST_F(SSDDriverTestFixture, SSDWrite2TimesCompare) {
   checkOutputFileValid("0xEEEEAAAA");
 }
 
-
 TEST_F(SSDDriverTestFixture, SSDCheckSsdNandFileValidAfterWrite) {
   std::vector<SSDDriverTestData> writeDataVector;
   std::istringstream backup_iss(
@@ -154,7 +163,8 @@ TEST_F(SSDDriverTestFixture, SSDCheckSsdNandFileValidAfterWrite) {
   writeDataVector.push_back(SSDDriverTestData(2, 0x00000002));
   writeDataVector.push_back(SSDDriverTestData(3, 0x00000003));
   writeDataVector.push_back(SSDDriverTestData(10, 0x00000010));
-  writeDataVector.push_back(SSDDriverTestData(MAX_NAND_MEMORY_MAP_SIZE-1, 0x00000099));
+  writeDataVector.push_back(
+      SSDDriverTestData(MAX_NAND_MEMORY_MAP_SIZE - 1, 0x00000099));
 
   for (const auto &data : writeDataVector) {
     ssd.write(data.lba, data.value);
@@ -185,7 +195,7 @@ TEST_F(SSDDriverTestFixture, SSDEraseAfterWrite) {
 
   for (idx = startLBA; idx < startLBA + eraseSize; idx++)
     ssd.write(idx, 0x5a5a5a5a);
-  
+
   ssd.erase(startLBA, eraseSize);
 
   for (idx = startLBA; idx < startLBA + eraseSize; idx++) {
@@ -217,6 +227,7 @@ TEST_F(SSDDriverTestFixture, SSDEraseOverRange) {
   ssd.write(startLBA, 0x5A5A5A5A);
 
   ssd.erase(startLBA, eraseSize);
-  
-  checkSpecificLineInNandFile("0x5A5A5A5A", startLBA); // not erased because of overrange
+
+  checkSpecificLineInNandFile("0x5A5A5A5A",
+                              startLBA); // not erased because of overrange
 }

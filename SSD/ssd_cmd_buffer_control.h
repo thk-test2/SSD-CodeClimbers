@@ -6,11 +6,13 @@
 #include <stdexcept>
 
 struct Cmd {
-  int index;
+public:
   std::string cmdType;
   int LBA = -1;
   unsigned long value;
+  int LbaSize = 0;
 };
+
 class CmdBufferControl {
 public:
   SSDDriver *getDriver();
@@ -26,7 +28,6 @@ public:
   void clearAllBuffer(void);
   void flush();
   bool isBufferFull() const;
-  std::vector<Cmd> parseCommands(const std::string &bufNameList);
   bool emptyBufferShift();
   char getBufferCmd(int index);
   int getBufferLba(int index);
