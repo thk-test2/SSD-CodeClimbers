@@ -65,13 +65,19 @@ bool CmdBufferControl::runCommandBuffer(char *argv[]) {
   string cmdType = argv[1];
   int lba = std::stoi(argv[2]);
 
+  // TO DO : Flush
+  /*
+  if (isBufferFull())
+    flush();
+  */
+
   if (cmdType == "R") {
     // TO DO : Buffer Check
     ret = driver->read(lba);
   } else if (cmdType == "W") {
     unsigned long value = std::stoul(argv[3], nullptr, 16);
     updateToNextEmpty(makdFullCmdString(argv));
-    
+
     // TO DO : Buffer Check
     ret = driver->write(lba, value);
   } else if (cmdType == "E") {
@@ -168,7 +174,7 @@ bool CmdBufferControl::emptyBufferShift() {
 
 char CmdBufferControl::getBufferCmd(int index) {
   if (!isValidBufferIndex(index))
-      throw CmdBufferInvalidIdexException();
+    throw CmdBufferInvalidIdexException();
 
   return cmdBuffer[index - 1].getCmd();
 }
@@ -216,6 +222,37 @@ void CmdBufferControl::flush() {
   }
 
   clearAllBuffer();
+}
+
+bool CmdBufferControl::isSameLbaBuffer(int lba, CmdBuffer &buffer) {
+  if (buffer.isEmpty())
+    return false;
+
+  if (buffer.getCmd() == 'W' && buffer.getLba() == lba)
+    return true;
+  else if (buffer.getCmd() == 'E' && (isValidRangeForErase(lba, buffer))) {
+    return true;
+  } else
+    return false;
+}
+bool CmdBufferControl::isValidRangeForErase(int lba, CmdBuffer &buffer) {
+  return lba >= buffer.getLba() &&
+         lba < (buffer.getLba() + buffer.getLbaSize());
+}
+
+bool CmdBufferControl::isBufferContainReadValue(int lba, unsigned long& value) {
+  bool isContain = false;
+  for (auto buffer : cmdBuffer) {
+    if (isSameLbaBuffer(lba, buffer)) {
+      if (buffer.getCmd() == 'W')
+        value = buffer.getValue();
+      else if (buffer.getCmd() == 'E')
+        value = 0x00000000;
+
+      isContain = true;
+    }
+  }
+  return isContain;
 }
 
 SSDDriver *CmdBufferControl::getDriver() { return driver; }

@@ -8,6 +8,7 @@ public:
   CmdBufferControl &cmdBuffer = CmdBufferControl::getInstance();
   SSDDriver *driver = cmdBuffer.getDriver();
   IoStream *stream = driver->getIoStream();
+  const std::string BUFFER_EMPTY = "1_empty,2_empty,3_empty,4_empty,5_empty,";
 
   void SetUp() override { 
       cmdBuffer.clearAllBuffer(); 
@@ -105,3 +106,32 @@ TEST_F(BufctrlFlushFixture, Flush4Wrtie1ErasePass) {
   checkSpecificLineInNandFile("0x00000000", 4);
   checkSpecificLineInNandFile("0x55555555", 5);
 }
+
+TEST_F(BufctrlFlushFixture, Flush4Wrtie1ErasePass2) {
+  EXPECT_TRUE(cmdBuffer.updateToNextEmpty("W_1_0x11111111"));
+  EXPECT_TRUE(cmdBuffer.updateToNextEmpty("W_2_0x22222222"));
+  EXPECT_TRUE(cmdBuffer.updateToNextEmpty("E_2_3"));
+  EXPECT_TRUE(cmdBuffer.updateToNextEmpty("W_3_0x33333333"));
+  EXPECT_TRUE(cmdBuffer.updateToNextEmpty("W_5_0x55555555"));
+
+  cmdBuffer.flush();
+
+  checkSpecificLineInNandFile("0x11111111", 1);
+  checkSpecificLineInNandFile("0x00000000", 2);
+  checkSpecificLineInNandFile("0x33333333", 3);
+  checkSpecificLineInNandFile("0x00000000", 4);
+  checkSpecificLineInNandFile("0x55555555", 5);
+}
+
+TEST_F(BufctrlFlushFixture, FlushAfterBufferClearPass) {
+  EXPECT_TRUE(cmdBuffer.updateToNextEmpty("W_1_0x11111111"));
+  EXPECT_TRUE(cmdBuffer.updateToNextEmpty("W_2_0x22222222"));
+  EXPECT_TRUE(cmdBuffer.updateToNextEmpty("E_2_3"));
+  EXPECT_TRUE(cmdBuffer.updateToNextEmpty("W_3_0x33333333"));
+  EXPECT_TRUE(cmdBuffer.updateToNextEmpty("W_5_0x55555555"));
+
+  cmdBuffer.flush();
+
+  EXPECT_EQ(BUFFER_EMPTY, cmdBuffer.getBufferNameList());
+}
+
