@@ -1,6 +1,5 @@
 #include "gmock/gmock.h"
 #include "ssd_cmd_buffer_control.h"
-#include "ssd_driver.cpp"
 using std::cout;
 using namespace testing;
 

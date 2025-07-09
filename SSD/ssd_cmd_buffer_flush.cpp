@@ -1,5 +1,4 @@
 #include "ssd_cmd_buffer_control.h"
-#include "ssd_driver.cpp"
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -56,7 +55,7 @@ vector<Cmd> CmdBufferControl::parseCommands(const string &bufNameList) {
         throw invalid_argument("empty must have 2 tokens");
       parsedCommands.push_back(cmd);
     } else if (cmd.cmdType == "W" || cmd.cmdType == "E") {
-      if (tokens.size() < 3)
+      if (tokens.size() < 4)
         throw invalid_argument("W or E must have LBA");
       cmd.LBA = stoi(tokens[2]);
     } else {
