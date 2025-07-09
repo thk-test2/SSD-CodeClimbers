@@ -36,12 +36,10 @@ void IoStream::initSsdNand() {
   }
 }
 
-void IoStream::loadNandFile() {
+void IoStream::loadNandFiletoBuf() {
   ifstream ifs(nand_file_name);
 
   if (!ifs) {
-    isValid_nand_file = false;
-    cout << "[DEBUG] nand_file_is_invalid: " << nand_file_name << "\n";
     return;
   }
 
@@ -51,15 +49,12 @@ void IoStream::loadNandFile() {
   while (ifs >> idx >> hexVal) {
 
     if (idx < 0 || idx >= storageSize) {
-      cout << "[DEBUG] Skipped invalid idx=" << idx << "\n";
       continue;
     }
 
     try {
       buffer[idx] = stoul(hexVal, nullptr, 16);
     } catch (const std::exception &e) {
-      cout << "[DEBUG] Error parsing hexVal at idx=" << idx << ": " << e.what()
-           << "\n";
       buffer[idx] = 0;
     }
   }
