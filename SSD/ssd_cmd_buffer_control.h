@@ -1,5 +1,6 @@
 #pragma once
 #include "ssd_cmd_buffer.h"
+#include "ssd_driver.cpp"
 #include <string>
 #include <vector>
 
@@ -8,6 +9,7 @@ public:
   static CmdBufferControl &getInstance();
 
   std::string getBufferNameList() const;
+  bool runCommandBuffer(char *argv[]);
   bool updateToNextEmpty(const std::string &cmd);
   bool updateBufferByIndex(int index, const std::string &cmd);
   std::string setBufferName(int index, const std::string &cmd);
@@ -17,6 +19,7 @@ public:
   void flush();
   bool isBufferFull() const;
   const int MAX_BUFFER_SIZE = 5;
+  SSDDriver *getDriver();
 
 private:
   CmdBufferControl(); // 생성자에서 bufferPath 설정
@@ -25,4 +28,5 @@ private:
 
   std::vector<CmdBuffer> cmdBuffer;
   std::string bufferPath = "./buffer";
+  SSDDriver *driver;
 };
