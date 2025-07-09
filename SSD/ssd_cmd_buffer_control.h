@@ -4,6 +4,13 @@
 #include <string>
 #include <vector>
 
+struct Cmd {
+  int index;
+  std::string cmdType;
+  int LBA = -1;
+  unsigned long value;
+
+};
 class CmdBufferControl {
 public:
   static CmdBufferControl &getInstance();
@@ -17,9 +24,11 @@ public:
   bool clearBufferByIndex(int index);
   void clearAllBuffer(void);
   void flush();
-  bool isBufferFull() const;
+  bool isBufferFull() const;    
+  std::vector<Cmd> parseCommands(const std::string &bufNameList);
   const int MAX_BUFFER_SIZE = 5;
   SSDDriver *getDriver();
+  const int HEX_BASE = 16;
 
 private:
   CmdBufferControl(); // 생성자에서 bufferPath 설정
