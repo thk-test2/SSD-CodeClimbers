@@ -196,10 +196,10 @@ TEST_F(TestShellFixture, EraseRangeNormalCase) {
 TEST_F(TestShellFixture, EraseRangeInvalidCase) {
 
   vector<Command> commands = {
-      {"erase", vector<string>{"-1", "10"}},
-      {"erase", vector<string>{"99", "10"}},
-      {"erase", vector<string>{"10", "0"}},
-      {"erase", vector<string>{"10", "101"}},
+      {"erase_range", vector<string>{"-1", "10"}},
+      {"erase_range", vector<string>{"99", "10"}},
+      {"erase_range", vector<string>{"10", "0"}},
+      {"erase_range", vector<string>{"10", "101"}},
   };
   for (auto command : commands) {
     EXPECT_CALL(ssd, erase(_, _)).Times(0);
