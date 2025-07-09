@@ -2,6 +2,7 @@
 #include "ssd_exe.cpp"
 #include "test_shell.h"
 #include "command.h"
+#include "logger.h"
 
 TestShell::TestShell() : ctrl(new StdInOutCtrl()), parser(new ArgParser()) {
   initializeCommandHandlers();

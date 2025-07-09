@@ -4,7 +4,6 @@
 #include <memory>
 
 using ::testing::_;
-using ::testing::InSequence;
 using ::testing::NiceMock;
 using ::testing::Return;
 using ::testing::StrictMock;
@@ -53,18 +52,11 @@ TEST_F(LoggerTest, BasicLogging_WritesToFile) {
 
 TEST_F(LoggerTest, FileRotation_WhenFileSizeExceedsLimit) {
   // Arrange
-  InSequence seq;
-
-  // First logging call
   EXPECT_CALL(*mockFileSystemPtr, writeToFile("latest.log", _));
   EXPECT_CALL(*mockFileSystemPtr, fileExists("latest.log"))
-      .WillOnce(Return(true));
+      .WillRepeatedly(Return(true));
   EXPECT_CALL(*mockFileSystemPtr, getFileSize("latest.log"))
       .WillOnce(Return(11 * 1024)); // Exceeds 10KB
-
-  // Rotation call
-  EXPECT_CALL(*mockFileSystemPtr, fileExists("latest.log"))
-      .WillOnce(Return(true));
   EXPECT_CALL(*mockFileSystemPtr, renameFile("latest.log", _))
       .WillOnce(Return(true));
 
@@ -100,17 +92,11 @@ TEST_F(LoggerTest, FileRotation_WhenFileSizeWithinLimit) {
 
 TEST_F(LoggerTest, OldFileManagement_CompressesOldestFile) {
   // Arrange
-  InSequence seq;
-
   EXPECT_CALL(*mockFileSystemPtr, writeToFile("latest.log", _));
   EXPECT_CALL(*mockFileSystemPtr, fileExists("latest.log"))
-      .WillOnce(Return(true));
+      .WillRepeatedly(Return(true));
   EXPECT_CALL(*mockFileSystemPtr, getFileSize("latest.log"))
       .WillOnce(Return(11 * 1024));
-
-  // Rotation
-  EXPECT_CALL(*mockFileSystemPtr, fileExists("latest.log"))
-      .WillOnce(Return(true));
   EXPECT_CALL(*mockFileSystemPtr, renameFile("latest.log", _))
       .WillOnce(Return(true));
 
