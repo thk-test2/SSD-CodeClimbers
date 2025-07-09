@@ -44,6 +44,8 @@ void TestShell::initializeCommandHandlers() {
   commandHandlers["2_PartialLBAWrite"] = std::make_unique<TestScript2>();
   commandHandlers["3_"] = std::make_unique<TestScript3>();
   commandHandlers["3_WriteReadAging"] = std::make_unique<TestScript3>();
+  commandHandlers["4_"] = std::make_unique<TestScript4>();
+  commandHandlers["4_EraseAndWriteAging"] = std::make_unique<TestScript4>();
 }
 
 void TestShell::run() {
