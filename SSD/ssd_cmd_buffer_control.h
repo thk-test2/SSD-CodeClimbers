@@ -9,10 +9,10 @@ struct Cmd {
   std::string cmdType;
   int LBA = -1;
   unsigned long value;
-
 };
 class CmdBufferControl {
 public:
+  SSDDriver *getDriver();
   static CmdBufferControl &getInstance();
 
   std::string getBufferNameList() const;
@@ -24,11 +24,16 @@ public:
   bool clearBufferByIndex(int index);
   void clearAllBuffer(void);
   void flush();
-  bool isBufferFull() const;    
+  bool isBufferFull() const;
   std::vector<Cmd> parseCommands(const std::string &bufNameList);
-  const int MAX_BUFFER_SIZE = 5;
-  SSDDriver *getDriver();
+  bool emptyBufferShift();
+  char getBufferCmd(int index) const;
+  int getBufferLba(int index) const;
+  unsigned long getBufferValue(int index) const;
+  int getBufferLbaSize(int index) const;
+
   const int HEX_BASE = 16;
+  const int MAX_BUFFER_SIZE = 5;
 
 private:
   CmdBufferControl(); // 생성자에서 bufferPath 설정

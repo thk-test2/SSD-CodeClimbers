@@ -139,4 +139,47 @@ bool CmdBufferControl::isBufferFull() const {
   return true;
 }
 
+bool CmdBufferControl::emptyBufferShift() {
+  std::vector<std::string> nonEmptyCommands;
+
+  if (isBufferFull() == true)
+    return false;
+
+  for (const auto &buf : cmdBuffer) {
+    if (!buf.isEmpty()) {
+      std::string name = buf.getName();
+      size_t pos = name.find('_');
+      if (pos != std::string::npos) {
+        nonEmptyCommands.push_back(name.substr(pos + 1));
+      }
+    }
+  }
+
+  for (int i = 0; i < cmdBuffer.size(); ++i) {
+    if (i < nonEmptyCommands.size()) {
+      cmdBuffer[i].updateCommand(setBufferName(i + 1, nonEmptyCommands[i]));
+    } else {
+      cmdBuffer[i].clear();
+    }
+  }
+
+  return true;
+}
+
+char CmdBufferControl::getBufferCmd(int index) const {
+  return cmdBuffer[index - 1].getCmd();
+}
+
+int CmdBufferControl::getBufferLba(int index) const {
+  return cmdBuffer[index - 1].getLba();
+}
+
+unsigned long CmdBufferControl::getBufferValue(int index) const {
+  return cmdBuffer[index - 1].getValue();
+}
+
+int CmdBufferControl::getBufferLbaSize(int index) const {
+  return cmdBuffer[index - 1].getLbaSize();
+}
+
 SSDDriver *CmdBufferControl::getDriver() { return driver; }
