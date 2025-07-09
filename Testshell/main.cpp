@@ -20,6 +20,8 @@ public:
   NiceMock<MockSSD> ssd;
   TestShell ts{&ssd};
 
+  string randomValue = convertHexToString(getRandomValue());
+
   const string TEST_SCRIPT_1_FULLNAME = "1_FullWriteAndReadCompare";
   const string TEST_SCRIPT_1_SHORTCUT = "1_";
   const string TEST_SCRIPT_2_FULLNAME = "2_PartialLBAWrite";
@@ -378,7 +380,7 @@ TEST_F(TestShellFixture, TestScript2ShortcutSUCCESS) {
 }
 
 TEST_F(TestShellFixture, TestScript3FAIL) {
-  Command cmd{TEST_SCRIPT_3_FULLNAME};
+  Command cmd{TEST_SCRIPT_3_FULLNAME, {randomValue}};
 
   EXPECT_CALL(ssd, write(_, _)).Times(AtLeast(1));
   EXPECT_CALL(ssd, read(_)).Times(AtLeast(1));
@@ -391,7 +393,7 @@ TEST_F(TestShellFixture, TestScript3FAIL) {
 }
 
 TEST_F(TestShellFixture, TestScript3ShortcutFAIL) {
-  Command cmd{TEST_SCRIPT_3_SHORTCUT};
+  Command cmd{TEST_SCRIPT_3_SHORTCUT, {randomValue}};
 
   EXPECT_CALL(ssd, write(_, _)).Times(AtLeast(1));
   EXPECT_CALL(ssd, read(_)).Times(AtLeast(1));
@@ -404,13 +406,11 @@ TEST_F(TestShellFixture, TestScript3ShortcutFAIL) {
 }
 
 TEST_F(TestShellFixture, TestScript3SUCCESS) {
-  unsigned long value = getRandomValue();
-  string valueStr = convertHexToString(value);
-  Command cmd{TEST_SCRIPT_3_FULLNAME, {valueStr}};
+  Command cmd{TEST_SCRIPT_3_FULLNAME, {randomValue}};
 
   EXPECT_CALL(ssd, write(_, _)).Times(400);
   EXPECT_CALL(ssd, read(_)).Times(400);
-  EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return(valueStr));
+  EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return(randomValue));
 
   CaptureStdout();
   ts.executeCommand(cmd);
@@ -420,13 +420,11 @@ TEST_F(TestShellFixture, TestScript3SUCCESS) {
 }
 
 TEST_F(TestShellFixture, TestScript3ShortcutSUCCESS) {
-  unsigned long value = getRandomValue();
-  string valueStr = convertHexToString(value);
-  Command cmd{TEST_SCRIPT_3_SHORTCUT, {valueStr}};
+  Command cmd{TEST_SCRIPT_3_SHORTCUT, {randomValue}};
 
   EXPECT_CALL(ssd, write(_, _)).Times(400);
   EXPECT_CALL(ssd, read(_)).Times(400);
-  EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return(valueStr));
+  EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return(randomValue));
 
   CaptureStdout();
   ts.executeCommand(cmd);
