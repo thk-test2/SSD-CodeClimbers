@@ -194,4 +194,28 @@ int CmdBufferControl::getBufferLbaSize(int index) {
   return cmdBuffer[index - 1].getLbaSize();
 }
 
+void CmdBufferControl::flush() {
+
+  if (getDriver() == nullptr)
+    return;
+
+  char cmd = 0;
+  int lba = 0;
+  for (auto buffer : cmdBuffer) {
+    if (buffer.isEmpty())
+      continue;
+
+    cmd = buffer.getCmd();
+    lba = buffer.getLba();
+
+    if (cmd == 'W') {
+      getDriver()->write(lba, buffer.getValue());
+    } else if (cmd == 'E') {
+      getDriver()->erase(lba, buffer.getLbaSize());
+    }
+  }
+
+  clearAllBuffer();
+}
+
 SSDDriver *CmdBufferControl::getDriver() { return driver; }
