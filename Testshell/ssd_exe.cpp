@@ -46,8 +46,8 @@ public:
 
     void erase(int lba, int size) override {
     std::ostringstream cmd;
-    cmd << "\"" << ssdDir << "\\" << SSD_EXE_NAME << "\" W " << lba << " 0x"
-        << std::hex << std::uppercase << size;
+      cmd << "\"" << ssdDir << "\\" << SSD_EXE_NAME << "\" E " << lba
+          << " " << size;
 #ifdef _DEBUG
     std::cout << cmd.str() << "\n";
 #else
