@@ -6,6 +6,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <random>
 
 #include "ssd_interface.h"
 
@@ -77,3 +78,16 @@ public:
   void printCommandInfo(const string &command, const string &args,
                         const string &description, const string &example);
 };
+
+static unsigned long getRandomValue() {
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<uint32_t> dist(0x00000000u, 0xFFFFFFFFu);
+  return dist(gen);
+}
+
+static std::string convertHexToString(unsigned long value) {
+  char buf[11];
+  std::snprintf(buf, sizeof(buf), "0x%08lX", value);
+  return std::string{buf};
+}

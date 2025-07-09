@@ -56,6 +56,34 @@ public:
   string getExample() const override { return "write 5 0xFF"; }
 };
 
+class EraseCommand : public ICommandHandler {
+private:
+  bool isValidEraseUsage(const Command &command);
+  const int MAX_SSD_ERASE_SIZE = 10;
+
+public:
+  void execute(TestShell *shell, const Command &command) override;
+  string getUsage() const override { return "<lba> <size>"; }
+  string getDescription() const override {
+    return "Erase the logical blocks from <lba> for the specified <size>.";
+  }
+  string getExample() const override { return "erase 0 10"; }
+};
+
+class EraseRangeCommand : public ICommandHandler {
+private:
+  bool isValidEraseRangeUsage(const Command &command);
+  const int MAX_SSD_ERASE_SIZE = 10;
+
+public:
+  void execute(TestShell *shell, const Command &command) override;
+  string getUsage() const override { return "<st_lba> <en_lba>"; }
+  string getDescription() const override {
+    return "Erase the SSD's logical blocks from st_lba to en_lba";
+  }
+  string getExample() const override { return "erase_range 0 99"; }
+};
+
 class TestScript1 : public ICommandHandler {
 public:
   void execute(TestShell *shell, const Command &command) override;
@@ -65,9 +93,6 @@ public:
 };
 
 class TestScript2 : public ICommandHandler {
-private:
-  bool checkPartialWriteSuccess(TestShell *shell, int lba, string &valueStr);
-
 public:
   void execute(TestShell *shell, const Command &command) override;
   string getUsage() const override { return "<value>"; }
@@ -76,9 +101,6 @@ public:
 };
 
 class TestScript3 : public ICommandHandler {
-private:
-  bool checkPartialWriteSuccess(TestShell *shell, int lba, string &valueStr);
-
 public:
   void execute(TestShell *shell, const Command &command) override;
   string getUsage() const override { return ""; }

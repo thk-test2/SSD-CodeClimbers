@@ -1,7 +1,7 @@
 #pragma once
 #include "ssd_cmd_buffer.h"
-#include <vector>
 #include <string>
+#include <vector>
 
 struct Cmd {
   int index;
@@ -17,9 +17,10 @@ public:
   std::string getBufferNameList() const;
   bool updateToNextEmpty(const std::string &cmd);
   bool updateBufferByIndex(int index, const std::string &cmd);
+  std::string setBufferName(int index, const std::string &cmd);
   bool isValidBufferIndex(int index);
   bool clearBufferByIndex(int index);
-  void clearAllBuffer(void); 
+  void clearAllBuffer(void);
   void flush();
   bool isBufferFull() const;
   std::vector<Cmd> parseCommands(const std::string &bufNameList);

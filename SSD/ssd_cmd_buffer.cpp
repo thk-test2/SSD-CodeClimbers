@@ -1,7 +1,7 @@
 #include "ssd_cmd_buffer.h"
-#include <iostream>
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 
 namespace fs = std::filesystem;
 using std::cout;
@@ -22,7 +22,9 @@ void CmdBuffer::updateCommand(const std::string &cmd) {
   fileName = (fs::path(fileName).parent_path() / cmd).string();
 }
 
-void CmdBuffer::clear() { updateCommand(std::to_string(getIndex()) + "_empty"); }
+void CmdBuffer::clear() {
+  updateCommand(std::to_string(getIndex()) + "_empty");
+}
 
 bool CmdBuffer::isEmpty() const {
   return getName().find("empty") != std::string::npos;
