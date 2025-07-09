@@ -9,6 +9,12 @@ public:
   void SetUp() override { cmdBuffer.clearAllBuffer(); }
   CmdBufferControl &cmdBuffer = CmdBufferControl::getInstance();
   const std::string BUFFER_EMPTY = "1_empty,2_empty,3_empty,4_empty,5_empty,";
+
+  void checkOutputFileValid(const string &expected_value) {
+    EXPECT_EQ(expected_value,
+              cmdBuffer.getDriver()->getIoStream()->readFileAsString(
+                  cmdBuffer.getDriver()->getIoStream()->output_file_name));
+  }
 };
 
 TEST_F(BufferControlFixture, BufferCheckAfterInit) {
@@ -85,4 +91,23 @@ TEST_F(BufferControlFixture, BufferIsNotFullTest) {
 
   EXPECT_FALSE(cmdBuffer.isBufferFull());
   EXPECT_EQ(expected_ret, cmdBuffer.getBufferNameList());
+}
+
+
+TEST_F(BufferControlFixture, BufferRunCommand) {
+  char *argv[5];
+  argv[0] = const_cast<char *>("ssd.exe");
+  argv[1] = const_cast<char *>("W");
+  argv[2] = const_cast<char *>("10");
+  argv[3] = const_cast<char *>("0x12345678");
+  argv[4] = nullptr;
+  cmdBuffer.runCommandBuffer(argv);
+
+  argv[0] = const_cast<char *>("ssd.exe");
+  argv[1] = const_cast<char *>("R");
+  argv[2] = const_cast<char *>("10");
+  argv[3] = nullptr;
+  cmdBuffer.runCommandBuffer(argv);
+
+  checkOutputFileValid("0x12345678");
 }

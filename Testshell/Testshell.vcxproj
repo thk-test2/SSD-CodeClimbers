@@ -129,6 +129,7 @@
     <ClCompile Include="erase_command.cpp" />
     <ClCompile Include="erase_range_command.cpp" />
     <ClCompile Include="file_system_interface.cpp" />
+    <ClCompile Include="flush_command.cpp" />
     <ClCompile Include="logger.cpp" />
     <ClCompile Include="logger_test.cpp" />
     <ClCompile Include="main.cpp">
