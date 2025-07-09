@@ -5,6 +5,8 @@
 namespace fs = std::filesystem;
 
 CmdBufferControl::CmdBufferControl() {
+  driver = new SSDDriver();
+
   if (!fs::exists(bufferPath)) {
     fs::create_directory(bufferPath);
   }
@@ -45,6 +47,42 @@ std::string CmdBufferControl::getBufferNameList() const {
   }
 
   return list;
+}
+
+string makdFullCmdString(char *argv[]) {
+  string fullCmd = argv[1];
+  int i = 2;
+  while (argv[i] != nullptr) {
+    fullCmd += "_";
+    fullCmd += argv[i];
+    i++;
+  }
+  return fullCmd;
+}
+
+bool CmdBufferControl::runCommandBuffer(char *argv[]) {
+  bool ret = false;
+  string cmdType = argv[1];
+  int lba = std::stoi(argv[2]);
+
+  if (cmdType == "R") {
+    // TO DO : Buffer Check
+    ret = driver->read(lba);
+  } else if (cmdType == "W") {
+    unsigned long value = std::stoul(argv[3], nullptr, 16);
+    updateToNextEmpty(makdFullCmdString(argv));
+    
+    // TO DO : Buffer Check
+    ret = driver->write(lba, value);
+  } else if (cmdType == "E") {
+    int size = std::stoi(argv[3]);
+    updateToNextEmpty(makdFullCmdString(argv));
+    // TO DO : Buffer Check
+    ret = driver->erase(lba, size);
+  } else if (cmdType == "F") {
+    // TO DO : Buffer Check
+  }
+  return ret;
 }
 
 bool CmdBufferControl::updateToNextEmpty(const std::string &cmd) {
@@ -100,3 +138,5 @@ bool CmdBufferControl::isBufferFull() const {
   }
   return true;
 }
+
+SSDDriver *CmdBufferControl::getDriver() { return driver; }

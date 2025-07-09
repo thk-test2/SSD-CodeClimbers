@@ -4,43 +4,27 @@
 class SSDDriver : public Device {
 public:
   SSDDriver() { stream = new IoStream(MAX_NAND_MEMORY_MAP_SIZE, buf); }
-  void run(int argc, char *argv[]) {
-    vector<string> params = parseParams(argc, argv);
-
-    string command = params[0];
-    int lba = std::stoi(params[1]);
-
-    bool result = false;
-    if (command == "W" && argc == 4) {
-      unsigned long value = std::stoul(params[2], nullptr, HEX_BASE);
-      result = write(lba, value);
-    } else if (command == "R" && argc == 3) {
-      result = read(lba);
-    } else if (command == "E" && argc == 4) {
-      int size = std::stoi(params[2]);
-      result = erase(lba, size);
-    } else
-      return;
-
-    try {
-      if (!result)
-        throw std::runtime_error("Device operation failed.");
-    } catch (const std::exception &e) {
-      cout << e.what();
-    }
+  bool isValidParam(int argc, char *argv[]) {
+    string command = argv[1];
+    if (command == "W" && argc == 4)
+      return true;
+    else if (command == "R" && argc == 3)
+      return true;
+    else if (command == "E" && argc == 4)
+      return true;
+    else
+      return false;
   }
 
-  vector<string> parseParams(int argc, char *argv[]) {
-    vector<string> params;
-    for (int i = 1; i < argc; ++i) {
-      params.push_back(argv[i]);
-    }
-    return params;
+  bool isValid_LBA(int lba) {
+    return (lba >= 0 && lba < MAX_NAND_MEMORY_MAP_SIZE);
   }
-
-  bool isValid_LBA(int lba) { return (lba >= 0 && lba < MAX_NAND_MEMORY_MAP_SIZE); }
-  bool isSizeAllowed(int size) { return size >= MIN_ERASE_SIZE && size <= MAX_ERASE_SIZE; }
-  bool isWithinBounds(int lba, int size) { return (lba + size) < MAX_NAND_MEMORY_MAP_SIZE; }
+  bool isSizeAllowed(int size) {
+    return size >= MIN_ERASE_SIZE && size <= MAX_ERASE_SIZE;
+  }
+  bool isWithinBounds(int lba, int size) {
+    return (lba + size) < MAX_NAND_MEMORY_MAP_SIZE;
+  }
 
   bool read(int lba) override {
     if (!isValid_LBA(lba)) {
@@ -83,7 +67,8 @@ public:
   }
 
   bool erase(int lba, int size) override {
-    if (!isValid_LBA(lba) || !isSizeAllowed(size) || !isWithinBounds(lba, size)) {
+    if (!isValid_LBA(lba) || !isSizeAllowed(size) ||
+        !isWithinBounds(lba, size)) {
       stream->writeError();
       return false;
     }
