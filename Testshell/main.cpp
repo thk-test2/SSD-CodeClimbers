@@ -1,6 +1,6 @@
+#include "ssd_exe.cpp"
 #include "test_shell.h"
 #include "gmock/gmock.h"
-#include "ssd_exe.cpp"
 
 // stdout 캡처/해제 함수
 using testing::internal::CaptureStdout;
@@ -155,7 +155,7 @@ TEST_F(TestShellFixture, WriteInvalidCase) {
 
 TEST_F(TestShellFixture, FullReadNormalCase) {
   Command command{"fullread", vector<string>{}};
-  
+
   EXPECT_CALL(ssd, read(0)).Times(1);
   EXPECT_CALL(ssd, read(1)).Times(1);
   EXPECT_CALL(ssd, read(2)).Times(1);
@@ -182,7 +182,7 @@ TEST_F(TestShellFixture, FullReadNormalCase) {
 
 TEST_F(TestShellFixture, FullReadInvalidUsage) {
   Command command{"fullread", vector<string>{"extra"}};
-  
+
   EXPECT_CALL(ssd, read(_)).Times(0);
   EXPECT_CALL(ssd, getResult()).Times(0);
 
@@ -213,12 +213,9 @@ TEST_F(TestShellFixture, FullWriteNormalCase) {
   ts.executeCommand(command);
   std::string output = GetCapturedStdout();
 
-  EXPECT_TRUE(output.find("[Full Write] LBA: 0 Done") !=
-              std::string::npos);
-  EXPECT_TRUE(output.find("[Full Write] LBA: 1 Done") !=
-              std::string::npos);
-  EXPECT_TRUE(output.find("[Full Write] LBA: 2 Done") !=
-              std::string::npos);
+  EXPECT_TRUE(output.find("[Full Write] LBA: 0 Done") != std::string::npos);
+  EXPECT_TRUE(output.find("[Full Write] LBA: 1 Done") != std::string::npos);
+  EXPECT_TRUE(output.find("[Full Write] LBA: 2 Done") != std::string::npos);
 
   // 4번째 LBA는 ERROR이므로 출력되지 않아야 함
   EXPECT_TRUE(output.find("[Full Write] LBA: 3") == std::string::npos);
@@ -443,13 +440,29 @@ TEST_F(TestShellFixture, InvalidCommand) {
   EXPECT_EQ("INVALID COMMAND\n", output);
 }
 
-int main() {
+int main(int argc, char *argv[]) {
 #ifdef _DEBUG
   ::testing::InitGoogleTest();
   return RUN_ALL_TESTS();
 #else
   SSD_EXE ssd;
   TestShell testShell{&ssd};
+
+  if (argc > 1) {
+    const std::string filename = argv[1];
+    std::ifstream in(filename);
+    if (!in) {
+      std::cerr << "파일 열기 실패: " << filename << "\n";
+      return 1;
+    }
+    std::vector<std::string> lines;
+    std::string line;
+    while (std::getline(in, line)) {
+      lines.push_back(line);
+    }
+    testShell.setShellScripts(lines);
+  }
+
   testShell.run();
   return 0;
 #endif

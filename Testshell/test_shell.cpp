@@ -46,19 +46,31 @@ void TestShell::initializeCommandHandlers() {
 void TestShell::run() {
   string userInput;
   while (true) {
-    cout << "> ";
-    getline(std::cin, userInput);
-    command = parsing(userInput);
-    if (command.command == "exit") {
-      break;
+    if (shellScripts.empty()) {
+      cout << "> ";
+      getline(std::cin, userInput);
+      command = parsing(userInput);
+      if (command.command == "exit") {
+        break;
+      }
+      executeCommand(command);
+      continue;
     }
-    executeCommand(command);
+
+    int i = 0;
+    for (; i < shellScripts.size(); i++) {
+      cout << shellScripts[i] << endl;
+      command = parsing(shellScripts[i]);
+      executeCommand(command);
+    }
+    if (i == shellScripts.size())
+      break;
   }
 }
 
 void TestShell::executeCommand(const Command &command) {
   string cmd = command.command;
-  
+ 
   auto commandIt = commandHandlers.find(cmd);
   if (commandIt != commandHandlers.end()) {
     commandIt->second->execute(this, command);

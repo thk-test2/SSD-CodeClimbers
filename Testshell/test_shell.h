@@ -2,11 +2,11 @@
 
 #include <iostream>
 #include <memory>
+#include <random>
 #include <sstream>
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <random>
 
 #include "ssd_interface.h"
 
@@ -52,6 +52,8 @@ private:
   Command command;
   std::unordered_map<string, std::unique_ptr<ICommandHandler>> commandHandlers;
 
+  vector<string> shellScripts;
+
   const int HEX_BASE = 16;
 
   void initializeCommandHandlers();
@@ -63,13 +65,13 @@ public:
 
   void run();
   void executeCommand(const Command &command);
-  
+
   // Public methods for command handlers to access
-  SSD_INTERFACE* getSSD() { return ssd; }
+  SSD_INTERFACE *getSSD() { return ssd; }
   int getHexBase() const { return HEX_BASE; }
-  
+
   Command parsing(const string &userInput);
-  
+
   // Helper methods for commands
   void printHeader();
   void printTeamInfo();
@@ -77,6 +79,10 @@ public:
   void printTestScripts();
   void printCommandInfo(const string &command, const string &args,
                         const string &description, const string &example);
+
+  void setShellScripts(const vector<string>& scripts) {
+    this->shellScripts = scripts;
+  }
 };
 
 static unsigned long getRandomValue() {
