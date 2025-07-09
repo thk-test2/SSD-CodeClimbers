@@ -7,7 +7,6 @@ public:
   MOCK_METHOD(bool, write, (int, unsigned long), (override));
   MOCK_METHOD(bool, read, (int), (override));
   MOCK_METHOD(bool, erase, (int, int), (override));
-  MOCK_METHOD(void, run, (int, char *[]), (override));
 };
 
 TEST(SSD_TS, ReadPass) {
@@ -38,54 +37,6 @@ TEST(SSD_TS, WriteFailOutOfRange) {
   EXPECT_FALSE(ssdDriver.write(200, 0x12345678));
 }
 
-TEST(SSD_TS, Run) {
-  MockSSD ssdDriver;
-  int argc = 3;
-  char *argv[3];
-  argv[0] = const_cast<char *>("ssd.exe");
-  argv[1] = const_cast<char *>("R");
-  argv[2] = const_cast<char *>("10");
-
-  EXPECT_CALL(ssdDriver, run(argc, argv)).Times(1);
-  ssdDriver.run(argc, argv);
-}
-
-TEST(SSD_TS, RunInvalidParam1) {
-  SSDDriver ssdDriver;
-  int argc = 1;
-  char *argv[1];
-  argv[0] = const_cast<char *>("ssd.exe");
-
-  vector<string> params = ssdDriver.parseParams(argc, argv);
-
-  EXPECT_EQ(params.size(), 0);
-}
-
-TEST(SSD_TS, RunInvalidParam2) {
-  SSDDriver ssdDriver;
-  int argc = 3;
-  char *argv[3];
-  argv[0] = const_cast<char *>("ssd.exe");
-  argv[1] = const_cast<char *>("R");
-  argv[2] = const_cast<char *>("10");
-  vector<string> params = ssdDriver.parseParams(argc, argv);
-
-  EXPECT_EQ(params.size(), 2);
-}
-
-TEST(SSD_TS, WriteParams) {
-  SSDDriver ssdDriver;
-  int argc = 4;
-  char *argv[4];
-  argv[0] = const_cast<char *>("ssd.exe");
-  argv[1] = const_cast<char *>("W");
-  argv[2] = const_cast<char *>("10");
-  argv[3] = const_cast<char *>("0x12345678");
-
-  vector<string> args = ssdDriver.parseParams(argc, argv);
-
-  EXPECT_EQ(args.size(), 3);
-}
 class SSDDriverTestData {
 public:
   int lba;

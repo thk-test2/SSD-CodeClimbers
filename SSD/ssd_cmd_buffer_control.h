@@ -1,5 +1,6 @@
 #pragma once
 #include "ssd_cmd_buffer.h"
+#include "ssd_driver.cpp"
 #include <string>
 #include <vector>
 
@@ -15,6 +16,7 @@ public:
   static CmdBufferControl &getInstance();
 
   std::string getBufferNameList() const;
+  bool runCommandBuffer(char *argv[]);
   bool updateToNextEmpty(const std::string &cmd);
   bool updateBufferByIndex(int index, const std::string &cmd);
   std::string setBufferName(int index, const std::string &cmd);
@@ -25,6 +27,7 @@ public:
   bool isBufferFull() const;    
   std::vector<Cmd> parseCommands(const std::string &bufNameList);
   const int MAX_BUFFER_SIZE = 5;
+  SSDDriver *getDriver();
   const int HEX_BASE = 16;
 
 private:
@@ -34,4 +37,5 @@ private:
 
   std::vector<CmdBuffer> cmdBuffer;
   std::string bufferPath = "./buffer";
+  SSDDriver *driver;
 };

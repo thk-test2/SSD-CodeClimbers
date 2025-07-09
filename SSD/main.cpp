@@ -1,5 +1,5 @@
 #include "gmock/gmock.h"
-#include "ssd_driver.cpp"
+#include "ssd_cmd_buffer_control.h"
 
 #if defined(_DEBUG)
 int main() {
@@ -8,8 +8,10 @@ int main() {
 }
 #else
 int main(int argc, char *argv[]) {
-  SSDDriver ssdDriver;
-  ssdDriver.run(argc, argv);
-  return 0;
+  CmdBufferControl &cmdBuffer = CmdBufferControl::getInstance();
+  if (!cmdBuffer.getDriver()->isValidParam(argc, argv))
+    return 0;
+  
+  return cmdBuffer.runCommandBuffer(argv);
 }
 #endif
