@@ -22,6 +22,7 @@ void EraseCommand::execute(TestShell *shell, const Command &command) {
     }
 
     remain_size -= unit_size;
+    lba += unit_size;
     unit_size = std::min(10, remain_size);
   }
 }
