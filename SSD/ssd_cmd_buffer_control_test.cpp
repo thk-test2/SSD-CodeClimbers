@@ -28,6 +28,12 @@ TEST_F(BufferControlFixture, BufferUpdateByIndex2Test) {
   EXPECT_TRUE(cmdBuffer.updateBufferByIndex(2, "R_10"));
 }
 
+TEST_F(BufferControlFixture, BufferUpdateByIndexTestFail) {
+  EXPECT_FALSE(cmdBuffer.updateBufferByIndex(0, "W_20_0xABCDABCD"));
+  EXPECT_FALSE(cmdBuffer.updateBufferByIndex(6, "W_20_0xABCDABCD"));
+  EXPECT_FALSE(cmdBuffer.updateBufferByIndex(100, "W_20_0xABCDABCD"));
+}
+
 TEST_F(BufferControlFixture, BufferClearTest) {
   std::string expected_ret = BUFFER_EMPTY;
   cmdBuffer.updateBufferByIndex(2, "W_20_0xABCDABCD");
