@@ -57,6 +57,9 @@ public:
 };
 
 class EraseCommand : public ICommandHandler {
+private:
+  bool isValidEraseUsage(const Command &command);
+
 public:
   void execute(TestShell *shell, const Command &command) override;
   string getUsage() const override { return "<lba> <size>"; }

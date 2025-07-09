@@ -1,7 +1,7 @@
 #include "test_shell.h"
-#include "SSD_INTERFACE.h"
-#include "gmock/gmock.h"
+#include "ssd_interface.h"
 #include "ssd_exe.cpp"
+#include "gmock/gmock.h"
 
 #include <random>
 
@@ -181,45 +181,28 @@ TEST_F(TestShellFixture, EraseNormalCase) {
 }
 
 TEST_F(TestShellFixture, EraseInvalidCase) {
-  Command command{"erase", vector<string>{"-1", "0"}};
 
-  EXPECT_CALL(ssd, erase(_, _)).Times(0);
-  EXPECT_CALL(ssd, getResult()).Times(0);
+  vector<Command> commands = {
+      {"erase", vector<string>{"-1", "10"}},
+      {"erase", vector<string>{"99", "10"}},
+      {"erase", vector<string>{"10", "0"}},
+      {"erase", vector<string>{"10", "101"}},
+  };
+  for (auto command : commands) {
+    EXPECT_CALL(ssd, erase(_, _)).Times(0);
+    EXPECT_CALL(ssd, getResult()).Times(0);
 
-  CaptureStdout();
-  ts.executeCommand(command);
-  std::string output = GetCapturedStdout();
+    CaptureStdout();
+    ts.executeCommand(command);
+    std::string output = GetCapturedStdout();
 
-  EXPECT_EQ("INVALID COMMAND\n", output);
-
-
-  Command command1{"erase", vector<string>{"99", "10"}};
-
-  EXPECT_CALL(ssd, erase(_, _)).Times(0);
-  EXPECT_CALL(ssd, getResult()).Times(0);
-
-  CaptureStdout();
-  ts.executeCommand(command1);
-  output = GetCapturedStdout();
-
-  EXPECT_EQ("INVALID COMMAND\n", output);
-
-
-  Command command2{"erase", vector<string>{"10", "0"}};
-
-  EXPECT_CALL(ssd, erase(_, _)).Times(0);
-  EXPECT_CALL(ssd, getResult()).Times(0);
-
-  CaptureStdout();
-  ts.executeCommand(command2);
-  output = GetCapturedStdout();
-
-  EXPECT_EQ("INVALID COMMAND\n", output);
+    EXPECT_EQ("INVALID COMMAND\n", output);
+  }
 }
 
 TEST_F(TestShellFixture, FullReadNormalCase) {
   Command command{"fullread", vector<string>{}};
-  
+
   EXPECT_CALL(ssd, read(0)).Times(1);
   EXPECT_CALL(ssd, read(1)).Times(1);
   EXPECT_CALL(ssd, read(2)).Times(1);
@@ -246,7 +229,7 @@ TEST_F(TestShellFixture, FullReadNormalCase) {
 
 TEST_F(TestShellFixture, FullReadInvalidUsage) {
   Command command{"fullread", vector<string>{"extra"}};
-  
+
   EXPECT_CALL(ssd, read(_)).Times(0);
   EXPECT_CALL(ssd, getResult()).Times(0);
 
@@ -283,7 +266,7 @@ TEST_F(TestShellFixture, FullWriteNormalCase) {
               std::string::npos);
   EXPECT_TRUE(output.find("[Full Write] LBA: 2 Done") !=
               std::string::npos);
-
+              
   // 4번째 LBA는 ERROR이므로 출력되지 않아야 함
   EXPECT_TRUE(output.find("[Full Write] LBA: 3") == std::string::npos);
 }
