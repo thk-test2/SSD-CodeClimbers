@@ -20,7 +20,7 @@ public:
       int size = std::stoi(params[2]);
       result = erase(lba, size);
     } else
-      throw std::runtime_error("Need to check parameter.");
+      return;
 
     if (!result)
       throw std::runtime_error("Device operation failed.");
