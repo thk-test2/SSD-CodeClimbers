@@ -14,7 +14,8 @@ public:
 
   void read(int lba) override;
   void write(int lba, unsigned long value) override;
-  void erase(int lba, int size) override ;
+  void erase(int lba, int size) override;
+  void flush() override;
   string getResult() override { return lastResult; }
 
 private:

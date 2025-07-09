@@ -53,6 +53,19 @@ void SSD_EXE::erase(int lba, int size) {
 #endif
 }
 
+
+  void SSD_EXE::flush() {
+  std::ostringstream cmd;
+  cmd << "\"" << ssdDir << "\\" << SSD_EXE_NAME << "\" F";
+#ifdef _DEBUG
+  std::cout << cmd.str() << "\n";
+#else
+  int ret = system(cmd.str().c_str());
+
+  lastResult = ret != 0 ? ERROR_MSG : "";
+#endif
+}
+
 string SSD_EXE::getCurWorkingDir() {
   char cwd[1024];
   if (!_getcwd(cwd, sizeof(cwd))) {
