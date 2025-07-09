@@ -257,3 +257,15 @@ TEST_F(SSDDriverTestFixture, SSDEraseOverSize) {
     checkSpecificLineInNandFile("0x5A5A5A5A", idx);
   }
 }
+
+TEST_F(SSDDriverTestFixture, SSDEraseOverRange) {
+  int startLBA, eraseSize;
+  startLBA = 99;
+  eraseSize = 5;
+
+  ssd.write(startLBA, 0x5A5A5A5A);
+
+  ssd.erase(startLBA, eraseSize);
+  
+  checkSpecificLineInNandFile("0x5A5A5A5A", startLBA); // not erased because of overrange
+}
