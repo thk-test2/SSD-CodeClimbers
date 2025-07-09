@@ -37,6 +37,9 @@ public:
   virtual string getUsage() const = 0;
   virtual string getDescription() const = 0;
   virtual string getExample() const = 0;
+
+protected:
+  const int MAX_LBA_COUNT = 100;
 };
 
 class TestShell {
