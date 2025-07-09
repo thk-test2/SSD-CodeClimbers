@@ -16,8 +16,8 @@ void FullWriteCommand::execute(TestShell* shell, const Command& command) {
   }
   
   int lba = 0;
-  string result = shell->getSSD()->getResult();
   shell->getSSD()->write(lba, value);
+  string result = shell->getSSD()->getResult();
   while (result != "ERROR") {
     cout << "[Full Write] LBA: " << lba << " Done" << endl;
     lba++;
