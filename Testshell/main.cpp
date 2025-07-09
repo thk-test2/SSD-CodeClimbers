@@ -82,6 +82,12 @@ TEST_F(TestShellFixture, DisplaysCommandsSection) {
 
   EXPECT_TRUE(output.find("exit") != std::string::npos);
   EXPECT_TRUE(output.find("Exit the shell") != std::string::npos);
+
+  EXPECT_TRUE(output.find("erase") != std::string::npos);
+  EXPECT_TRUE(output.find("erase 0 10") != std::string::npos);
+
+  EXPECT_TRUE(output.find("erase_range") != std::string::npos);
+  EXPECT_TRUE(output.find("erase_range 0 99") != std::string::npos);
 }
 
 TEST_F(TestShellFixture, DisplayTestScriptsSection) {
@@ -91,6 +97,7 @@ TEST_F(TestShellFixture, DisplayTestScriptsSection) {
   EXPECT_TRUE(output.find("1_FullWriteAndReadCompare") != std::string::npos);
   EXPECT_TRUE(output.find("2_PartialLBAWrite") != std::string::npos);
   EXPECT_TRUE(output.find("3_WriteReadAging") != std::string::npos);
+  EXPECT_TRUE(output.find("4_EraseAndWriteAging") != std::string::npos);
 }
 
 TEST_F(TestShellFixture, ReadNormalCase) {
