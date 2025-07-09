@@ -30,12 +30,12 @@ void TestScript1::execute(TestShell *shell, const Command &command) {
       shell->getSSD()->read(lba);
       string result = shell->getSSD()->getResult();
       if (result != valueStr) {
-        cout << "Script 1 execution failed." << endl;
+        cout << "FAIL!" << endl;
         return;
       }
     }
   }
-  cout << "Script 1 executed successfully." << endl;
+  cout << "Pass" << endl;
 }
 
 void TestScript2::execute(TestShell *shell, const Command &command) {
@@ -51,12 +51,12 @@ void TestScript2::execute(TestShell *shell, const Command &command) {
     for (auto lba : lbaList) {
       shell->getSSD()->write(lba, value);
       if (!checkPartialWriteSuccess(shell, lba, value)) {
-        cout << "Script 2 execution failed." << endl;
+        cout << "FAIL!" << endl;
         return;
       }
     }
   }
-  cout << "Script 2 executed successfully." << endl;
+  cout << "Pass" << endl;
 }
 
 void TestScript3::execute(TestShell *shell, const Command &command) {
@@ -73,15 +73,60 @@ void TestScript3::execute(TestShell *shell, const Command &command) {
   for (int i = 0; i < 200; i++) {
     shell->getSSD()->write(0, value);
     if (!checkPartialWriteSuccess(shell, 0, value)) {
-      cout << "Script 3 execution failed." << endl;
+      cout << "FAIL!" << endl;
       return;
     }
 
     shell->getSSD()->write(99, value);
     if (!checkPartialWriteSuccess(shell, 99, value)) {
-      cout << "Script 3 execution failed." << endl;
+      cout << "FAIL!" << endl;
       return;
     }
   }
-  cout << "Script 3 executed successfully." << endl;
+  cout << "Pass" << endl;
+}
+
+void TestScript4::execute(TestShell *shell, const Command &command) {
+  if (command.args.size() != 0) {
+    std::cout << "INVALID_COMMAND\n";
+    return;
+  }
+  unsigned long value1 = getRandomValue();
+  unsigned long value2 = getRandomValue();
+
+  shell->getSSD()->erase(0, 3);
+  if (shell->getSSD()->getResult() == "ERROR") {
+    cout << "FAIL!" << endl;
+    return;
+  }
+
+  for (int i = 0; i < 30; i++) {
+    int slba = 2, elba = 4;
+    while (slba < 99) {
+      shell->getSSD()->write(slba, value1);
+      if (shell->getSSD()->getResult() == "ERROR") {
+        cout << "FAIL!" << endl;
+        return;
+      }
+      
+      shell->getSSD()->write(slba, value2);
+      if (shell->getSSD()->getResult() == "ERROR") {
+        cout << "FAIL!" << endl;
+        return;
+      }
+
+      int size = elba - slba + 1;
+      shell->getSSD()->erase(slba, size);
+      if (shell->getSSD()->getResult() == "ERROR") {
+        cout << "FAIL!" << endl;
+        return;
+      }
+
+      slba = elba;
+      elba += 2;
+      if (elba == 100)
+        elba = 99;
+    }
+  }
+  cout << "Pass" << endl;
 }

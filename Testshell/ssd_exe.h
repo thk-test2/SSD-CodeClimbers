@@ -1,3 +1,4 @@
+#pragma once
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -79,23 +80,6 @@ private:
     }
 
     return string(cwd);
-  }
-  // 현재 디렉토리 기준 ../../../SSD/x64/Release 를 절대경로로 변환
-  string getSSDExePath() {
-    char cwd[1024];
-    if (!_getcwd(cwd, sizeof(cwd))) {
-      std::cerr << "[ERROR] 현재 경로를 얻을 수 없습니다." << std::endl;
-      std::exit(1);
-    }
-
-    std::string relPath = std::string(cwd) + "\\..\\SSD\\x64\\Release";
-    char absPath[1024];
-    if (!_fullpath(absPath, relPath.c_str(), sizeof(absPath))) {
-      std::cerr << "[ERROR] 절대 경로 변환 실패." << std::endl;
-      std::exit(1);
-    }
-
-    return std::string(absPath);
   }
 
   string readOutputFile() {

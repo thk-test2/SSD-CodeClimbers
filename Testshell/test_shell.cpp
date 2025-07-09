@@ -1,29 +1,20 @@
-#include "gmock/gmock.h"
-#include "ssd_exe.cpp"
 #include "test_shell.h"
 #include "command.h"
+#include "logger.h"
+#include "ssd_exe.h"
+#include "gmock/gmock.h"
 
-TestShell::TestShell() : ctrl(new StdInOutCtrl()), parser(new ArgParser()) {
+TestShell::TestShell() {
   initializeCommandHandlers();
 }
 
 TestShell::TestShell(SSD_INTERFACE *_ssd)
-    : ctrl(new StdInOutCtrl()), parser(new ArgParser()), ssd{_ssd} {
+    : ssd{_ssd} {
   initializeCommandHandlers();
 }
 
 TestShell::~TestShell() {
-  delete ctrl;
-  delete parser;
 }
-
-// MockDriver
-class MockSSD : public SSD_INTERFACE {
-public:
-  MOCK_METHOD(void, read, (int lba), (override));
-  MOCK_METHOD(void, write, (int lba, unsigned long value), (override));
-  MOCK_METHOD(string, getResult, (), (override));
-};
 
 void TestShell::initializeCommandHandlers() {
   // Regular commands
@@ -38,20 +29,42 @@ void TestShell::initializeCommandHandlers() {
 
   // Test scripts
   commandHandlers["1_"] = std::make_unique<TestScript1>();
-  commandHandlers["1_FullWriteAndReadCompare"] = std::make_unique<TestScript1>();
+  commandHandlers["1_FullWriteAndReadCompare"] =
+      std::make_unique<TestScript1>();
   commandHandlers["2_"] = std::make_unique<TestScript2>();
   commandHandlers["2_PartialLBAWrite"] = std::make_unique<TestScript2>();
   commandHandlers["3_"] = std::make_unique<TestScript3>();
   commandHandlers["3_WriteReadAging"] = std::make_unique<TestScript3>();
+  commandHandlers["4_"] = std::make_unique<TestScript4>();
+  commandHandlers["4_EraseAndWriteAging"] = std::make_unique<TestScript4>();
 }
 
 void TestShell::run() {
+  if (!shellScripts.empty()) {
+    runScripts();
+    return;
+  }
+  runInteractive();
+}
+
+void TestShell::runScripts() {
+  for (const auto &script : shellScripts) {
+    cout << std::left << std::setw(30) << script << "___   Run...";
+    command = parsing(script);
+    executeCommand(command);
+  }
+}
+
+void TestShell::runInteractive() {
   string userInput;
   while (true) {
     cout << "> ";
     getline(std::cin, userInput);
     command = parsing(userInput);
+    logger.print("TestShell.run()",
+        "Successfully parsed command - " + command.command);
     if (command.command == "exit") {
+      logger.print("TestShell.run()", "Exiting shell.");
       break;
     }
     executeCommand(command);
@@ -60,13 +73,17 @@ void TestShell::run() {
 
 void TestShell::executeCommand(const Command &command) {
   string cmd = command.command;
-  
+
   auto commandIt = commandHandlers.find(cmd);
   if (commandIt != commandHandlers.end()) {
     commandIt->second->execute(this, command);
+    logger.print("TestShell.executeCommand()",
+        "Successfully executed command - " + cmd);
     return;
   }
-  
+
+  logger.print("TestShell.executeCommand()",
+      "Invalid command - " + cmd);
   cout << "INVALID COMMAND" << endl;
 }
 
@@ -99,15 +116,16 @@ void TestShell::printTeamInfo() {
 
 void TestShell::printCommands() {
   cout << "\n\033[1mCommands:\033[0m\n";
-  
+
   // 명령어 순서를 고정하여 출력
-  vector<string> commandOrder = {"read", "write", "fullread", "fullwrite", "help", "exit"};
-  
-  for (const string& cmdName : commandOrder) {
+  vector<string> commandOrder = {"read", "write", "fullread", "fullwrite",
+                                 "help", "exit",  "erase",    "erase_range"};
+
+  for (const string &cmdName : commandOrder) {
     auto it = commandHandlers.find(cmdName);
     if (it != commandHandlers.end()) {
-      printCommandInfo(cmdName, it->second->getUsage(), 
-                      it->second->getDescription(), it->second->getExample());
+      printCommandInfo(cmdName, it->second->getUsage(),
+                       it->second->getDescription(), it->second->getExample());
     }
   }
 }
@@ -123,10 +141,15 @@ void TestShell::printTestScripts() {
   printCommandInfo("3_WriteReadAging", "",
                    "Run write/read aging test (200 iterations)",
                    "'3_' or '3_WriteReadAging'");
+  printCommandInfo("4_EraseAndWriteAging", "",
+                   "Repeatedly erase LBA ranges and write random data to "
+                   "following LBAs in sequential loops (30 iterations)",
+                   "'4_' or '4_EraseAndWriteAging'");
 }
 
 void TestShell::printCommandInfo(const string &command, const string &args,
-                      const string &description, const string &example) {
+                                 const string &description,
+                                 const string &example) {
   cout << "  \033[1m" << command << "\033[0m";
   if (!args.empty()) {
     cout << " " << args;

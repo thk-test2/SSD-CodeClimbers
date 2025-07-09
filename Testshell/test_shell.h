@@ -2,13 +2,14 @@
 
 #include <iostream>
 #include <memory>
+#include <random>
 #include <sstream>
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <random>
 
 #include "ssd_interface.h"
+#include "logger.h"
 
 using std::cout;
 using std::endl;
@@ -25,12 +26,6 @@ public:
   vector<string> args;
 };
 
-class StdInOutCtrl {
-public:
-};
-
-class ArgParser {};
-
 // Forward declarations
 class TestShell;
 
@@ -46,15 +41,18 @@ public:
 
 class TestShell {
 private:
-  StdInOutCtrl *ctrl;
-  ArgParser *parser;
   SSD_INTERFACE *ssd;
   Command command;
   std::unordered_map<string, std::unique_ptr<ICommandHandler>> commandHandlers;
+  Logger &logger = Logger::getInstance();
+
+  vector<string> shellScripts;
 
   const int HEX_BASE = 16;
 
   void initializeCommandHandlers();
+  void runInteractive();
+  void runScripts();
 
 public:
   TestShell();
@@ -63,13 +61,13 @@ public:
 
   void run();
   void executeCommand(const Command &command);
-  
+
   // Public methods for command handlers to access
-  SSD_INTERFACE* getSSD() { return ssd; }
+  SSD_INTERFACE *getSSD() { return ssd; }
   int getHexBase() const { return HEX_BASE; }
-  
+
   Command parsing(const string &userInput);
-  
+
   // Helper methods for commands
   void printHeader();
   void printTeamInfo();
@@ -77,6 +75,10 @@ public:
   void printTestScripts();
   void printCommandInfo(const string &command, const string &args,
                         const string &description, const string &example);
+
+  void setShellScripts(const vector<string> &scripts) {
+    this->shellScripts = scripts;
+  }
 };
 
 static unsigned long getRandomValue() {
