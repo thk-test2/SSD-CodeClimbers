@@ -34,6 +34,7 @@ void TestShell::initializeCommandHandlers() {
   commandHandlers["help"] = std::make_unique<HelpCommand>();
   commandHandlers["exit"] = std::make_unique<ExitCommand>();
   commandHandlers["erase"] = std::make_unique<EraseCommand>();
+  commandHandlers["erase_range"] = std::make_unique<EraseRangeCommand>();
 
   // Test scripts
   commandHandlers["1_"] = std::make_unique<TestScript1>();

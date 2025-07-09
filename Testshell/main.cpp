@@ -159,12 +159,41 @@ TEST_F(TestShellFixture, EraseNormalCase) {
   Command command{"erase", vector<string>{"0", "12"}};
 
   EXPECT_CALL(ssd, erase(_, _)).Times(2);
-  EXPECT_CALL(ssd, getResult()).Times(2).WillOnce(Return(""));
+  EXPECT_CALL(ssd, getResult()).Times(2).WillRepeatedly(Return(""));
 
   ts.executeCommand(command);
 }
 
 TEST_F(TestShellFixture, EraseInvalidCase) {
+
+  vector<Command> commands = {
+      {"erase", vector<string>{"-1", "10"}},
+      {"erase", vector<string>{"99", "10"}},
+      {"erase", vector<string>{"10", "0"}},
+      {"erase", vector<string>{"10", "101"}},
+  };
+  for (auto command : commands) {
+    EXPECT_CALL(ssd, erase(_, _)).Times(0);
+    EXPECT_CALL(ssd, getResult()).Times(0);
+
+    CaptureStdout();
+    ts.executeCommand(command);
+    std::string output = GetCapturedStdout();
+
+    EXPECT_EQ("INVALID COMMAND\n", output);
+  }
+}
+
+TEST_F(TestShellFixture, EraseRangeNormalCase) {
+  Command command{"erase_range", vector<string>{"0", "12"}};
+
+  EXPECT_CALL(ssd, erase(_, _)).Times(2);
+  EXPECT_CALL(ssd, getResult()).Times(2).WillRepeatedly(Return(""));
+
+  ts.executeCommand(command);
+}
+
+TEST_F(TestShellFixture, EraseRangeInvalidCase) {
 
   vector<Command> commands = {
       {"erase", vector<string>{"-1", "10"}},
