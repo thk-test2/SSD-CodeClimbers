@@ -26,7 +26,7 @@ public:
   void writeError();
   void clearOutput();
  
-  void loadNandFile();
+  void loadNandFiletoBuf();
   void initSsdNand();
 
   int getStorageSize();
