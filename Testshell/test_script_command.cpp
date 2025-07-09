@@ -96,7 +96,7 @@ void TestScript4::execute(TestShell *shell, const Command &command) {
 
   shell->getSSD()->erase(0, 3);
   if (shell->getSSD()->getResult() == "ERROR") {
-    cout << "Script 4 execution failed." << endl;
+    cout << "FAIL!" << endl;
     return;
   }
 
@@ -105,20 +105,20 @@ void TestScript4::execute(TestShell *shell, const Command &command) {
     while (slba < 99) {
       shell->getSSD()->write(slba, value1);
       if (shell->getSSD()->getResult() == "ERROR") {
-        cout << "Script 4 execution failed." << endl;
+        cout << "FAIL!" << endl;
         return;
       }
       
       shell->getSSD()->write(slba, value2);
       if (shell->getSSD()->getResult() == "ERROR") {
-        cout << "Script 4 execution failed." << endl;
+        cout << "FAIL!" << endl;
         return;
       }
 
       int size = elba - slba + 1;
       shell->getSSD()->erase(slba, size);
       if (shell->getSSD()->getResult() == "ERROR") {
-        cout << "Script 4 execution failed." << endl;
+        cout << "FAIL!" << endl;
         return;
       }
 
@@ -128,5 +128,5 @@ void TestScript4::execute(TestShell *shell, const Command &command) {
         elba = 99;
     }
   }
-  cout << "Script 4 executed successfully." << endl;
+  cout << "Pass" << endl;
 }

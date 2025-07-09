@@ -1,6 +1,6 @@
 #include "ssd_exe.cpp"
-#include "test_shell.h"
 #include "ssd_interface.h"
+#include "test_shell.h"
 #include "gmock/gmock.h"
 
 // stdout 캡처/해제 함수
@@ -500,9 +500,8 @@ TEST_F(TestShellFixture, TestScript3ShortcutSUCCESS) {
 }
 
 TEST_F(TestShellFixture, TestScript4FAIL) {
-  vector<Command> commands = {
-      {TEST_SCRIPT_4_FULLNAME, {}},
-      {TEST_SCRIPT_4_SHORTCUT, {}}};
+  vector<Command> commands = {{TEST_SCRIPT_4_FULLNAME, {}},
+                              {TEST_SCRIPT_4_SHORTCUT, {}}};
 
   for (auto cmd : commands) {
     EXPECT_CALL(ssd, erase(_, _)).Times(AtLeast(1));
@@ -516,15 +515,13 @@ TEST_F(TestShellFixture, TestScript4FAIL) {
     ts.executeCommand(cmd);
     std::string output = GetCapturedStdout();
 
-    EXPECT_TRUE(output.find("Script 4 execution failed.\n") !=
-                std::string::npos);  
+    EXPECT_TRUE(output.find("FAIL!\n") != std::string::npos);
   }
 }
 
 TEST_F(TestShellFixture, TestScript4SUCCESS) {
-  vector<Command> commands = {
-      {TEST_SCRIPT_4_FULLNAME, {}},
-      {TEST_SCRIPT_4_SHORTCUT, {}}};
+  vector<Command> commands = {{TEST_SCRIPT_4_FULLNAME, {}},
+                              {TEST_SCRIPT_4_SHORTCUT, {}}};
 
   for (auto cmd : commands) {
     EXPECT_CALL(ssd, erase(_, _)).Times(49 * 30 + 1);
@@ -535,7 +532,7 @@ TEST_F(TestShellFixture, TestScript4SUCCESS) {
     ts.executeCommand(cmd);
     std::string output = GetCapturedStdout();
 
-    EXPECT_EQ("Script 4 executed successfully.\n", output);  
+    EXPECT_EQ("Pass\n", output);
   }
 }
 
