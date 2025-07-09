@@ -93,6 +93,41 @@ TEST_F(BufferControlFixture, BufferIsNotFullTest) {
   EXPECT_EQ(expected_ret, cmdBuffer.getBufferNameList());
 }
 
+TEST_F(BufferControlFixture, BufferEmptyShiftTest) {
+
+  std::string expected_ret =
+      "1_E_10_10,2_W_1_0x11112222,3_W_99_0xBBBBAAAA,4_empty,5_empty,";
+
+  EXPECT_TRUE(cmdBuffer.updateToNextEmpty("E_10_10"));
+  EXPECT_TRUE(cmdBuffer.updateToNextEmpty("W_20_0xABCDABCD"));
+  EXPECT_TRUE(cmdBuffer.updateToNextEmpty("W_1_0x11112222"));
+  EXPECT_TRUE(cmdBuffer.updateToNextEmpty("W_10_0xABCDABCD"));
+  EXPECT_TRUE(cmdBuffer.updateToNextEmpty("W_99_0xBBBBAAAA"));
+
+  cmdBuffer.clearBufferByIndex(2);
+  cmdBuffer.clearBufferByIndex(4);
+  cmdBuffer.emptyBufferShift();
+
+  EXPECT_EQ(expected_ret, cmdBuffer.getBufferNameList());
+}
+
+TEST_F(BufferControlFixture, BufferGetParsingTest) {
+  EXPECT_TRUE(cmdBuffer.updateToNextEmpty("E_10_10"));
+  EXPECT_TRUE(cmdBuffer.updateToNextEmpty("W_20_0xABCDABCD"));
+  EXPECT_TRUE(cmdBuffer.updateToNextEmpty("W_1_0x11112222"));
+
+  EXPECT_TRUE(cmdBuffer.getBufferCmd(1), "E");
+  EXPECT_TRUE(cmdBuffer.getBufferCmd(2), "W");
+  EXPECT_TRUE(cmdBuffer.getBufferCmd(3), "W");
+
+  EXPECT_TRUE(cmdBuffer.getBufferLba(1), 10);
+  EXPECT_TRUE(cmdBuffer.getBufferLba(2), 20);
+  EXPECT_TRUE(cmdBuffer.getBufferLba(3), 1);
+
+  EXPECT_TRUE(cmdBuffer.getBufferLbaSize(1), 10);
+  EXPECT_TRUE(cmdBuffer.getBufferValue(2), 0xABCDABCD);
+  EXPECT_TRUE(cmdBuffer.getBufferValue(3), 0x11112222);
+}
 
 TEST_F(BufferControlFixture, BufferRunCommand) {
   char *argv[5];

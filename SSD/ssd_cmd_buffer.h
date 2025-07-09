@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <vector>
 
 class CmdBuffer {
 public:
@@ -10,6 +11,11 @@ public:
   void clear();
   bool isEmpty() const;
   int getIndex() const;
+  char getCmd() const;
+  int getLba() const;
+  unsigned long getValue() const;
+  int getLbaSize() const;
+  std::vector<std::string> splitFileName() const;
 
 private:
   std::string fileName;
