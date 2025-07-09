@@ -111,7 +111,7 @@ TEST_F(BufferControlFixture, BufferEmptyShiftTest) {
   EXPECT_EQ(expected_ret, cmdBuffer.getBufferNameList());
 }
 
-TEST_F(BufferControlFixture, BufferGetParsingTest) {
+TEST_F(BufferControlFixture, BufferGetParsingCmdTest) {
   EXPECT_TRUE(cmdBuffer.updateToNextEmpty("E_10_10"));
   EXPECT_TRUE(cmdBuffer.updateToNextEmpty("W_20_0xABCDABCD"));
   EXPECT_TRUE(cmdBuffer.updateToNextEmpty("W_1_0x11112222"));
@@ -119,10 +119,22 @@ TEST_F(BufferControlFixture, BufferGetParsingTest) {
   EXPECT_TRUE(cmdBuffer.getBufferCmd(1), "E");
   EXPECT_TRUE(cmdBuffer.getBufferCmd(2), "W");
   EXPECT_TRUE(cmdBuffer.getBufferCmd(3), "W");
+}
+
+TEST_F(BufferControlFixture, BufferGetParsingLbaTest) {
+  EXPECT_TRUE(cmdBuffer.updateToNextEmpty("E_10_10"));
+  EXPECT_TRUE(cmdBuffer.updateToNextEmpty("W_20_0xABCDABCD"));
+  EXPECT_TRUE(cmdBuffer.updateToNextEmpty("W_1_0x11112222"));
 
   EXPECT_TRUE(cmdBuffer.getBufferLba(1), 10);
   EXPECT_TRUE(cmdBuffer.getBufferLba(2), 20);
   EXPECT_TRUE(cmdBuffer.getBufferLba(3), 1);
+}
+
+TEST_F(BufferControlFixture, BufferGetParsingValueTest) {
+  EXPECT_TRUE(cmdBuffer.updateToNextEmpty("E_10_10"));
+  EXPECT_TRUE(cmdBuffer.updateToNextEmpty("W_20_0xABCDABCD"));
+  EXPECT_TRUE(cmdBuffer.updateToNextEmpty("W_1_0x11112222"));
 
   EXPECT_TRUE(cmdBuffer.getBufferLbaSize(1), 10);
   EXPECT_TRUE(cmdBuffer.getBufferValue(2), 0xABCDABCD);

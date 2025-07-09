@@ -5,14 +5,6 @@
 #include <vector>
 #include <stdexcept>
 
-struct Cmd {
-public:
-  std::string cmdType;
-  int LBA = -1;
-  unsigned long value;
-  int LbaSize = 0;
-};
-
 class CmdBufferControl {
 public:
   SSDDriver *getDriver();
@@ -33,6 +25,11 @@ public:
   int getBufferLba(int index);
   unsigned long getBufferValue(int index);
   int getBufferLbaSize(int index);
+
+  bool isSameLbaBuffer(int lba, CmdBuffer &buffer);
+  bool isValidRangeForErase(int lba, CmdBuffer &buffer);
+
+  bool isBufferContainReadValue(int lba, unsigned long &value);
 
   const int HEX_BASE = 16;
   const int MAX_BUFFER_SIZE = 5;
