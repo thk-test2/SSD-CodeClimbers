@@ -55,16 +55,19 @@ public:
   void checkExpectedStrInOutput(const std::string &output,
                                 const std::string &expectedStr) {
     EXPECT_TRUE(output.find(expectedStr) != std::string::npos)
-        << "Expected string not found in output: " << expectedStr << endl
+        << "Expected string not found in output"
+        << "Expect string: " << expectedStr << endl
         << "Actual string: " << output << endl;
   }
 
   void checkExpectedStrsInOutput(const std::string &output,
                                  const vector<std::string> &expectedStrs) {
-    for (auto &expectedStr : expectedStrs)
+    for (auto &expectedStr : expectedStrs) {
       EXPECT_TRUE(output.find(expectedStr) != std::string::npos)
-          << "Expected string not found in output: " << expectedStr << endl
+          << "Expected string not found in output"
+          << "Expect string: " << expectedStr << endl
           << "Actual string: " << output << endl;
+    }
   }
 };
 
