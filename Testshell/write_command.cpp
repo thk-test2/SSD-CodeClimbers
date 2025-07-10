@@ -22,7 +22,7 @@ bool WriteCommand::isValidWriteUsage(const CommandLine &cli, int hexBase) {
   try {
     int lba = stoi(cli.args[0]);
     unsigned long value = stoul(cli.args[1], nullptr, hexBase);
-  } catch (std::exception &e) {
+  } catch (std::exception &) {
     return false;
   }
   return true;

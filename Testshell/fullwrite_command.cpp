@@ -10,7 +10,7 @@ bool FullWriteCommand::execute(SSD_INTERFACE &ssd, const CommandLine &cli) {
   unsigned long value;
   try {
     value = std::stoul(cli.args[0], nullptr, HEX_BASE);
-  } catch (std::exception &e) {
+  } catch (std::exception &) {
     std::cout << "INVALID COMMAND\n";
     return false;
   }
