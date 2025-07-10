@@ -17,10 +17,6 @@ using std::endl;
 using std::string;
 using std::vector;
 
-struct ShellExit : public std::exception {
-  const char *what() const noexcept override { return "Shell exited."; }
-};
-
 class TestShell {
 private:
   CommandHandler *commandHandler;

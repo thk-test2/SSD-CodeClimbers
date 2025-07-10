@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <random>
+#include <iomanip>
 
 #include "ssd_interface.h"
 
@@ -16,6 +17,10 @@ class CommandLine {
 public:
   string command;
   vector<string> args;
+};
+
+struct ShellExit : public std::exception {
+  const char *what() const noexcept override { return "Shell exited."; }
 };
 
 // Abstract base class for command

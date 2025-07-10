@@ -13,7 +13,7 @@ bool ReadCommand::execute(SSD_INTERFACE &ssd, const CommandLine &cli) {
     cout << "[Read] ERROR\n";
     return false;
   }
-  cout << "[Read] LBA " << std::setw(2) << std::setfill('0') << command.args[0]
+  cout << "[Read] LBA " << std::setw(2) << std::setfill('0') << cli.args[0]
        << " : " << result << "\n";
 
   return true;
