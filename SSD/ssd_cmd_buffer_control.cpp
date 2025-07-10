@@ -1,4 +1,5 @@
 #include "ssd_cmd_buffer_control.h"
+#include "command.h"
 #include <filesystem>
 #include <fstream>
 
@@ -39,7 +40,7 @@ CmdBufferControl::CmdBufferControl() {
     if (buf.isEmpty())
       continue;
     if (buf.getCmd() == 'E') {
-      std::memset(eraseMap + buf.getLba(), 1, buf.getLbaSize());
+      setEraseMap(buf.getLba(), buf.getLbaSize(), 1);
     }
   }
 }
@@ -76,6 +77,8 @@ bool CmdBufferControl::runCommandBuffer(int argc, char *argv[]) {
   int lba = 0, size = 0;
   unsigned long value = 0;
   
+  CommandAlgorithm cmd;
+
   if (!driver->isValidParam(argc, argv, lba, size, value))
     return true;
 
@@ -83,19 +86,17 @@ bool CmdBufferControl::runCommandBuffer(int argc, char *argv[]) {
     ret = flush();
 
   if (cmdType == "R") {
-    unsigned long bufferRead = 0x0;
-    if (isBufferContainReadValue(lba, bufferRead))
-      ret = driver->readBuffer(lba, bufferRead);
-    else
-      ret = driver->read(lba);
+    cmd.selectCommand(std::make_unique<ReadCommand>());
   } else if (cmdType == "W") {
-    removeAndUpdateWriteCommand(lba, argv);
+    cmd.selectCommand(std::make_unique<WriteCommand>());
   } else if (cmdType == "E") {
-    std::memset(eraseMap + lba, 1, size); // set eraseMap
-    mergeAndUpdateEraseCommand(lba, size);
+    cmd.selectCommand(std::make_unique<EraseCommand>());
   } else if (cmdType == "F") {
-    flush();
+    cmd.selectCommand(std::make_unique<FlushCommand>());
   }
+  
+  cmd.execute(lba, size, value, argv, *this);
+
   return ret;
 }
 
@@ -229,12 +230,16 @@ void CmdBufferControl::clearEraseMap() {
   std::memset(eraseMap, 0, driver->getMaxNandSize());
 }
 
+void CmdBufferControl::setEraseMap(int lba, int size, int setVal) {
+  std::memset(eraseMap + lba, setVal, size);
+}
+
 bool CmdBufferControl::flushEraseSeparated(int lba, int size) {
   bool ret = false;
   int remain_size = size;
   int unit_size = std::min(getDriver()->getMaxEraseSize(), size);
 
-  std::memset(eraseMap + lba, 0, size);
+  setEraseMap(lba, size, 0);
 
   while (remain_size > 0) {
     ret = getDriver()->erase(lba, unit_size);
