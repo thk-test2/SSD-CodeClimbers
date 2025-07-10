@@ -10,7 +10,6 @@ public:
   SSDDriver *getDriver();
   static CmdBufferControl &getInstance();
   std::string getBufferNameList() const;
-  bool writeCmdBuffer(int lba, char *argv[]);
   bool runCommandBuffer(int argc, char *argv[]);
   bool updateToNextEmpty(const std::string &cmd);
   bool updateBufferByIndex(int index, const std::string &cmd);
@@ -30,6 +29,7 @@ public:
   bool isValidRangeForErase(int lba, CmdBuffer &buffer);
 
   bool isBufferContainReadValue(int lba, unsigned long &value);
+  void removeAndUpdateWriteCommand(int lba, char *argv[]);
   void mergeAndUpdateEraseCommand(int lba, int size);
 
   const int HEX_BASE = 16;
