@@ -65,21 +65,24 @@ bool CmdBufferControl::runCommandBuffer(char *argv[]) {
   string cmdType = argv[1];
   int lba = std::stoi(argv[2]);
 
-  // TO DO : Flush
-  /*
   if (isBufferFull())
     flush();
-  */
 
   if (cmdType == "R") {
     // TO DO : Buffer Check
     ret = driver->read(lba);
+
   } else if (cmdType == "W") {
     unsigned long value = std::stoul(argv[3], nullptr, 16);
     updateToNextEmpty(makdFullCmdString(argv));
 
-    // TO DO : Buffer Check
+    bool result = writeCmdBuffer(argv);
+    if (result)
+      cout << "[WRITE] result : " << result << std::endl;
+      return result;
+
     ret = driver->write(lba, value);
+
   } else if (cmdType == "E") {
     int size = std::stoi(argv[3]);
     updateToNextEmpty(makdFullCmdString(argv));
@@ -89,6 +92,59 @@ bool CmdBufferControl::runCommandBuffer(char *argv[]) {
     // TO DO : Buffer Check
   }
   return ret;
+}
+int CmdBufferControl::getLastEmptyIndex() {
+  int lastEmptyIndex = -1;
+
+  for (int i = static_cast<int>(cmdBuffer.size()) - 1; i >= 0; --i) {
+    const auto &buf = cmdBuffer[i];
+    if (buf.isEmpty()) {
+      lastEmptyIndex = i;
+      break;
+    }
+  }
+  return lastEmptyIndex;
+}
+
+bool CmdBufferControl::isMatchedWriteLBA(const CmdBuffer &buf, int lba) {
+  return buf.getCmd() == 'W' && lba == buf.getLba();
+}
+
+bool CmdBufferControl::isMatchedEraseLBA(const CmdBuffer &buf, int lba) {
+  return buf.getCmd() == 'E' && lba == buf.getLba();
+}
+
+bool CmdBufferControl::writeCmdBuffer(char *argv[]) {
+  int lba = std::stoi(argv[2]);
+  for (int i = static_cast<int>(cmdBuffer.size()) - 1; i >= 0; --i) {
+    const auto &buf = cmdBuffer[i];
+    if (isMatchedWriteLBA(buf, lba)) {
+      efficientWriteCmdbuffer(buf, argv);
+      return true;
+    }
+    if (isMatchedEraseLBA(buf, lba)) {
+        // TODO: LBA 외에 range 체크 필요 
+      break;
+    }
+  }
+
+  if (isBufferFull()) {
+    flush();
+  }
+  addCmdToWriteBuffer(argv);
+  return true;
+}
+
+void CmdBufferControl::addCmdToWriteBuffer(char *argv[]) {
+  updateBufferByIndex(getLastEmptyIndex(), makdFullCmdString(argv));
+  getDriver()->getIoStream()->clearOutput();
+}
+
+void CmdBufferControl::efficientWriteCmdbuffer(const CmdBuffer &buf,
+                                               char *argv[]) {
+  clearBufferByIndex(buf.getIndex());
+  emptyBufferShift();
+  addCmdToWriteBuffer(argv);
 }
 
 bool CmdBufferControl::updateToNextEmpty(const std::string &cmd) {
@@ -240,7 +296,7 @@ bool CmdBufferControl::isValidRangeForErase(int lba, CmdBuffer &buffer) {
          lba < (buffer.getLba() + buffer.getLbaSize());
 }
 
-bool CmdBufferControl::isBufferContainReadValue(int lba, unsigned long& value) {
+bool CmdBufferControl::isBufferContainReadValue(int lba, unsigned long &value) {
   bool isContain = false;
   for (auto buffer : cmdBuffer) {
     if (isSameLbaBuffer(lba, buffer)) {
