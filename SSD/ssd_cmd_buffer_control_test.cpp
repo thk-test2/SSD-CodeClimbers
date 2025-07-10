@@ -185,11 +185,11 @@ TEST_F(BufferControlFixture, BufferRunEraseCommand) {
   argv[3] = const_cast<char *>("1");
   argv[4] = nullptr;
   cmdBuffer.runCommandBuffer(argv);
-
 }
 
 TEST_F(BufferControlFixture, BufferWriteRemoveCase) {
-  std::string expected_ret = "1_W_5_0xAAAAAAAA,2_E_6_2,3_empty,4_empty,5_empty,";
+  std::string expected_ret =
+      "1_W_5_0xAAAAAAAA,2_E_6_2,3_empty,4_empty,5_empty,";
   char *argv[5];
   argv[0] = const_cast<char *>("ssd.exe");
   argv[1] = const_cast<char *>("W");
@@ -223,8 +223,7 @@ TEST_F(BufferControlFixture, BufferWriteRemoveCase) {
 }
 
 TEST_F(BufferControlFixture, BufferDuplicatedEraseCommand) {
-  std::string expected_ret =
-      "1_E_10_15,2_empty,3_empty,4_empty,5_empty,";
+  std::string expected_ret = "1_E_10_15,2_empty,3_empty,4_empty,5_empty,";
   char *argv[5];
   argv[0] = const_cast<char *>("ssd.exe");
   argv[1] = const_cast<char *>("E");
@@ -233,7 +232,6 @@ TEST_F(BufferControlFixture, BufferDuplicatedEraseCommand) {
   argv[4] = nullptr;
   cmdBuffer.runCommandBuffer(argv);
 
-  
   argv[0] = const_cast<char *>("ssd.exe");
   argv[1] = const_cast<char *>("E");
   argv[2] = const_cast<char *>("15");
@@ -289,7 +287,7 @@ TEST_F(BufferControlFixture, Buffer2timeDubplicaedEraseCommand) {
   argv[2] = const_cast<char *>("17");
   argv[3] = const_cast<char *>("10");
   argv[4] = nullptr;
-  cmdBuffer.runCommandBuffer(argv); 
+  cmdBuffer.runCommandBuffer(argv);
 
   expected_ret = "1_E_10_25,2_empty,3_empty,4_empty,5_empty,";
   EXPECT_EQ(expected_ret, cmdBuffer.getBufferNameList());
