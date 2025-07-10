@@ -62,7 +62,7 @@ public:
   }
 
   bool read(int lba) override {
-
+    stream->loadNandFiletoBuf();
     WirteOuputFile(buf[lba]);
 
     return true;
