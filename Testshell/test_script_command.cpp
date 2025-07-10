@@ -1,13 +1,5 @@
 #include "command.h"
 
-bool checkPrecondition(const Command &command) {
-  if (command.args.size() != 0) {
-    std::cout << "INVALID_COMMAND\n";
-    return false;
-  }
-  return true;
-}
-
 bool checkPartialWriteSuccess(TestShell *shell, int lba, unsigned long value) {
   shell->getSSD()->read(lba);
 
@@ -20,19 +12,14 @@ bool checkPartialWriteSuccess(TestShell *shell, int lba, unsigned long value) {
 }
 
 bool TestScript1::execute(TestShell *shell, const Command &command) {
-  if (!checkPrecondition(command))
+  if (command.args.size() != 0) {
+    std::cout << "INVALID_COMMAND\n";
     return false;
+  }
 
   unsigned long value = 0xAAAABBBB;
   string valueStr = convertHexToString(value);
 
-  if (!onExecute(shell, value, valueStr))
-    return false;
-  return true;
-}
-
-bool TestScript1::onExecute(TestShell *shell, unsigned long value,
-                                   std::string &valueStr) {
   for (int lba = 0; lba < 100; lba += 4) {
     for (int i = 0; i < 4; i++) {
       shell->getSSD()->write(lba + i, value);
@@ -52,15 +39,11 @@ bool TestScript1::onExecute(TestShell *shell, unsigned long value,
 }
 
 bool TestScript2::execute(TestShell *shell, const Command &command) {
-  if (!checkPrecondition(command))
+  if (command.args.size() != 0) {
+    std::cout << "INVALID_COMMAND\n";
     return false;
+  }
 
-  if (!onExecute(shell))
-    return false;
-  return true;
-}
-
-bool TestScript2::onExecute(TestShell *shell) {
   unsigned long value = 0xAAAABBBB;
   vector<int> lbaList{4, 0, 3, 1, 2};
 
@@ -81,17 +64,13 @@ bool TestScript3::execute(TestShell *shell, const Command &command) {
 #ifdef _DEBUG
   unsigned long value = stoul(command.args[0], nullptr, 16);
 #else
-  if (!checkPrecondition(command))
+  if (command.args.size() != 0) {
+    std::cout << "INVALID_COMMAND\n";
     return false;
+  }
   unsigned long value = getRandomValue();
 #endif
 
-if (!onExecute(shell, value))
-    return false;
-  return true;
-}
-
-bool TestScript3::onExecute(TestShell *shell, unsigned long value) {
   for (int i = 0; i < 200; i++) {
     shell->getSSD()->write(0, value);
     if (!checkPartialWriteSuccess(shell, 0, value)) {
@@ -110,15 +89,10 @@ bool TestScript3::onExecute(TestShell *shell, unsigned long value) {
 }
 
 bool TestScript4::execute(TestShell *shell, const Command &command) {
-  if (!checkPrecondition(command))
+  if (command.args.size() != 0) {
+    std::cout << "INVALID_COMMAND\n";
     return false;
-
-  if (!onExecute(shell))
-    return false;
-  return true;
-}
-
-bool TestScript4::onExecute(TestShell *shell) {
+  }
   unsigned long value1 = getRandomValue();
   unsigned long value2 = getRandomValue();
 
@@ -136,7 +110,7 @@ bool TestScript4::onExecute(TestShell *shell) {
         cout << "FAIL!" << endl;
         return false;
       }
-
+      
       shell->getSSD()->write(slba, value2);
       if (shell->getSSD()->getResult() == "ERROR") {
         cout << "FAIL!" << endl;
