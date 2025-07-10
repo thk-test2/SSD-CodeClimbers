@@ -18,7 +18,8 @@ public:
   bool isValidBufferIndex(int index);
   bool clearBufferByIndex(int index);
   void clearAllBuffer(void);
-  void flush();
+  bool flushEraseSeparated(int lba, int size);
+  bool flush();
   bool isBufferFull() const;
   bool emptyBufferShift();
   char getBufferCmd(int index);
@@ -30,6 +31,7 @@ public:
   bool isValidRangeForErase(int lba, CmdBuffer &buffer);
 
   bool isBufferContainReadValue(int lba, unsigned long &value);
+  void mergeAndUpdateEraseCommand(int lba, int size);
 
   const int HEX_BASE = 16;
   const int MAX_BUFFER_SIZE = 5;
@@ -42,6 +44,7 @@ private:
   std::vector<CmdBuffer> cmdBuffer;
   std::string bufferPath = "./buffer";
   SSDDriver *driver;
+  char *eraseMap;
 };
 
 class CmdBufferInvalidIdexException : public std::runtime_error {
