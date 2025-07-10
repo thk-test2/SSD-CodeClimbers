@@ -9,14 +9,9 @@ class CmdBufferControl {
 public:
   SSDDriver *getDriver();
   static CmdBufferControl &getInstance();
-
   std::string getBufferNameList() const;
   bool runCommandBuffer(char *argv[]);
-  bool isMatchedWriteLBA(const CmdBuffer &buf, int lba);
-  bool isMatchedEraseLBA(const CmdBuffer &buf, int lba);
   bool writeCmdBuffer(char *argv[]);
-  void addCmdToWriteBuffer(char *argv[]);
-  void efficientWriteCmdbuffer(const CmdBuffer &buf, char *argv[]);
   bool updateToNextEmpty(const std::string &cmd);
   bool updateBufferByIndex(int index, const std::string &cmd);
   std::string setBufferName(int index, const std::string &cmd);

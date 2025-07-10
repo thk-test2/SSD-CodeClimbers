@@ -84,13 +84,10 @@ bool CmdBufferControl::runCommandBuffer(char *argv[]) {
 
   } else if (cmdType == "W") {
     unsigned long value = std::stoul(argv[3], nullptr, 16);
-    updateToNextEmpty(makdFullCmdString(argv));
 
     bool result = writeCmdBuffer(argv);
     if (result)
       return result;
-
-    ret = driver->write(lba, value);
 
   } else if (cmdType == "E") {
     int size = std::stoi(argv[3]);
@@ -102,22 +99,6 @@ bool CmdBufferControl::runCommandBuffer(char *argv[]) {
   }
   return ret;
 }
-int CmdBufferControl::getLastEmptyIndex() {
-  int lastEmptyIndex = -1;
-
-  for (int i = static_cast<int>(cmdBuffer.size()) - 1; i >= 0; --i) {
-    const auto &buf = cmdBuffer[i];
-    if (buf.isEmpty()) {
-      lastEmptyIndex = i;
-      break;
-    }
-  }
-  return lastEmptyIndex;
-}
-
-bool CmdBufferControl::isMatchedWriteLBA(const CmdBuffer &buf, int lba) {
-  return buf.getCmd() == 'W' && lba == buf.getLba();
-}
 
 bool CmdBufferControl::writeCmdBuffer(char *argv[]) {
   int lba = std::stoi(argv[2]);
@@ -128,26 +109,13 @@ bool CmdBufferControl::writeCmdBuffer(char *argv[]) {
     if (buffer.getCmd() == 'W') {
       if (lba == buffer.getLba()) {
         buffer.clear();
-        updateToNextEmpty(makdFullCmdString(argv));
-        emptyBufferShift();
         break;
       }
     }
-
-    return true;
   }
-}
-
-void CmdBufferControl::addCmdToWriteBuffer(char *argv[]) {
   updateToNextEmpty(makdFullCmdString(argv));
-  getDriver()->getIoStream()->clearOutput();
-}
-
-void CmdBufferControl::efficientWriteCmdbuffer(const CmdBuffer &buf,
-                                               char *argv[]) {
-  clearBufferByIndex(buf.getIndex());
   emptyBufferShift();
-  addCmdToWriteBuffer(argv);
+  return true;
 }
 
 bool CmdBufferControl::updateToNextEmpty(const std::string &cmd) {
