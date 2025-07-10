@@ -18,6 +18,7 @@ public:
   bool isValidBufferIndex(int index);
   bool clearBufferByIndex(int index);
   void clearAllBuffer(void);
+  void clearEraseMap();
   bool flushEraseSeparated(int lba, int size);
   bool flush();
   bool isBufferFull() const;

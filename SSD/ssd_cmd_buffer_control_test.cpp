@@ -6,19 +6,48 @@ using namespace testing;
 
 class BufferControlFixture : public Test {
 public:
-  void SetUp() override { cmdBuffer.clearAllBuffer(); }
+  void SetUp() override {
+    cmdBuffer.clearAllBuffer();
+    cmdBuffer.clearEraseMap();
+    stream->initSsdNand();
+    stream->clearOutput();
+  }
+
+  void TearDown() override {
+    cmdBuffer.clearAllBuffer();
+    cmdBuffer.clearEraseMap();
+    stream->initSsdNand();
+    stream->clearOutput();
+  }
   CmdBufferControl &cmdBuffer = CmdBufferControl::getInstance();
+  IoStream *stream = cmdBuffer.getDriver()->getIoStream();
   const std::string BUFFER_EMPTY = "1_empty,2_empty,3_empty,4_empty,5_empty,";
 
   void checkOutputFileValid(const string &expected_value) {
     EXPECT_EQ(expected_value,
-              cmdBuffer.getDriver()->getIoStream()->readFileAsString(
-                  cmdBuffer.getDriver()->getIoStream()->output_file_name));
+              stream->readFileAsString(stream->output_file_name));
   }
   void checkBufferValid(const string &expected_value) {
     EXPECT_EQ(expected_value,
-              cmdBuffer.getDriver()->getIoStream()->readFileAsString(
-                  cmdBuffer.getDriver()->getIoStream()->output_file_name));
+              stream->readFileAsString(stream->output_file_name));
+  }
+
+  void checkSpecificLineInNandFile(const string &expected_value,
+                                   int targetLine) {
+    EXPECT_GE(targetLine, 0);
+    EXPECT_LT(targetLine, stream->getStorageSize());
+
+    std::istringstream iss(stream->readFileAsString(stream->nand_file_name));
+    string getLine = "";
+    string compareLine = std::to_string(targetLine) + " " + expected_value;
+
+    for (int i = 0; i < stream->getStorageSize(); i++) {
+      std::getline(iss, getLine);
+      if (i == targetLine) {
+        EXPECT_EQ(getLine, compareLine);
+        break;
+      }
+    }
   }
 };
 
@@ -152,7 +181,29 @@ TEST_F(BufferControlFixture, BufferGetParsingInvalidIndexTest) {
   EXPECT_THROW(cmdBuffer.getBufferCmd(10), CmdBufferInvalidIdexException);
 }
 
-TEST_F(BufferControlFixture, DISABLED_BufferRunCommand) {
+TEST_F(BufferControlFixture, BufferContainReadValuePass1) {
+
+  unsigned long expected_value = 0xFFFFFFFF;
+  unsigned long get_value = 0x0;
+
+  EXPECT_TRUE(cmdBuffer.updateToNextEmpty("W_19_0x11112222"));
+  EXPECT_TRUE(cmdBuffer.updateToNextEmpty("E_10_10"));
+  EXPECT_TRUE(cmdBuffer.updateToNextEmpty("W_20_0xABCDABCD"));
+  EXPECT_TRUE(cmdBuffer.updateToNextEmpty("W_1_0x11112222"));
+
+  EXPECT_TRUE(cmdBuffer.isBufferContainReadValue(19, get_value));
+  EXPECT_EQ(0, get_value);
+
+  EXPECT_TRUE(cmdBuffer.isBufferContainReadValue(1, get_value));
+  EXPECT_EQ(0x11112222, get_value);
+
+  EXPECT_TRUE(cmdBuffer.isBufferContainReadValue(20, get_value));
+  EXPECT_EQ(0xABCDABCD, get_value);
+
+  EXPECT_FALSE(cmdBuffer.isBufferContainReadValue(99, get_value));
+}
+
+TEST_F(BufferControlFixture, BufferRunCommand) {
   char *argv[5];
   argv[0] = const_cast<char *>("ssd.exe");
   argv[1] = const_cast<char *>("W");
@@ -345,6 +396,152 @@ TEST_F(BufferControlFixture, BufferWrite2) {
   argv[3] = const_cast<char *>("0xBBBBBBBB");
   argv[4] = nullptr;
   cmdBuffer.runCommandBuffer(argv);
+
+  EXPECT_EQ(expected_ret, cmdBuffer.getBufferNameList());
+}
+
+TEST_F(BufferControlFixture, BufferReadWithRunCommandPass) {
+
+  EXPECT_TRUE(cmdBuffer.updateToNextEmpty("W_19_0x11112222"));
+
+  char *argv[5];
+  argv[0] = const_cast<char *>("ssd.exe");
+  argv[1] = const_cast<char *>("R");
+  argv[2] = const_cast<char *>("19");
+  argv[3] = nullptr;
+
+  cmdBuffer.runCommandBuffer(argv);
+
+  checkOutputFileValid("0x11112222");
+}
+
+TEST_F(BufferControlFixture, BufferReadWithRunCommandPass2) {
+
+  EXPECT_TRUE(cmdBuffer.updateToNextEmpty("E_10_10"));
+
+  char *argv[5];
+  argv[0] = const_cast<char *>("ssd.exe");
+  argv[1] = const_cast<char *>("R");
+  argv[2] = const_cast<char *>("19");
+  argv[3] = nullptr;
+
+  cmdBuffer.runCommandBuffer(argv);
+
+  checkOutputFileValid("0x00000000");
+}
+
+TEST_F(BufferControlFixture, BufferIntgTestWithRunCommandPass1) {
+
+  char *argv[5];
+  argv[0] = const_cast<char *>("ssd.exe");
+  argv[1] = const_cast<char *>("R");
+  argv[2] = const_cast<char *>("19");
+  argv[3] = nullptr;
+
+  cmdBuffer.runCommandBuffer(argv);
+
+  checkOutputFileValid("0x00000000");
+
+  argv[0] = const_cast<char *>("ssd.exe");
+  argv[1] = const_cast<char *>("W");
+  argv[2] = const_cast<char *>("7");
+  argv[3] = const_cast<char *>("0xBBBBBBBB");
+  argv[4] = nullptr;
+  cmdBuffer.runCommandBuffer(argv);
+
+  checkOutputFileValid("");
+  checkSpecificLineInNandFile("0x00000000", 7);
+
+  cmdBuffer.flush();
+  checkOutputFileValid("");
+  checkSpecificLineInNandFile("0xBBBBBBBB", 7);
+}
+
+TEST_F(BufferControlFixture, BufferIntgTestWithRunCommandPass2) {
+
+  std::string expected_ret = "1_E_20_1,2_empty,3_empty,4_empty,5_empty,";
+  char *argv[5];
+
+  argv[0] = const_cast<char *>("ssd.exe");
+  argv[1] = const_cast<char *>("W");
+  argv[2] = const_cast<char *>("20");
+  argv[3] = const_cast<char *>("0xABCDABCD");
+  argv[4] = nullptr;
+
+  cmdBuffer.runCommandBuffer(argv);
+
+  checkOutputFileValid("");
+
+  argv[0] = const_cast<char *>("ssd.exe");
+  argv[1] = const_cast<char *>("W");
+  argv[2] = const_cast<char *>("20");
+  argv[3] = const_cast<char *>("0x12341234");
+  argv[4] = nullptr;
+  cmdBuffer.runCommandBuffer(argv);
+
+  argv[0] = const_cast<char *>("ssd.exe");
+  argv[1] = const_cast<char *>("E");
+  argv[2] = const_cast<char *>("20");
+  argv[3] = const_cast<char *>("1");
+  argv[4] = nullptr;
+  cmdBuffer.runCommandBuffer(argv);
+
+  EXPECT_EQ(expected_ret, cmdBuffer.getBufferNameList());
+}
+
+TEST_F(BufferControlFixture, BufferIntgTestWithRunCommandPass3) {
+
+  std::string expected_ret = "1_W_20_0xABCDABCD,2_E_10_5,3_empty,4_empty,5_empty,";
+  char *argv[5];
+
+  argv[0] = const_cast<char *>("ssd.exe");
+  argv[1] = const_cast<char *>("W");
+  argv[2] = const_cast<char *>("20");
+  argv[3] = const_cast<char *>("0xABCDABCD");
+  argv[4] = nullptr;
+  cmdBuffer.runCommandBuffer(argv);
+
+  checkOutputFileValid("");
+
+  argv[0] = const_cast<char *>("ssd.exe");
+  argv[1] = const_cast<char *>("E");
+  argv[2] = const_cast<char *>("10");
+  argv[3] = const_cast<char *>("4");
+  argv[4] = nullptr;
+  cmdBuffer.runCommandBuffer(argv);
+
+  argv[0] = const_cast<char *>("ssd.exe");
+  argv[1] = const_cast<char *>("E");
+  argv[2] = const_cast<char *>("12");
+  argv[3] = const_cast<char *>("3");
+  argv[4] = nullptr;
+  cmdBuffer.runCommandBuffer(argv);
+
+  EXPECT_EQ(expected_ret, cmdBuffer.getBufferNameList());
+}
+
+TEST_F(BufferControlFixture, BufferFullWriteTestWithRunCommandPass) {
+
+  std::string expected_ret =
+      "1_W_5_0xABCDABCD,2_empty,3_empty,4_empty,5_empty,";
+  char *argv[5];
+  
+  for (int i = 0; i < cmdBuffer.MAX_BUFFER_SIZE + 1; i++) {
+    std::string value = std::to_string(i);
+
+    std::vector<std::string> args = {"ssd.exe", "W", value, "0xABCDABCD"};
+
+    std::vector<char *> argv;
+    for (auto &s : args) {
+      argv.push_back(const_cast<char *>(s.c_str()));
+    }
+    argv.push_back(nullptr);
+
+    cmdBuffer.runCommandBuffer(argv.data());
+  }
+  for (int i = 0; i < cmdBuffer.MAX_BUFFER_SIZE; i++) {
+    checkSpecificLineInNandFile("0xABCDABCD", i);
+  }
 
   EXPECT_EQ(expected_ret, cmdBuffer.getBufferNameList());
 }
