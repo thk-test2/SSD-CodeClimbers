@@ -3,8 +3,7 @@
 bool HelpCommand::execute(SSD_INTERFACE &ssd, const CommandLine &cli) {
   printHeader();
   printTeamInfo();
-  printCommands(_commandHandler);
-  printTestScripts();
+  printCommands();
   return true;
 }
 
@@ -22,35 +21,18 @@ bool HelpCommand::execute(SSD_INTERFACE &ssd, const CommandLine &cli) {
         << "  Repository: https://github.com/thk-test2/SSD-CodeClimbers\n";
  }
 
- void HelpCommand::printCommands(CommandHandler* commandHandler) {
+ void HelpCommand::printCommands() {
    cout << "\n\033[1mCommands:\033[0m\n";
 
    // 명령어 순서를 고정하여 출력
-   vector<string> commandOrder = commandHandler->getAvailableCommands();
+   vector<string> commandOrder = _commandHandler->getAvailableCommands();
 
    for (const string& cmdName : commandOrder) {
-     auto it = commandHandler->getCommand(cmdName);
+     auto it = _commandHandler->getCommand(cmdName);
      if (it) {
        printCommandInfo(cmdName, it->getUsage(), it->getDescription(), it->getExample());
      }
    }
- }
-
- void HelpCommand::printTestScripts() {
-   cout << "\033[1mTest Scripts:\033[0m\n";
-   printCommandInfo("1_FullWriteAndReadCompare", "",
-                    "Run comprehensive write/read test for entire SSD",
-                    "'1_' or '1_FullWriteAndReadCompare'");
-   printCommandInfo("2_PartialLBAWrite", "",
-                    "Run partial LBA write consistency test (30 iterations)",
-                    "'2_' or '2_PartialLBAWrite'");
-   printCommandInfo("3_WriteReadAging", "",
-                    "Run write/read aging test (200 iterations)",
-                    "'3_' or '3_WriteReadAging'");
-   printCommandInfo("4_EraseAndWriteAging", "",
-                    "Repeatedly erase LBA ranges and write random data to "
-                    "following LBAs in sequential loops (30 iterations)",
-                    "'4_' or '4_EraseAndWriteAging'");
  }
 
  void HelpCommand::printCommandInfo(const string &command, const string &args,

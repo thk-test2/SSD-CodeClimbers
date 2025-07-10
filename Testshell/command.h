@@ -29,20 +29,27 @@ struct ShellExit : public std::exception {
 // Abstract base class for command
 class ICommand {
 public:
+  ICommand() = default;  // Add default constructor
   virtual ~ICommand() = default;
   virtual bool execute(SSD_INTERFACE &ssd, const CommandLine &cli) = 0;
   virtual string getUsage() const = 0;
   virtual string getDescription() const = 0;
   virtual string getExample() const = 0;
+  virtual void setCommandName(const string &name) {
+    commandName = name;
+  }
   virtual bool isCmdMatch(const string command) const = 0;
+  virtual string getCommandName() const { return commandName; }
 
 protected:
   const int MAX_LBA_COUNT = 100;
   const int HEX_BASE = 16;
+  string commandName;
 };
 
 class ExitCommand : public ICommand {
 public:
+  ExitCommand() { setCommandName("exit"); }
   bool execute(SSD_INTERFACE &ssd, const CommandLine &cli) override;
   string getUsage() const override { return ""; }
   string getDescription() const override { return "Exit the shell"; }
@@ -52,6 +59,7 @@ public:
 
 class FullReadCommand : public ICommand {
 public:
+  FullReadCommand() { setCommandName("fullread"); }
   bool execute(SSD_INTERFACE &ssd, const CommandLine &cli) override;
   string getUsage() const override { return ""; }
   string getDescription() const override { return "Read the entire SSD"; }
@@ -61,6 +69,7 @@ public:
 
 class FullWriteCommand : public ICommand {
 public:
+  FullWriteCommand() { setCommandName("fullwrite"); }
   bool execute(SSD_INTERFACE &ssd, const CommandLine &cli) override;
   string getUsage() const override { return "<value>"; }
   string getDescription() const override { return "Write <value> to the entire SSD"; }
@@ -71,10 +80,11 @@ public:
 class HelpCommand : public ICommand {
 public:
   HelpCommand(CommandHandler *commandHandler)
-      : _commandHandler(commandHandler) {}
+      : _commandHandler(commandHandler) {
+    setCommandName("help");
+  }
+
   bool execute(SSD_INTERFACE &ssd, const CommandLine &cli) override;
-  bool execute(SSD_INTERFACE &ssd, const CommandLine &cli,
-               CommandHandler *commandHandler);
   string getUsage() const override { return ""; }
   string getDescription() const override { return "Show this help message"; }
   string getExample() const override { return "help"; }
@@ -85,8 +95,7 @@ private:
 
   void printHeader();
   void printTeamInfo();
-  void printCommands(CommandHandler* commandHandler);
-  void printTestScripts();
+  void printCommands();
   void printCommandInfo(const string &command, const string &args,
                         const string &description, const string &example);
 };
@@ -96,6 +105,7 @@ private:
   bool isValidReadUsage(const CommandLine &cli);
 
 public:
+  ReadCommand() { setCommandName("read"); }
   bool execute(SSD_INTERFACE &ssd, const CommandLine &cli) override;
   string getUsage() const override { return "<lba>"; }
   string getDescription() const override { return "Read from SSD at logical block address <lba>"; }
@@ -108,6 +118,7 @@ private:
   bool isValidWriteUsage(const CommandLine &cli, int hexBase);
 
 public:
+  WriteCommand() { setCommandName("write"); }
   bool execute(SSD_INTERFACE &ssd, const CommandLine &cli) override;
   string getUsage() const override { return "<lba> <value>"; }
   string getDescription() const override { return "Write <value> to SSD at logical block address <lba>"; }
@@ -121,6 +132,7 @@ private:
   const int MAX_SSD_ERASE_SIZE = 10;
 
 public:
+  EraseCommand() { setCommandName("erase"); }
   bool execute(SSD_INTERFACE &ssd, const CommandLine &cli) override;
   string getUsage() const override { return "<lba> <size>"; }
   string getDescription() const override {
@@ -136,6 +148,7 @@ private:
   const int MAX_SSD_ERASE_SIZE = 10;
 
 public:
+  EraseRangeCommand() { setCommandName("erase_range"); }
   bool execute(SSD_INTERFACE &ssd, const CommandLine &cli) override;
   string getUsage() const override { return "<st_lba> <en_lba>"; }
   string getDescription() const override {
@@ -147,6 +160,7 @@ public:
 
 class FlushCommand : public ICommand {
 public:
+  FlushCommand() { setCommandName("flush"); }
   bool execute(SSD_INTERFACE &ssd, const CommandLine &cli) override;
   string getUsage() const override { return ""; }
   string getDescription() const override {
@@ -158,8 +172,9 @@ public:
 
 class TestScript1 : public ICommand {
 public:
+  TestScript1() { setCommandName("1_FullWriteAndReadCompare"); }
   bool execute(SSD_INTERFACE &ssd, const CommandLine &cli) override;
-  string getUsage() const override { return "<value>"; }
+  string getUsage() const override { return ""; }
   string getDescription() const override { return "Run comprehensive write/read test for entire SSD"; }
   string getExample() const override { return "'1_' or '1_FullWriteAndReadCompare'"; }
   bool isCmdMatch(const string command) const override { return "1_" == command || "1_FullWriteAndReadCompare" == command;};
@@ -167,8 +182,9 @@ public:
 
 class TestScript2 : public ICommand {
 public:
+  TestScript2() { setCommandName("2_PartialLBAWrite"); }
   bool execute(SSD_INTERFACE &ssd, const CommandLine &cli) override;
-  string getUsage() const override { return "<value>"; }
+  string getUsage() const override { return ""; }
   string getDescription() const override { return "Run partial LBA write consistency test (30 iterations)"; }
   string getExample() const override { return "'2_' or '2_PartialLBAWrite'"; }
   bool isCmdMatch(const string command) const override { return "2_" == command || "2_PartialLBAWrite" == command;};
@@ -176,6 +192,7 @@ public:
 
 class TestScript3 : public ICommand {
 public:
+  TestScript3() { setCommandName("3_WriteReadAging"); }
   bool execute(SSD_INTERFACE &ssd, const CommandLine &cli) override;
   string getUsage() const override { return ""; }
   string getDescription() const override { return "Run write/read aging test (200 iterations)"; }
@@ -185,6 +202,7 @@ public:
 
 class TestScript4 : public ICommand {
 public:
+  TestScript4() { setCommandName("4_EraseAndWriteAging"); }
   bool execute(SSD_INTERFACE &ssd, const CommandLine &cli) override;
   string getUsage() const override { return ""; }
   string getDescription() const override {
