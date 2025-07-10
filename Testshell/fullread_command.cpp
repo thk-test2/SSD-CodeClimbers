@@ -10,6 +10,7 @@ bool FullReadCommand::execute(TestShell *shell, const Command &command) {
     shell->getSSD()->read(lba);
     string result = shell->getSSD()->getResult();
     if (result == "ERROR") {
+      cout << "[Full Read] Failed\n";
       return false;
     }
     cout << "LBA " << std::setw(2) << std::setfill('0') << lba << " : "

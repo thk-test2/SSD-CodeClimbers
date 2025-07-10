@@ -18,6 +18,7 @@ bool FullWriteCommand::execute(TestShell *shell, const Command &command) {
     shell->getSSD()->write(lba, value);
     string result = shell->getSSD()->getResult();
     if (result == "ERROR") {
+      cout << "[Full Write] Failed\n";
       return false;
     }
   }
