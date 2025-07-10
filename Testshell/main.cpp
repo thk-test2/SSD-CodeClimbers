@@ -477,7 +477,7 @@ int main(int argc, char *argv[]) {
   ::testing::InitGoogleTest();
   return RUN_ALL_TESTS();
 #else
-  SsdExeAdaptor ssd;
+  SsdAdaptor ssd;
   TestShell testShell{&ssd};
 
   if (argc > 1) {
