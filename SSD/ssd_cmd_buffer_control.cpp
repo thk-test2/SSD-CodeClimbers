@@ -7,7 +7,7 @@ namespace fs = std::filesystem;
 CmdBufferControl::CmdBufferControl() {
   driver = new SSDDriver();
   eraseMap = new char[driver->getMaxNandSize()];
-  std::memset(eraseMap, 0, driver->getMaxNandSize());
+  clearEraseMap();
 
   if (!fs::exists(bufferPath)) {
     fs::create_directory(bufferPath);
@@ -83,14 +83,18 @@ bool CmdBufferControl::runCommandBuffer(int argc, char *argv[]) {
     ret = flush();
 
   if (cmdType == "R") {
-    ret = driver->read(lba);
+    unsigned long bufferRead = 0x0;
+    if (isBufferContainReadValue(lba, bufferRead))
+      ret = driver->readBuffer(lba, bufferRead);
+    else
+      ret = driver->read(lba);
   } else if (cmdType == "W") {
     removeAndUpdateWriteCommand(lba, argv);
   } else if (cmdType == "E") {
     std::memset(eraseMap + lba, 1, size); // set eraseMap
     mergeAndUpdateEraseCommand(lba, size);
   } else if (cmdType == "F") {
-    ret = flush();
+    flush();
   }
   return ret;
 }
@@ -109,6 +113,7 @@ void CmdBufferControl::removeAndUpdateWriteCommand(int lba, char *argv[]) {
 
   updateToNextEmpty(makdFullCmdString(argv));
   emptyBufferShift();
+  getDriver()->getIoStream()->clearOutput();
 }
 
 bool CmdBufferControl::updateToNextEmpty(const std::string &cmd) {
@@ -218,6 +223,10 @@ int CmdBufferControl::getBufferLbaSize(int index) {
     throw CmdBufferInvalidIdexException();
 
   return cmdBuffer[index - 1].getLbaSize();
+}
+
+void CmdBufferControl::clearEraseMap() {
+  std::memset(eraseMap, 0, driver->getMaxNandSize());
 }
 
 bool CmdBufferControl::flushEraseSeparated(int lba, int size) {
