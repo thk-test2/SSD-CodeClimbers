@@ -112,8 +112,7 @@ public:
   }
 
 private:
-  bool onExecute(TestShell *shell, unsigned long value,
-                        std::string &valueStr);
+  bool onExecute(TestShell *shell, unsigned long value, std::string &valueStr);
 };
 
 class TestScript2 : public ICommandHandler {
@@ -125,7 +124,7 @@ public:
   }
   string getExample() const override { return "'2_' or '2_PartialLBAWrite'"; }
 
-  private:
+private:
   bool onExecute(TestShell *shell);
 };
 
@@ -137,6 +136,9 @@ public:
     return "Run write/read aging test (200 iterations)";
   }
   string getExample() const override { return "'3_' or '3_WriteReadAging'"; }
+
+private:
+  bool onExecute(TestShell *shell, unsigned long value);
 };
 
 class TestScript4 : public ICommandHandler {
@@ -150,4 +152,7 @@ public:
   string getExample() const override {
     return "'4_' or '4_EraseAndWriteAging'";
   }
+
+private:
+  bool onExecute(TestShell *shell);
 };

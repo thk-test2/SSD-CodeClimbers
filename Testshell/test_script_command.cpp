@@ -55,6 +55,12 @@ bool TestScript2::execute(TestShell *shell, const Command &command) {
   if (!checkPrecondition(command))
     return false;
 
+  if (!onExecute(shell))
+    return false;
+  return true;
+}
+
+bool TestScript2::onExecute(TestShell *shell) {
   unsigned long value = 0xAAAABBBB;
   vector<int> lbaList{4, 0, 3, 1, 2};
 
@@ -80,6 +86,12 @@ bool TestScript3::execute(TestShell *shell, const Command &command) {
   unsigned long value = getRandomValue();
 #endif
 
+if (!onExecute(shell, value))
+    return false;
+  return true;
+}
+
+bool TestScript3::onExecute(TestShell *shell, unsigned long value) {
   for (int i = 0; i < 200; i++) {
     shell->getSSD()->write(0, value);
     if (!checkPartialWriteSuccess(shell, 0, value)) {
@@ -100,6 +112,13 @@ bool TestScript3::execute(TestShell *shell, const Command &command) {
 bool TestScript4::execute(TestShell *shell, const Command &command) {
   if (!checkPrecondition(command))
     return false;
+
+  if (!onExecute(shell))
+    return false;
+  return true;
+}
+
+bool TestScript4::onExecute(TestShell *shell) {
   unsigned long value1 = getRandomValue();
   unsigned long value2 = getRandomValue();
 
