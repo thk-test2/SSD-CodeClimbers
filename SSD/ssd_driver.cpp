@@ -86,6 +86,8 @@ public:
   }
 
   IoStream *getIoStream() { return stream; }
+  int getMaxNandSize() { return MAX_NAND_MEMORY_MAP_SIZE;  }
+  int getMaxEraseSize() { return MAX_ERASE_SIZE; }
 
 private:
   static const int HEX_BASE = 16;

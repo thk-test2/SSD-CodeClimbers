@@ -6,6 +6,8 @@ namespace fs = std::filesystem;
 
 CmdBufferControl::CmdBufferControl() {
   driver = new SSDDriver();
+  eraseMap = new char[driver->getMaxNandSize()];
+  std::memset(eraseMap, 0, driver->getMaxNandSize());
 
   if (!fs::exists(bufferPath)) {
     fs::create_directory(bufferPath);
@@ -31,6 +33,14 @@ CmdBufferControl::CmdBufferControl() {
     }
 
     cmdBuffer.emplace_back(bufferPath + "/" + existingFile);
+  }
+
+  for (auto buf : cmdBuffer) {
+    if (buf.isEmpty())
+      continue;
+    if (buf.getCmd() == 'E') {
+      std::memset(eraseMap + buf.getLba(), 1, buf.getLbaSize());
+    }
   }
 }
 
@@ -61,15 +71,12 @@ string makdFullCmdString(char *argv[]) {
 }
 
 bool CmdBufferControl::runCommandBuffer(char *argv[]) {
-  bool ret = false;
+  bool ret = true;
   string cmdType = argv[1];
   int lba = std::stoi(argv[2]);
 
-  // TO DO : Flush
-  /*
   if (isBufferFull())
-    flush();
-  */
+    ret = flush();
 
   if (cmdType == "R") {
     // TO DO : Buffer Check
@@ -82,9 +89,9 @@ bool CmdBufferControl::runCommandBuffer(char *argv[]) {
     ret = driver->write(lba, value);
   } else if (cmdType == "E") {
     int size = std::stoi(argv[3]);
-    updateToNextEmpty(makdFullCmdString(argv));
-    // TO DO : Buffer Check
-    ret = driver->erase(lba, size);
+    std::memset(eraseMap + lba, 1, size); // set eraseMap
+
+    mergeAndUpdateEraseCommand(lba, size);
   } else if (cmdType == "F") {
     // TO DO : Buffer Check
   }
@@ -200,10 +207,27 @@ int CmdBufferControl::getBufferLbaSize(int index) {
   return cmdBuffer[index - 1].getLbaSize();
 }
 
-void CmdBufferControl::flush() {
+bool CmdBufferControl::flushEraseSeparated(int lba, int size) {
+  bool ret = false;
+  int remain_size = size;
+  int unit_size = std::min(getDriver()->getMaxEraseSize(), size);
+
+  std::memset(eraseMap + lba, 0, size);
+
+  while (remain_size > 0) {
+    ret = getDriver()->erase(lba, unit_size);
+    remain_size -= unit_size;
+    lba += unit_size;
+    unit_size = std::min(getDriver()->getMaxEraseSize(), remain_size);
+  }
+  return ret;
+}
+
+bool CmdBufferControl::flush() {
+  bool ret = false;
 
   if (getDriver() == nullptr)
-    return;
+    return false;
 
   char cmd = 0;
   int lba = 0;
@@ -215,13 +239,39 @@ void CmdBufferControl::flush() {
     lba = buffer.getLba();
 
     if (cmd == 'W') {
-      getDriver()->write(lba, buffer.getValue());
+      ret = getDriver()->write(lba, buffer.getValue());
     } else if (cmd == 'E') {
-      getDriver()->erase(lba, buffer.getLbaSize());
+      ret = flushEraseSeparated(lba, buffer.getLbaSize());
     }
   }
 
   clearAllBuffer();
+  return ret;
+}
+
+void CmdBufferControl::mergeAndUpdateEraseCommand(int lba, int size) {
+  int targetLba = lba;
+  int targetSize = size;
+  int targetEnd = targetLba + targetSize;
+
+  for (auto &buffer : cmdBuffer) {
+    if (buffer.isEmpty())
+      continue;
+    if (buffer.getCmd() == 'E') {
+      int bufferEnd = buffer.getLba() + buffer.getLbaSize();
+      if (targetEnd >= buffer.getLba() && targetLba <= bufferEnd) // Duplicated
+      {
+        targetLba = std::min(buffer.getLba(), targetLba);
+        targetEnd = std::max(bufferEnd, targetEnd);
+        buffer.clear();
+      }
+    } else if (buffer.getCmd() == 'W' && eraseMap[buffer.getLba()] == 1) {
+      buffer.clear();
+    }
+  }
+  updateToNextEmpty("E_" + std::to_string(targetLba) + "_" +
+                    std::to_string(targetEnd - targetLba));
+  emptyBufferShift();
 }
 
 bool CmdBufferControl::isSameLbaBuffer(int lba, CmdBuffer &buffer) {

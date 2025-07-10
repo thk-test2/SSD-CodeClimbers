@@ -164,3 +164,128 @@ TEST_F(BufferControlFixture, BufferRunCommand) {
 
   checkOutputFileValid("0x12345678");
 }
+
+TEST_F(BufferControlFixture, BufferRunEraseCommand) {
+  char *argv[5];
+  argv[0] = const_cast<char *>("ssd.exe");
+  argv[1] = const_cast<char *>("W");
+  argv[2] = const_cast<char *>("10");
+  argv[3] = const_cast<char *>("0x12345678");
+  argv[4] = nullptr;
+  cmdBuffer.runCommandBuffer(argv);
+
+  argv[0] = const_cast<char *>("ssd.exe");
+  argv[1] = const_cast<char *>("E");
+  argv[2] = const_cast<char *>("10");
+  argv[3] = const_cast<char *>("1");
+  argv[4] = nullptr;
+  cmdBuffer.runCommandBuffer(argv);
+
+}
+
+TEST_F(BufferControlFixture, BufferWriteRemoveCase) {
+  std::string expected_ret = "1_W_5_0xAAAAAAAA,2_E_6_2,3_empty,4_empty,5_empty,";
+  char *argv[5];
+  argv[0] = const_cast<char *>("ssd.exe");
+  argv[1] = const_cast<char *>("W");
+  argv[2] = const_cast<char *>("5");
+  argv[3] = const_cast<char *>("0xAAAAAAAA");
+  argv[4] = nullptr;
+  cmdBuffer.runCommandBuffer(argv);
+
+  argv[0] = const_cast<char *>("ssd.exe");
+  argv[1] = const_cast<char *>("W");
+  argv[2] = const_cast<char *>("6");
+  argv[3] = const_cast<char *>("0xAAAAAAAA");
+  argv[4] = nullptr;
+  cmdBuffer.runCommandBuffer(argv);
+
+  argv[0] = const_cast<char *>("ssd.exe");
+  argv[1] = const_cast<char *>("W");
+  argv[2] = const_cast<char *>("7");
+  argv[3] = const_cast<char *>("0xAAAAAAAA");
+  argv[4] = nullptr;
+  cmdBuffer.runCommandBuffer(argv);
+
+  argv[0] = const_cast<char *>("ssd.exe");
+  argv[1] = const_cast<char *>("E");
+  argv[2] = const_cast<char *>("6");
+  argv[3] = const_cast<char *>("2");
+  argv[4] = nullptr;
+  cmdBuffer.runCommandBuffer(argv);
+
+  EXPECT_EQ(expected_ret, cmdBuffer.getBufferNameList());
+}
+
+TEST_F(BufferControlFixture, BufferDuplicatedEraseCommand) {
+  std::string expected_ret =
+      "1_E_10_15,2_empty,3_empty,4_empty,5_empty,";
+  char *argv[5];
+  argv[0] = const_cast<char *>("ssd.exe");
+  argv[1] = const_cast<char *>("E");
+  argv[2] = const_cast<char *>("10");
+  argv[3] = const_cast<char *>("10");
+  argv[4] = nullptr;
+  cmdBuffer.runCommandBuffer(argv);
+
+  
+  argv[0] = const_cast<char *>("ssd.exe");
+  argv[1] = const_cast<char *>("E");
+  argv[2] = const_cast<char *>("15");
+  argv[3] = const_cast<char *>("10");
+  argv[4] = nullptr;
+  cmdBuffer.runCommandBuffer(argv);
+
+  EXPECT_EQ(expected_ret, cmdBuffer.getBufferNameList());
+}
+
+TEST_F(BufferControlFixture, BufferSequentialEraseCommand) {
+  std::string expected_ret = "1_E_80_20,2_empty,3_empty,4_empty,5_empty,";
+  char *argv[5];
+  argv[0] = const_cast<char *>("ssd.exe");
+  argv[1] = const_cast<char *>("E");
+  argv[2] = const_cast<char *>("80");
+  argv[3] = const_cast<char *>("10");
+  argv[4] = nullptr;
+  cmdBuffer.runCommandBuffer(argv);
+
+  argv[0] = const_cast<char *>("ssd.exe");
+  argv[1] = const_cast<char *>("E");
+  argv[2] = const_cast<char *>("90");
+  argv[3] = const_cast<char *>("10");
+  argv[4] = nullptr;
+  cmdBuffer.runCommandBuffer(argv);
+
+  EXPECT_EQ(expected_ret, cmdBuffer.getBufferNameList());
+}
+
+TEST_F(BufferControlFixture, Buffer2timeDubplicaedEraseCommand) {
+  std::string expected_ret;
+  char *argv[5];
+  argv[0] = const_cast<char *>("ssd.exe");
+  argv[1] = const_cast<char *>("E");
+  argv[2] = const_cast<char *>("10");
+  argv[3] = const_cast<char *>("10");
+  argv[4] = nullptr;
+  cmdBuffer.runCommandBuffer(argv);
+
+  argv[0] = const_cast<char *>("ssd.exe");
+  argv[1] = const_cast<char *>("E");
+  argv[2] = const_cast<char *>("25");
+  argv[3] = const_cast<char *>("10");
+  argv[4] = nullptr;
+  cmdBuffer.runCommandBuffer(argv);
+
+  expected_ret = "1_E_10_10,2_E_25_10,3_empty,4_empty,5_empty,";
+  EXPECT_EQ(expected_ret, cmdBuffer.getBufferNameList());
+
+  argv[0] = const_cast<char *>("ssd.exe");
+  argv[1] = const_cast<char *>("E");
+  argv[2] = const_cast<char *>("17");
+  argv[3] = const_cast<char *>("10");
+  argv[4] = nullptr;
+  cmdBuffer.runCommandBuffer(argv); 
+
+  expected_ret = "1_E_10_25,2_empty,3_empty,4_empty,5_empty,";
+  EXPECT_EQ(expected_ret, cmdBuffer.getBufferNameList());
+}
