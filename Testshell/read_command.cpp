@@ -1,7 +1,6 @@
 #include "command.h"
-#include "test_shell.h"
 
-bool ReadCommand::execute(TestShell* shell, const Command& command) {
+bool ReadCommand::execute(TestShell *shell, const Command &command) {
   if (!isValidReadUsage(command)) {
     cout << "INVALID COMMAND\n";
     return false;
@@ -9,7 +8,14 @@ bool ReadCommand::execute(TestShell* shell, const Command& command) {
 
   int lba = stoi(command.args[0]);
   shell->getSSD()->read(lba);
-  cout << "[Read] " << command.args[0] << " : " << shell->getSSD()->getResult() << "\n";
+
+  string result = shell->getSSD()->getResult();
+  if (result == "ERROR") {
+    cout << "[Read] ERROR\n";
+    return false;
+  }
+  cout << "[Read] LBA " << std::setw(2) << std::setfill('0') << command.args[0]
+       << " : " << result << "\n";
   return true;
 }
 

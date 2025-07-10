@@ -1,6 +1,4 @@
 #include "command.h"
-#include "test_shell.h"
-#include <algorithm>
 
 bool EraseCommand::execute(TestShell *shell, const Command &command) {
   if (!isValidEraseUsage(command)) {
@@ -25,6 +23,7 @@ bool EraseCommand::execute(TestShell *shell, const Command &command) {
     lba += unit_size;
     unit_size = std::min(MAX_SSD_ERASE_SIZE, remain_size);
   }
+  cout << "[Erase] Done\n";
   return true;
 }
 

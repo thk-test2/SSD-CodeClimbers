@@ -63,6 +63,7 @@ void TestShell::runInteractive() {
     cout << "> ";
     getline(std::cin, userInput);
     command = parsing(userInput);
+
     logger.print("TestShell.run()",
         "Successfully parsed command - " + command.command);
     if (command.command == "exit") {
@@ -70,6 +71,7 @@ void TestShell::runInteractive() {
       break;
     }
     executeCommand(command);
+    cout << endl;
   }
 }
 

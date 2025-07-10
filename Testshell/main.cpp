@@ -90,7 +90,8 @@ TEST_F(TestShellFixture, DisplaysCommandsSection) {
   EXPECT_TRUE(output.find("erase_range 0 99") != std::string::npos);
 
   EXPECT_TRUE(output.find("flush") != std::string::npos);
-  EXPECT_TRUE(output.find("Flush all buffered commands to SSD") != std::string::npos);
+  EXPECT_TRUE(output.find("Flush all buffered commands to SSD") !=
+              std::string::npos);
 }
 
 TEST_F(TestShellFixture, DisplayTestScriptsSection) {
@@ -277,7 +278,20 @@ TEST_F(TestShellFixture, FlushMultipleArgsInvalidUsage) {
   EXPECT_EQ("INVALID COMMAND\n", output);
 }
 
-TEST_F(TestShellFixture, FullReadNormalCase) {
+TEST_F(TestShellFixture, FullReadSuccessCase) {
+  Command command{"fullread", vector<string>{}};
+
+  EXPECT_CALL(ssd, read(_)).Times(100);
+  EXPECT_CALL(ssd, getResult()).Times(100).WillRepeatedly(Return("0xAAAABBBB"));
+
+  CaptureStdout();
+  ts.executeCommand(command);
+  std::string output = GetCapturedStdout();
+
+  EXPECT_TRUE(output.find("[Full Read] Done != std::string::npos"));
+}
+
+TEST_F(TestShellFixture, FullReadFailCase) {
   Command command{"fullread", vector<string>{}};
 
   EXPECT_CALL(ssd, read(0)).Times(1);
@@ -296,12 +310,9 @@ TEST_F(TestShellFixture, FullReadNormalCase) {
   ts.executeCommand(command);
   std::string output = GetCapturedStdout();
 
-  EXPECT_TRUE(output.find("[Full Read] LBA: 0 Result: 0xAAAABBBB") !=
-              std::string::npos);
-  EXPECT_TRUE(output.find("[Full Read] LBA: 1 Result: 0xCCCCDDDD") !=
-              std::string::npos);
-  EXPECT_TRUE(output.find("[Full Read] LBA: 2 Result: 0xEEEEFFFF") !=
-              std::string::npos);
+  EXPECT_TRUE(output.find("LBA 00 : 0xAAAABBBB") != std::string::npos);
+  EXPECT_TRUE(output.find("LBA 01 : 0xCCCCDDDD") != std::string::npos);
+  EXPECT_TRUE(output.find("LBA 02 : 0xEEEEFFFF") != std::string::npos);
 }
 
 TEST_F(TestShellFixture, FullReadInvalidUsage) {
@@ -317,7 +328,21 @@ TEST_F(TestShellFixture, FullReadInvalidUsage) {
 }
 
 // fullwrite 테스트들
-TEST_F(TestShellFixture, FullWriteNormalCase) {
+TEST_F(TestShellFixture, FullWriteSuccessCase) {
+  Command command{"fullwrite", vector<string>{"0xABCDABCD"}};
+
+  // 3개의 LBA에 성공적으로 쓰고 4번째에서 ERROR 반환
+  EXPECT_CALL(ssd, write(_, _)).Times(100);
+  EXPECT_CALL(ssd, getResult()).Times(100).WillRepeatedly(Return("0xABCDABCD"));
+
+  CaptureStdout();
+  ts.executeCommand(command);
+  std::string output = GetCapturedStdout();
+
+  EXPECT_TRUE(output.find("[Full Write] Done") != std::string::npos);
+}
+
+TEST_F(TestShellFixture, FullWriteFailCase) {
   Command command{"fullwrite", vector<string>{"0xABCDABCD"}};
 
   // 3개의 LBA에 성공적으로 쓰고 4번째에서 ERROR 반환
@@ -337,12 +362,7 @@ TEST_F(TestShellFixture, FullWriteNormalCase) {
   ts.executeCommand(command);
   std::string output = GetCapturedStdout();
 
-  EXPECT_TRUE(output.find("[Full Write] LBA: 0 Done") != std::string::npos);
-  EXPECT_TRUE(output.find("[Full Write] LBA: 1 Done") != std::string::npos);
-  EXPECT_TRUE(output.find("[Full Write] LBA: 2 Done") != std::string::npos);
-
-  // 4번째 LBA는 ERROR이므로 출력되지 않아야 함
-  EXPECT_TRUE(output.find("[Full Write] LBA: 3") == std::string::npos);
+  EXPECT_TRUE(output.find("[Full Write] Failed") != std::string::npos);
 }
 
 TEST_F(TestShellFixture, FullWriteInvalidArgumentCount) {

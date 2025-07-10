@@ -1,5 +1,4 @@
 #include "command.h"
-#include "test_shell.h"
 
 bool FullWriteCommand::execute(TestShell *shell, const Command &command) {
   if (command.args.size() != 1) {
@@ -19,9 +18,10 @@ bool FullWriteCommand::execute(TestShell *shell, const Command &command) {
     shell->getSSD()->write(lba, value);
     string result = shell->getSSD()->getResult();
     if (result == "ERROR") {
-      break;
+      cout << "[Full Write] Failed\n";
+      return false;
     }
-    cout << "[Full Write] LBA: " << lba << " Done" << endl;
   }
+  cout << "[Full Write] Done\n";
   return true;
 }

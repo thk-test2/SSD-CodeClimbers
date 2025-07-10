@@ -1,5 +1,4 @@
 #include "command.h"
-#include "test_shell.h"
 
 bool checkPartialWriteSuccess(TestShell *shell, int lba, unsigned long value) {
   shell->getSSD()->read(lba);
