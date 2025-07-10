@@ -9,9 +9,9 @@
 
 using std::string;
 
-class SSD_EXE : public SSD_INTERFACE {
+class SsdExeAdaptor : public SSD_INTERFACE {
 public:
-  SSD_EXE() : ssdDir(getCurWorkingDir()) {}
+  SsdExeAdaptor() : ssdDir(getCurWorkingDir()) {}
 
   void read(int lba) override;
   void write(int lba, unsigned long value) override;
