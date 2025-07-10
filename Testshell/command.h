@@ -34,6 +34,7 @@ public:
   virtual string getUsage() const = 0;
   virtual string getDescription() const = 0;
   virtual string getExample() const = 0;
+  virtual bool isCmdMatch(const string command) const = 0;
 
 protected:
   const int MAX_LBA_COUNT = 100;
@@ -46,6 +47,7 @@ public:
   string getUsage() const override { return ""; }
   string getDescription() const override { return "Exit the shell"; }
   string getExample() const override { return "exit"; }
+  bool isCmdMatch(const string command) const override { return "exit" == command;};
 };
 
 class FullReadCommand : public ICommand {
@@ -54,6 +56,7 @@ public:
   string getUsage() const override { return ""; }
   string getDescription() const override { return "Read the entire SSD"; }
   string getExample() const override { return "fullread"; }
+  bool isCmdMatch(const string command) const override { return "fullread" == command;};
 };
 
 class FullWriteCommand : public ICommand {
@@ -62,6 +65,7 @@ public:
   string getUsage() const override { return "<value>"; }
   string getDescription() const override { return "Write <value> to the entire SSD"; }
   string getExample() const override { return "fullwrite 0x00"; }
+  bool isCmdMatch(const string command) const override { return "fullwrite" == command;};
 };
 
 class HelpCommand : public ICommand {
@@ -74,6 +78,7 @@ public:
   string getUsage() const override { return ""; }
   string getDescription() const override { return "Show this help message"; }
   string getExample() const override { return "help"; }
+  bool isCmdMatch(const string command) const override { return "help" == command;};
 
 private:
   CommandHandler *_commandHandler;
@@ -95,6 +100,7 @@ public:
   string getUsage() const override { return "<lba>"; }
   string getDescription() const override { return "Read from SSD at logical block address <lba>"; }
   string getExample() const override { return "read 10"; }
+  bool isCmdMatch(const string command) const override { return "read" == command;};
 };
 
 class WriteCommand : public ICommand {
@@ -106,6 +112,7 @@ public:
   string getUsage() const override { return "<lba> <value>"; }
   string getDescription() const override { return "Write <value> to SSD at logical block address <lba>"; }
   string getExample() const override { return "write 5 0xFF"; }
+  bool isCmdMatch(const string command) const override { return "write" == command;};
 };
 
 class EraseCommand : public ICommand {
@@ -120,6 +127,7 @@ public:
     return "Erase the logical blocks from <lba> for the specified <size>.";
   }
   string getExample() const override { return "erase 0 10"; }
+  bool isCmdMatch(const string command) const override { return "erase" == command;};
 };
 
 class EraseRangeCommand : public ICommand {
@@ -134,6 +142,7 @@ public:
     return "Erase the SSD's logical blocks from st_lba to en_lba";
   }
   string getExample() const override { return "erase_range 0 99"; }
+  bool isCmdMatch(const string command) const override { return "erase_range" == command;};
 };
 
 class FlushCommand : public ICommand {
@@ -144,6 +153,7 @@ public:
     return "Flush all buffered commands to SSD";
   }
   string getExample() const override { return "flush"; }
+  bool isCmdMatch(const string command) const override { return "flush" == command;};
 };
 
 class TestScript1 : public ICommand {
@@ -152,6 +162,7 @@ public:
   string getUsage() const override { return "<value>"; }
   string getDescription() const override { return "Run comprehensive write/read test for entire SSD"; }
   string getExample() const override { return "'1_' or '1_FullWriteAndReadCompare'"; }
+  bool isCmdMatch(const string command) const override { return "1_" == command || "1_FullWriteAndReadCompare" == command;};
 };
 
 class TestScript2 : public ICommand {
@@ -160,6 +171,7 @@ public:
   string getUsage() const override { return "<value>"; }
   string getDescription() const override { return "Run partial LBA write consistency test (30 iterations)"; }
   string getExample() const override { return "'2_' or '2_PartialLBAWrite'"; }
+  bool isCmdMatch(const string command) const override { return "2_" == command || "2_PartialLBAWrite" == command;};
 };
 
 class TestScript3 : public ICommand {
@@ -168,6 +180,7 @@ public:
   string getUsage() const override { return ""; }
   string getDescription() const override { return "Run write/read aging test (200 iterations)"; }
   string getExample() const override { return "'3_' or '3_WriteReadAging'"; }
+  bool isCmdMatch(const string command) const override { return "3_" == command || "3_WriteReadAging" == command;};
 };
 
 class TestScript4 : public ICommand {
@@ -178,6 +191,7 @@ public:
     return "Repeatedly erase LBA ranges and write random data to following LBAs in sequential loops (30 iterations)";
   }
   string getExample() const override { return "'4_' or '4_EraseAndWriteAging'"; }
+  bool isCmdMatch(const string command) const override { return "4_" == command || "4_EraseAndWriteAging" == command;};
 };
 
 static unsigned long getRandomValue() {

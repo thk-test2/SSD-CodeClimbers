@@ -34,75 +34,75 @@ public:
   const string TEST_SCRIPT_4_FULLNAME = "4_EraseAndWriteAging";
   const string TEST_SCRIPT_4_SHORTCUT = "4_";
 
-  //string getCallHelpOutput() {
-  //  CaptureStdout();
-  //  ts.getCommandHandler()->executeCommand(CommandLine{"help", {}});
-  //  return GetCapturedStdout();
-  //}
+  string getCallHelpOutput() {
+    CaptureStdout();
+    ts.getCommandHandler()->executeCommand(CommandLine{"help", {}});
+    return GetCapturedStdout();
+  }
 };
 
-//TEST_F(TestShellFixture, DisplaysCorrectHeader) {
-//  std::string output = getCallHelpOutput();
-//
-//  EXPECT_TRUE(
-//      output.find("SSD Test Shell - Simple and Powerful SSD Testing Tool") !=
-//      std::string::npos);
-//}
-//
-//TEST_F(TestShellFixture, DisplaysTeamMembers) {
-//  std::string output = getCallHelpOutput();
-//
-//  EXPECT_TRUE(output.find("Team Members:") != std::string::npos);
-//  EXPECT_TRUE(output.find("Taehyun Kyong") != std::string::npos);
-//  EXPECT_TRUE(output.find("Sunghwan Kim") != std::string::npos);
-//  EXPECT_TRUE(output.find("Hyeonseok Sim") != std::string::npos);
-//  EXPECT_TRUE(output.find("Yerim Yun") != std::string::npos);
-//  EXPECT_TRUE(output.find("Hoenhwi Jeong") != std::string::npos);
-//  EXPECT_TRUE(output.find("Jeseong Kim") != std::string::npos);
-//}
-//
-//TEST_F(TestShellFixture, DisplaysCommandsSection) {
-//  std::string output = getCallHelpOutput();
-//
-//  EXPECT_TRUE(output.find("Commands:") != std::string::npos);
-//
-//  EXPECT_TRUE(output.find("read") != std::string::npos);
-//  EXPECT_TRUE(output.find("read 10") != std::string::npos);
-//
-//  EXPECT_TRUE(output.find("write") != std::string::npos);
-//  EXPECT_TRUE(output.find("write 5 0xFF") != std::string::npos);
-//
-//  EXPECT_TRUE(output.find("fullread") != std::string::npos);
-//  EXPECT_TRUE(output.find("Read the entire SSD") != std::string::npos);
-//
-//  EXPECT_TRUE(output.find("fullwrite") != std::string::npos);
-//  EXPECT_TRUE(output.find("fullwrite 0x00") != std::string::npos);
-//
-//  EXPECT_TRUE(output.find("help") != std::string::npos);
-//  EXPECT_TRUE(output.find("Show this help message") != std::string::npos);
-//
-//  EXPECT_TRUE(output.find("exit") != std::string::npos);
-//  EXPECT_TRUE(output.find("Exit the shell") != std::string::npos);
-//
-//  EXPECT_TRUE(output.find("erase") != std::string::npos);
-//  EXPECT_TRUE(output.find("erase 0 10") != std::string::npos);
-//
-//  EXPECT_TRUE(output.find("erase_range") != std::string::npos);
-//  EXPECT_TRUE(output.find("erase_range 0 99") != std::string::npos);
-//
-//  EXPECT_TRUE(output.find("flush") != std::string::npos);
-//  EXPECT_TRUE(output.find("Flush all buffered commands to SSD") != std::string::npos);
-//}
-//
-//TEST_F(TestShellFixture, DisplayTestScriptsSection) {
-//  std::string output = getCallHelpOutput();
-//
-//  EXPECT_TRUE(output.find("Test Scripts:") != std::string::npos);
-//  EXPECT_TRUE(output.find("1_FullWriteAndReadCompare") != std::string::npos);
-//  EXPECT_TRUE(output.find("2_PartialLBAWrite") != std::string::npos);
-//  EXPECT_TRUE(output.find("3_WriteReadAging") != std::string::npos);
-//  EXPECT_TRUE(output.find("4_EraseAndWriteAging") != std::string::npos);
-//}
+TEST_F(TestShellFixture, DisplaysCorrectHeader) {
+  std::string output = getCallHelpOutput();
+
+  EXPECT_TRUE(
+      output.find("SSD Test Shell - Simple and Powerful SSD Testing Tool") !=
+      std::string::npos);
+}
+
+TEST_F(TestShellFixture, DisplaysTeamMembers) {
+  std::string output = getCallHelpOutput();
+
+  EXPECT_TRUE(output.find("Team Members:") != std::string::npos);
+  EXPECT_TRUE(output.find("Taehyun Kyong") != std::string::npos);
+  EXPECT_TRUE(output.find("Sunghwan Kim") != std::string::npos);
+  EXPECT_TRUE(output.find("Hyeonseok Sim") != std::string::npos);
+  EXPECT_TRUE(output.find("Yerim Yun") != std::string::npos);
+  EXPECT_TRUE(output.find("Hoenhwi Jeong") != std::string::npos);
+  EXPECT_TRUE(output.find("Jeseong Kim") != std::string::npos);
+}
+
+TEST_F(TestShellFixture, DisplaysCommandsSection) {
+  std::string output = getCallHelpOutput();
+
+  EXPECT_TRUE(output.find("Commands:") != std::string::npos);
+
+  EXPECT_TRUE(output.find("read") != std::string::npos);
+  EXPECT_TRUE(output.find("read 10") != std::string::npos);
+
+  EXPECT_TRUE(output.find("write") != std::string::npos);
+  EXPECT_TRUE(output.find("write 5 0xFF") != std::string::npos);
+
+  EXPECT_TRUE(output.find("fullread") != std::string::npos);
+  EXPECT_TRUE(output.find("Read the entire SSD") != std::string::npos);
+
+  EXPECT_TRUE(output.find("fullwrite") != std::string::npos);
+  EXPECT_TRUE(output.find("fullwrite 0x00") != std::string::npos);
+
+  EXPECT_TRUE(output.find("help") != std::string::npos);
+  EXPECT_TRUE(output.find("Show this help message") != std::string::npos);
+
+  EXPECT_TRUE(output.find("exit") != std::string::npos);
+  EXPECT_TRUE(output.find("Exit the shell") != std::string::npos);
+
+  EXPECT_TRUE(output.find("erase") != std::string::npos);
+  EXPECT_TRUE(output.find("erase 0 10") != std::string::npos);
+
+  EXPECT_TRUE(output.find("erase_range") != std::string::npos);
+  EXPECT_TRUE(output.find("erase_range 0 99") != std::string::npos);
+
+  EXPECT_TRUE(output.find("flush") != std::string::npos);
+  EXPECT_TRUE(output.find("Flush all buffered commands to SSD") != std::string::npos);
+}
+
+TEST_F(TestShellFixture, DisplayTestScriptsSection) {
+  std::string output = getCallHelpOutput();
+
+  EXPECT_TRUE(output.find("Test Scripts:") != std::string::npos);
+  EXPECT_TRUE(output.find("1_FullWriteAndReadCompare") != std::string::npos);
+  EXPECT_TRUE(output.find("2_PartialLBAWrite") != std::string::npos);
+  EXPECT_TRUE(output.find("3_WriteReadAging") != std::string::npos);
+  EXPECT_TRUE(output.find("4_EraseAndWriteAging") != std::string::npos);
+}
 
 TEST_F(TestShellFixture, ReadNormalCase) {
   CommandLine command{"read", vector<string>{"0"}};
