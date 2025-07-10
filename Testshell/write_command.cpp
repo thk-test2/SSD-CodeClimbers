@@ -1,5 +1,4 @@
 #include "command.h"
-#include "test_shell.h"
 
 bool WriteCommand::execute(TestShell* shell, const Command& command) {
   if (!isValidWriteUsage(command, shell->getHexBase())) {

@@ -7,6 +7,8 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <iomanip>
+#include <algorithm>
 
 #include "ssd_exe.h"
 #include "logger.h"

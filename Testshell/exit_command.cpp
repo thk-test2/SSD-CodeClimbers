@@ -1,5 +1,4 @@
 #include "command.h"
-#include "test_shell.h"
 
 bool ExitCommand::execute(TestShell* shell, const Command& command) {
   if (command.args.size() != 0) {
