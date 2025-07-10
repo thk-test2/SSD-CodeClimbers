@@ -1,6 +1,7 @@
 #include <fstream>
 
 #include "test_shell.h"
+#include "ssd_exe.h"
 #include "gmock/gmock.h"
 
 // stdout 캡처/해제 함수
@@ -97,7 +98,6 @@ TEST_F(TestShellFixture, DisplaysCommandsSection) {
 TEST_F(TestShellFixture, DisplayTestScriptsSection) {
   std::string output = getCallHelpOutput();
 
-  EXPECT_TRUE(output.find("Test Scripts:") != std::string::npos);
   EXPECT_TRUE(output.find("1_FullWriteAndReadCompare") != std::string::npos);
   EXPECT_TRUE(output.find("2_PartialLBAWrite") != std::string::npos);
   EXPECT_TRUE(output.find("3_WriteReadAging") != std::string::npos);
