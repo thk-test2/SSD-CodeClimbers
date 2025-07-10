@@ -85,9 +85,9 @@ bool CmdBufferControl::runCommandBuffer(char *argv[]) {
   } else if (cmdType == "W") {
     unsigned long value = std::stoul(argv[3], nullptr, 16);
 
-    bool result = writeCmdBuffer(argv);
-    if (result)
-      return result;
+    ret = writeCmdBuffer(argv);
+    if (ret)
+      return ret;
 
   } else if (cmdType == "E") {
     int size = std::stoi(argv[3]);

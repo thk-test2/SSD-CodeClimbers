@@ -26,7 +26,6 @@ public:
   int getBufferLba(int index);
   unsigned long getBufferValue(int index);
   int getBufferLbaSize(int index);
-  int getLastEmptyIndex();
   bool isSameLbaBuffer(int lba, CmdBuffer &buffer);
   bool isValidRangeForErase(int lba, CmdBuffer &buffer);
 
