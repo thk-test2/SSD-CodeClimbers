@@ -85,7 +85,7 @@ bool CmdBufferControl::runCommandBuffer(int argc, char *argv[]) {
   if (cmdType == "R") {
     ret = driver->read(lba);
   } else if (cmdType == "W") {
-    ret = writeCmdBuffer(lba, argv);
+    removeAndUpdateWriteCommand(lba, argv);
   } else if (cmdType == "E") {
     std::memset(eraseMap + lba, 1, size); // set eraseMap
     mergeAndUpdateEraseCommand(lba, size);
@@ -95,7 +95,7 @@ bool CmdBufferControl::runCommandBuffer(int argc, char *argv[]) {
   return ret;
 }
 
-bool CmdBufferControl::writeCmdBuffer(int lba, char *argv[]) {
+void CmdBufferControl::removeAndUpdateWriteCommand(int lba, char *argv[]) {
   for (auto &buffer : cmdBuffer) {
     if (buffer.isEmpty())
       continue;
@@ -109,7 +109,6 @@ bool CmdBufferControl::writeCmdBuffer(int lba, char *argv[]) {
 
   updateToNextEmpty(makdFullCmdString(argv));
   emptyBufferShift();
-  return true;
 }
 
 bool CmdBufferControl::updateToNextEmpty(const std::string &cmd) {
@@ -238,7 +237,7 @@ bool CmdBufferControl::flushEraseSeparated(int lba, int size) {
 }
 
 bool CmdBufferControl::flush() {
-  bool ret = false;
+  bool ret = true;
 
   if (getDriver() == nullptr)
     return false;
