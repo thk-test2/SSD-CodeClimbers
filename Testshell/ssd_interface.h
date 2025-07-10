@@ -2,9 +2,11 @@
 
 #include <string>
 
+#define interface class
+
 using std::string;
 
-class SSD_INTERFACE {
+interface SSD_INTERFACE {
 public:
   virtual ~SSD_INTERFACE() = default;
   virtual void read(int lba) = 0;
