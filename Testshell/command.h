@@ -9,6 +9,8 @@
 #include "logger.h"
 #include "ssd_interface.h"
 
+#define interface class
+
 using std::cout;
 using std::endl;
 using std::string;
@@ -28,7 +30,7 @@ struct ShellExit : public std::exception {
 };
 
 // Abstract base class for command
-class ICommand {
+interface ICommand {
 public:
   ICommand() = default;  // Add default constructor
   virtual ~ICommand() = default;

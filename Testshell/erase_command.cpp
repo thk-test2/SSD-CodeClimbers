@@ -30,11 +30,16 @@ bool EraseCommand::execute(SSD_INTERFACE &ssd, const CommandLine &cli) {
 }
 
 bool EraseCommand::isValidEraseUsage(const CommandLine &cli) {
+  // 인자 개수 확인
+  if (cli.args.size() < 2) {
+    return false;
+  }
+  
   int lba, size;
   try {
     lba = std::stoi(cli.args[0]);
     size = std::stoi(cli.args[1]);
-  } catch (std::exception &e) {
+  } catch (std::exception &) {
     return false;
   }
 

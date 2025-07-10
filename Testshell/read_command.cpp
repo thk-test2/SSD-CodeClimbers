@@ -25,7 +25,7 @@ bool ReadCommand::isValidReadUsage(const CommandLine &cli) {
     return false;
   try {
     int lba = stoi(cli.args[0]);
-  } catch (std::exception &e) {
+  } catch (std::exception &) {
     return false;
   }
   return true;

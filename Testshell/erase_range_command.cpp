@@ -31,11 +31,15 @@ bool EraseRangeCommand::execute(SSD_INTERFACE &ssd, const CommandLine &cli) {
 }
 
 bool EraseRangeCommand::isValidEraseRangeUsage(const CommandLine &cli) {
+  if (cli.args.size() < 2) {
+    return false;
+  }
+  
   int st_lba, en_lba;
   try {
     st_lba = std::stoi(cli.args[0]);
     en_lba = std::stoi(cli.args[1]);
-  } catch (std::exception &e) {
+  } catch (std::exception &) {
     return false;
   }
 
