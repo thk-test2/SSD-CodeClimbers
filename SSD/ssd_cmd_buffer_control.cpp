@@ -70,39 +70,32 @@ string makdFullCmdString(char *argv[]) {
   return fullCmd;
 }
 
-bool CmdBufferControl::runCommandBuffer(char *argv[]) {
+bool CmdBufferControl::runCommandBuffer(int argc, char *argv[]) {
   bool ret = true;
   string cmdType = argv[1];
-  int lba = std::stoi(argv[2]);
+  int lba = 0, size = 0;
+  unsigned long value = 0;
+  
+  if (!driver->isValidParam(argc, argv, lba, size, value))
+    return true;
 
   if (isBufferFull())
     ret = flush();
 
   if (cmdType == "R") {
-    // TO DO : Buffer Check
     ret = driver->read(lba);
-
   } else if (cmdType == "W") {
-    unsigned long value = std::stoul(argv[3], nullptr, 16);
-
-    ret = writeCmdBuffer(argv);
-    if (ret)
-      return ret;
-
+    ret = writeCmdBuffer(lba, argv);
   } else if (cmdType == "E") {
-    int size = std::stoi(argv[3]);
     std::memset(eraseMap + lba, 1, size); // set eraseMap
-
     mergeAndUpdateEraseCommand(lba, size);
   } else if (cmdType == "F") {
-    // TO DO : Buffer Check
+    ret = flush();
   }
   return ret;
 }
 
-bool CmdBufferControl::writeCmdBuffer(char *argv[]) {
-  int lba = std::stoi(argv[2]);
-
+bool CmdBufferControl::writeCmdBuffer(int lba, char *argv[]) {
   for (auto &buffer : cmdBuffer) {
     if (buffer.isEmpty())
       continue;
@@ -113,6 +106,7 @@ bool CmdBufferControl::writeCmdBuffer(char *argv[]) {
       }
     }
   }
+
   updateToNextEmpty(makdFullCmdString(argv));
   emptyBufferShift();
   return true;
