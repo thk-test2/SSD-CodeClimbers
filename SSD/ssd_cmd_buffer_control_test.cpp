@@ -294,7 +294,6 @@ TEST_F(BufferControlFixture, Buffer2timeDubplicaedEraseCommand) {
   expected_ret = "1_E_10_25,2_empty,3_empty,4_empty,5_empty,";
   EXPECT_EQ(expected_ret, cmdBuffer.getBufferNameList());
 }
-}
 
 TEST_F(BufferControlFixture, BufferWrite1) {
   std::string expected_ret =

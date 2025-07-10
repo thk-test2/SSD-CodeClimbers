@@ -121,18 +121,21 @@ bool CmdBufferControl::isMatchedWriteLBA(const CmdBuffer &buf, int lba) {
 
 bool CmdBufferControl::writeCmdBuffer(char *argv[]) {
   int lba = std::stoi(argv[2]);
-  for (auto &buf : cmdBuffer) {
-    if (isMatchedWriteLBA(buf, lba)) {
-      efficientWriteCmdbuffer(buf, argv);
-      return true;
-    }
-  }
 
-  if (isBufferFull()) {
-    flush();
+  for (auto &buffer : cmdBuffer) {
+    if (buffer.isEmpty())
+      continue;
+    if (buffer.getCmd() == 'W') {
+      if (lba == buffer.getLba()) {
+        buffer.clear();
+        updateToNextEmpty(makdFullCmdString(argv));
+        emptyBufferShift();
+        break;
+      }
+    }
+
+    return true;
   }
-  addCmdToWriteBuffer(argv);
-  return true;
 }
 
 void CmdBufferControl::addCmdToWriteBuffer(char *argv[]) {
