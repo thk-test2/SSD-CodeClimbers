@@ -11,15 +11,28 @@ bool checkPartialWriteSuccess(SSD_INTERFACE &ssd, int lba, unsigned long value) 
   return true;
 }
 
-bool TestScript1::execute(SSD_INTERFACE &ssd, const CommandLine &cli) {
+bool preConditionCheck(const CommandLine &cli) {
   if (cli.args.size() != 0) {
     cout << "INVALID_COMMAND\n";
     return false;
   }
+  return true;
+}
+
+bool TestScript1::execute(SSD_INTERFACE &ssd, const CommandLine &cli) {
+  if (!preConditionCheck(cli))
+    return false;
 
   unsigned long value = 0xAAAABBBB;
   string valueStr = convertHexToString(value);
 
+if (!onExecute(ssd, value, valueStr))
+    return false;
+  return true;
+}
+
+bool TestScript1::onExecute(SSD_INTERFACE &ssd, unsigned long value,
+                            std::string &valueStr) {
   for (int lba = 0; lba < 100; lba += 4) {
     for (int i = 0; i < 4; i++) {
       ssd.write(lba + i, value);
@@ -39,10 +52,8 @@ bool TestScript1::execute(SSD_INTERFACE &ssd, const CommandLine &cli) {
 }
 
 bool TestScript2::execute(SSD_INTERFACE &ssd, const CommandLine &cli) {
-  if (cli.args.size() != 0) {
-    cout << "INVALID_COMMAND\n";
+  if (!preConditionCheck(cli))
     return false;
-  }
 
   unsigned long value = 0xAAAABBBB;
   vector<int> lbaList{4, 0, 3, 1, 2};
@@ -64,10 +75,8 @@ bool TestScript3::execute(SSD_INTERFACE &ssd, const CommandLine &cli) {
 #ifdef _DEBUG
   unsigned long value = stoul(cli.args[0], nullptr, 16);
 #else
-  if (cli.args.size() != 0) {
-    cout << "INVALID_COMMAND\n";
+  if (!preConditionCheck(cli))
     return false;
-  }
   unsigned long value = getRandomValue();
 #endif
 
@@ -89,10 +98,8 @@ bool TestScript3::execute(SSD_INTERFACE &ssd, const CommandLine &cli) {
 }
 
 bool TestScript4::execute(SSD_INTERFACE &ssd, const CommandLine &cli) {
-  if (cli.args.size() != 0) {
-    cout << "INVALID_COMMAND\n";
+  if (!preConditionCheck(cli))
     return false;
-  }
   unsigned long value1 = getRandomValue();
   unsigned long value2 = getRandomValue();
 
