@@ -7,7 +7,7 @@ bool CommandHandler::executeCommand(const CommandLine &cli) {
 	if (command) {
 		return command->execute(*_ssdDriver, cli);
 	}
-	std::cerr << "Unknown command: " << cli.command << std::endl;
+	cout << "INVALID COMMAND" << endl;
 	return false;
 }
 
@@ -30,7 +30,7 @@ vector<string> CommandHandler::getAvailableCommands() {
 
 ICommand *CommandHandler::getCommand(const string &commandName) {
 	for (const auto &command : commands) {
-		if (command->getUsage() == commandName) {
+    if (command->isCmdMatch( commandName )) {
 			return command;
 		}
 	}
