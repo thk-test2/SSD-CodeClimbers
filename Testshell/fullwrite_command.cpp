@@ -1,22 +1,22 @@
 #include "command.h"
 
-bool FullWriteCommand::execute(TestShell *shell, const Command &command) {
-  if (command.args.size() != 1) {
-    cout << "INVALID COMMAND\n";
+bool FullWriteCommand::execute(SSD_INTERFACE &ssd, const CommandLine &cli) {
+  if (cli.args.size() != 1) {
+    std::cout << "INVALID COMMAND\n";
     return false;
   }
 
   unsigned long value;
   try {
-    value = stoul(command.args[0], nullptr, shell->getHexBase());
+    value = std::stoul(cli.args[0], nullptr, HEX_BASE);
   } catch (std::exception &e) {
-    cout << "INVALID COMMAND\n";
+    std::cout << "INVALID COMMAND\n";
     return false;
   }
 
   for (int lba = 0; lba < MAX_LBA_COUNT; lba++) {
-    shell->getSSD()->write(lba, value);
-    string result = shell->getSSD()->getResult();
+    ssd.write(lba, value);
+    string result = ssd.getResult();
     if (result == "ERROR") {
       cout << "[Full Write] Failed\n";
       return false;

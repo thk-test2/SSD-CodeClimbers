@@ -1,29 +1,29 @@
 #include "command.h"
 
-bool ReadCommand::execute(TestShell *shell, const Command &command) {
-  if (!isValidReadUsage(command)) {
+bool ReadCommand::execute(SSD_INTERFACE &ssd, const CommandLine &cli) {
+  if (!isValidReadUsage(cli)) {
     cout << "INVALID COMMAND\n";
     return false;
   }
 
-  int lba = stoi(command.args[0]);
-  shell->getSSD()->read(lba);
-
-  string result = shell->getSSD()->getResult();
+  int lba = stoi(cli.args[0]);
+  ssd.read(lba);
+  string result = ssd.getResult();
   if (result == "ERROR") {
     cout << "[Read] ERROR\n";
     return false;
   }
   cout << "[Read] LBA " << std::setw(2) << std::setfill('0') << command.args[0]
        << " : " << result << "\n";
+
   return true;
 }
 
-bool ReadCommand::isValidReadUsage(const Command &command) {
-  if (command.args.size() != 1)
+bool ReadCommand::isValidReadUsage(const CommandLine &cli) {
+  if (cli.args.size() != 1)
     return false;
   try {
-    int lba = stoi(command.args[0]);
+    int lba = stoi(cli.args[0]);
   } catch (std::exception &e) {
     return false;
   }

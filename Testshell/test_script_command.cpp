@@ -1,19 +1,19 @@
 #include "command.h"
 
-bool checkPartialWriteSuccess(TestShell *shell, int lba, unsigned long value) {
-  shell->getSSD()->read(lba);
+bool checkPartialWriteSuccess(SSD_INTERFACE &ssd, int lba, unsigned long value) {
+  ssd.read(lba);
 
   string valueStr = convertHexToString(value);
-  if (shell->getSSD()->getResult() == "ERROR" ||
-      shell->getSSD()->getResult() != valueStr) {
+  if (ssd.getResult() == "ERROR" ||
+      ssd.getResult() != valueStr) {
     return false;
   }
   return true;
 }
 
-bool TestScript1::execute(TestShell *shell, const Command &command) {
-  if (command.args.size() != 0) {
-    std::cout << "INVALID_COMMAND\n";
+bool TestScript1::execute(SSD_INTERFACE &ssd, const CommandLine &cli) {
+  if (cli.args.size() != 0) {
+    cout << "INVALID_COMMAND\n";
     return false;
   }
 
@@ -22,12 +22,12 @@ bool TestScript1::execute(TestShell *shell, const Command &command) {
 
   for (int lba = 0; lba < 100; lba += 4) {
     for (int i = 0; i < 4; i++) {
-      shell->getSSD()->write(lba + i, value);
+      ssd.write(lba + i, value);
     }
 
     for (int i = 0; i < 4; i++) {
-      shell->getSSD()->read(lba);
-      string result = shell->getSSD()->getResult();
+      ssd.read(lba);
+      string result = ssd.getResult();
       if (result != valueStr) {
         cout << "FAIL!" << endl;
         return false;
@@ -38,9 +38,9 @@ bool TestScript1::execute(TestShell *shell, const Command &command) {
   return true;
 }
 
-bool TestScript2::execute(TestShell *shell, const Command &command) {
-  if (command.args.size() != 0) {
-    std::cout << "INVALID_COMMAND\n";
+bool TestScript2::execute(SSD_INTERFACE &ssd, const CommandLine &cli) {
+  if (cli.args.size() != 0) {
+    cout << "INVALID_COMMAND\n";
     return false;
   }
 
@@ -49,8 +49,8 @@ bool TestScript2::execute(TestShell *shell, const Command &command) {
 
   for (int turn = 0; turn < 30; ++turn) {
     for (auto lba : lbaList) {
-      shell->getSSD()->write(lba, value);
-      if (!checkPartialWriteSuccess(shell, lba, value)) {
+      ssd.write(lba, value);
+      if (!checkPartialWriteSuccess(ssd, lba, value)) {
         cout << "FAIL!" << endl;
         return false;
       }
@@ -60,26 +60,26 @@ bool TestScript2::execute(TestShell *shell, const Command &command) {
   return true;
 }
 
-bool TestScript3::execute(TestShell *shell, const Command &command) {
+bool TestScript3::execute(SSD_INTERFACE &ssd, const CommandLine &cli) {
 #ifdef _DEBUG
-  unsigned long value = stoul(command.args[0], nullptr, 16);
+  unsigned long value = stoul(cli.args[0], nullptr, 16);
 #else
-  if (command.args.size() != 0) {
-    std::cout << "INVALID_COMMAND\n";
+  if (cli.args.size() != 0) {
+    cout << "INVALID_COMMAND\n";
     return false;
   }
   unsigned long value = getRandomValue();
 #endif
 
   for (int i = 0; i < 200; i++) {
-    shell->getSSD()->write(0, value);
-    if (!checkPartialWriteSuccess(shell, 0, value)) {
+    ssd.write(0, value);
+    if (!checkPartialWriteSuccess(ssd, 0, value)) {
       cout << "FAIL!" << endl;
       return false;
     }
 
-    shell->getSSD()->write(99, value);
-    if (!checkPartialWriteSuccess(shell, 99, value)) {
+    ssd.write(99, value);
+    if (!checkPartialWriteSuccess(ssd, 99, value)) {
       cout << "FAIL!" << endl;
       return false;
     }
@@ -88,16 +88,16 @@ bool TestScript3::execute(TestShell *shell, const Command &command) {
   return true;
 }
 
-bool TestScript4::execute(TestShell *shell, const Command &command) {
-  if (command.args.size() != 0) {
-    std::cout << "INVALID_COMMAND\n";
+bool TestScript4::execute(SSD_INTERFACE &ssd, const CommandLine &cli) {
+  if (cli.args.size() != 0) {
+    cout << "INVALID_COMMAND\n";
     return false;
   }
   unsigned long value1 = getRandomValue();
   unsigned long value2 = getRandomValue();
 
-  shell->getSSD()->erase(0, 3);
-  if (shell->getSSD()->getResult() == "ERROR") {
+  ssd.erase(0, 3);
+  if (ssd.getResult() == "ERROR") {
     cout << "FAIL!" << endl;
     return false;
   }
@@ -105,21 +105,21 @@ bool TestScript4::execute(TestShell *shell, const Command &command) {
   for (int i = 0; i < 30; i++) {
     int slba = 2, elba = 4;
     while (slba < 99) {
-      shell->getSSD()->write(slba, value1);
-      if (shell->getSSD()->getResult() == "ERROR") {
+      ssd.write(slba, value1);
+      if (ssd.getResult() == "ERROR") {
         cout << "FAIL!" << endl;
         return false;
       }
-      
-      shell->getSSD()->write(slba, value2);
-      if (shell->getSSD()->getResult() == "ERROR") {
+
+      ssd.write(slba, value2);
+      if (ssd.getResult() == "ERROR") {
         cout << "FAIL!" << endl;
         return false;
       }
 
       int size = elba - slba + 1;
-      shell->getSSD()->erase(slba, size);
-      if (shell->getSSD()->getResult() == "ERROR") {
+      ssd.erase(slba, size);
+      if (ssd.getResult() == "ERROR") {
         cout << "FAIL!" << endl;
         return false;
       }

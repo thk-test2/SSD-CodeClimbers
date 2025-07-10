@@ -81,6 +81,12 @@
     <ClCompile Include="ssd_exe.cpp">
       <Filter>소스 파일\ssd_interface</Filter>
     </ClCompile>
+    <ClCompile Include="flush_command.cpp">
+      <Filter>소스 파일\commandHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="command_handler.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="test_shell.h">
