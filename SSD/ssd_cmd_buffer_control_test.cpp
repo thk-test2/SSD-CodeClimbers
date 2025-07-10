@@ -444,7 +444,7 @@ TEST_F(BufferControlFixture, BufferReadWithRunCommandPass) {
   argv[2] = const_cast<char *>("19");
   argv[3] = nullptr;
 
-  cmdBuffer.runCommandBuffer(argv);
+  cmdBuffer.runCommandBuffer(3, argv);
 
   checkOutputFileValid("0x11112222");
 }
@@ -459,7 +459,7 @@ TEST_F(BufferControlFixture, BufferReadWithRunCommandPass2) {
   argv[2] = const_cast<char *>("19");
   argv[3] = nullptr;
 
-  cmdBuffer.runCommandBuffer(argv);
+  cmdBuffer.runCommandBuffer(3, argv);
 
   checkOutputFileValid("0x00000000");
 }
@@ -472,7 +472,7 @@ TEST_F(BufferControlFixture, BufferIntgTestWithRunCommandPass1) {
   argv[2] = const_cast<char *>("19");
   argv[3] = nullptr;
 
-  cmdBuffer.runCommandBuffer(argv);
+  cmdBuffer.runCommandBuffer(3, argv);
 
   checkOutputFileValid("0x00000000");
 
@@ -481,7 +481,7 @@ TEST_F(BufferControlFixture, BufferIntgTestWithRunCommandPass1) {
   argv[2] = const_cast<char *>("7");
   argv[3] = const_cast<char *>("0xBBBBBBBB");
   argv[4] = nullptr;
-  cmdBuffer.runCommandBuffer(argv);
+  cmdBuffer.runCommandBuffer(4, argv);
 
   checkOutputFileValid("");
   checkSpecificLineInNandFile("0x00000000", 7);
@@ -502,7 +502,7 @@ TEST_F(BufferControlFixture, BufferIntgTestWithRunCommandPass2) {
   argv[3] = const_cast<char *>("0xABCDABCD");
   argv[4] = nullptr;
 
-  cmdBuffer.runCommandBuffer(argv);
+  cmdBuffer.runCommandBuffer(4, argv);
 
   checkOutputFileValid("");
 
@@ -511,14 +511,14 @@ TEST_F(BufferControlFixture, BufferIntgTestWithRunCommandPass2) {
   argv[2] = const_cast<char *>("20");
   argv[3] = const_cast<char *>("0x12341234");
   argv[4] = nullptr;
-  cmdBuffer.runCommandBuffer(argv);
+  cmdBuffer.runCommandBuffer(4, argv);
 
   argv[0] = const_cast<char *>("ssd.exe");
   argv[1] = const_cast<char *>("E");
   argv[2] = const_cast<char *>("20");
   argv[3] = const_cast<char *>("1");
   argv[4] = nullptr;
-  cmdBuffer.runCommandBuffer(argv);
+  cmdBuffer.runCommandBuffer(4, argv);
 
   EXPECT_EQ(expected_ret, cmdBuffer.getBufferNameList());
 }
@@ -533,7 +533,7 @@ TEST_F(BufferControlFixture, BufferIntgTestWithRunCommandPass3) {
   argv[2] = const_cast<char *>("20");
   argv[3] = const_cast<char *>("0xABCDABCD");
   argv[4] = nullptr;
-  cmdBuffer.runCommandBuffer(argv);
+  cmdBuffer.runCommandBuffer(4, argv);
 
   checkOutputFileValid("");
 
@@ -542,14 +542,14 @@ TEST_F(BufferControlFixture, BufferIntgTestWithRunCommandPass3) {
   argv[2] = const_cast<char *>("10");
   argv[3] = const_cast<char *>("4");
   argv[4] = nullptr;
-  cmdBuffer.runCommandBuffer(argv);
+  cmdBuffer.runCommandBuffer(4, argv);
 
   argv[0] = const_cast<char *>("ssd.exe");
   argv[1] = const_cast<char *>("E");
   argv[2] = const_cast<char *>("12");
   argv[3] = const_cast<char *>("3");
   argv[4] = nullptr;
-  cmdBuffer.runCommandBuffer(argv);
+  cmdBuffer.runCommandBuffer(4, argv);
 
   EXPECT_EQ(expected_ret, cmdBuffer.getBufferNameList());
 }
@@ -571,7 +571,7 @@ TEST_F(BufferControlFixture, BufferFullWriteTestWithRunCommandPass) {
     }
     argv.push_back(nullptr);
 
-    cmdBuffer.runCommandBuffer(argv.data());
+    cmdBuffer.runCommandBuffer(4, argv.data());
   }
   for (int i = 0; i < cmdBuffer.MAX_BUFFER_SIZE; i++) {
     checkSpecificLineInNandFile("0xABCDABCD", i);

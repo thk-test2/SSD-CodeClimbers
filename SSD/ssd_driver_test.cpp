@@ -122,8 +122,7 @@ TEST_F(SSDDriverTestFixture, SSDWrite2TimesCompare) {
 
 TEST_F(SSDDriverTestFixture, SSDCheckSsdNandFileValidAfterWrite) {
   std::vector<SSDDriverTestData> writeDataVector;
-  std::istringstream backup_iss(
-      ssd.getIoStream()->readFileAsString(ssd.getIoStream()->nand_file_name));
+  std::istringstream backup_iss(ssd.getIoStream()->readFileAsString(ssd.getIoStream()->nand_file_name));
   string beforeTxtLine = "", AfterTxtLine = "";
   int lineNo = 0;
   int mismatchLineNum = 0;

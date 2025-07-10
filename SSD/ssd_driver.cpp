@@ -62,15 +62,6 @@ public:
   }
 
   bool read(int lba) override {
-    stream->loadNandFiletoBuf();
-    return true;
-  }
-
-  bool read(int lba) override {
-    if (!isValid_LBA(lba)) {
-      stream->writeError();
-      return false;
-    }
 
     WirteOuputFile(buf[lba]);
 
