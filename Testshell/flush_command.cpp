@@ -1,13 +1,13 @@
 #include "command.h"
 
-bool FlushCommand::execute(TestShell *shell, const Command &command) {
-  if (command.args.size() != 0) {
+bool FlushCommand::execute(SSD_INTERFACE &ssd, const CommandLine &cli) {
+  if (cli.args.size() != 0) {
     cout << "INVALID COMMAND\n";
     return false;
   }
 
-  shell->getSSD()->flush();
-  string result = shell->getSSD()->getResult();
+  ssd.flush();
+  string result = ssd.getResult();
 
   if (result == "ERROR") {
     cout << "[Flush] ERROR\n";

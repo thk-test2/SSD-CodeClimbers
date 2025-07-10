@@ -1,21 +1,22 @@
 #include "command.h"
+#include <algorithm>
 
-bool EraseCommand::execute(TestShell *shell, const Command &command) {
-  if (!isValidEraseUsage(command)) {
-    cout << "INVALID COMMAND\n";
+bool EraseCommand::execute(SSD_INTERFACE &ssd, const CommandLine &cli) {
+  if (!isValidEraseUsage(cli)) {
+    std::cout << "INVALID COMMAND\n";
     return false;
   }
-  int lba = stoi(command.args[0]);
-  int size = stoi(command.args[1]);
+  int lba = std::stoi(cli.args[0]);
+  int size = std::stoi(cli.args[1]);
 
   int remain_size = size;
   int unit_size = std::min(MAX_SSD_ERASE_SIZE, size);
   while (remain_size > 0) {
-    shell->getSSD()->erase(lba, unit_size);
-    string result = shell->getSSD()->getResult();
+    ssd.erase(lba, unit_size);
+    std::string result = ssd.getResult();
     if (result == "ERROR") {
-      cout << "ERROR during erase operation. lba : " << lba
-           << " size : " << size << "\n";
+      std::cout << "ERROR during erase operation. lba : " << lba
+                << " size : " << size << "\n";
       return false;
     }
 
@@ -27,11 +28,11 @@ bool EraseCommand::execute(TestShell *shell, const Command &command) {
   return true;
 }
 
-bool EraseCommand::isValidEraseUsage(const Command &command) {
+bool EraseCommand::isValidEraseUsage(const CommandLine &cli) {
   int lba, size;
   try {
-    lba = stoi(command.args[0]);
-    size = stoi(command.args[1]);
+    lba = std::stoi(cli.args[0]);
+    size = std::stoi(cli.args[1]);
   } catch (std::exception &e) {
     return false;
   }

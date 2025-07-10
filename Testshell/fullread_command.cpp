@@ -1,14 +1,14 @@
 #include "command.h"
 
-bool FullReadCommand::execute(TestShell *shell, const Command &command) {
-  if (command.args.size() != 0) {
+bool FullReadCommand::execute(SSD_INTERFACE &ssd, const CommandLine &cli) {
+  if (cli.args.size() != 0) {
     cout << "INVALID COMMAND\n";
     return false;
   }
   cout << "[Full Read]\n";
   for (int lba = 0; lba < MAX_LBA_COUNT; lba++) {
-    shell->getSSD()->read(lba);
-    string result = shell->getSSD()->getResult();
+    ssd.read(lba);
+    string result = ssd.getResult();
     if (result == "ERROR") {
       cout << "[Full Read] Failed\n";
       return false;
