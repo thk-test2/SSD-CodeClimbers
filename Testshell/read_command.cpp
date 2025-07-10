@@ -1,6 +1,7 @@
 #include "command.h"
 
 bool ReadCommand::execute(SSD_INTERFACE &ssd, const CommandLine &cli) {
+  logger.print("ReadCommand.execute()", "Executing read command");
   if (!isValidReadUsage(cli)) {
     cout << "INVALID COMMAND\n";
     return false;

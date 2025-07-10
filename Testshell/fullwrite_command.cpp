@@ -1,6 +1,7 @@
 #include "command.h"
 
 bool FullWriteCommand::execute(SSD_INTERFACE &ssd, const CommandLine &cli) {
+  logger.print("FullWriteCommand.execute()", "Executing full write command");
   if (cli.args.size() != 1) {
     std::cout << "INVALID COMMAND\n";
     return false;

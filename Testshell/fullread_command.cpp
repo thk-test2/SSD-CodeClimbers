@@ -1,6 +1,7 @@
 #include "command.h"
 
 bool FullReadCommand::execute(SSD_INTERFACE &ssd, const CommandLine &cli) {
+  logger.print("FullReadCommand.execute()", "Executing full read command");
   if (cli.args.size() != 0) {
     cout << "INVALID COMMAND\n";
     return false;

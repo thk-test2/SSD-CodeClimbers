@@ -6,6 +6,7 @@
 #include <random>
 #include <iomanip>
 
+#include "logger.h"
 #include "ssd_interface.h"
 
 using std::cout;
@@ -45,6 +46,7 @@ protected:
   const int MAX_LBA_COUNT = 100;
   const int HEX_BASE = 16;
   string commandName;
+  Logger &logger = Logger::getInstance();
 };
 
 class ExitCommand : public ICommand {
@@ -249,4 +251,5 @@ private:
 
   void addCommand(ICommand *command);
   void removeCommand(const string &commandName);
+  Logger &logger = Logger::getInstance();
 };

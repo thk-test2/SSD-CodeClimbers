@@ -5,6 +5,7 @@
 #include <direct.h>
 
 #include "ssd_interface.h"
+#include "logger.h"
 
 using std::string;
 
@@ -24,6 +25,7 @@ private:
   const string SSD_EXE_NAME = "ssd.exe";
   const string SSD_OUTPUT_FILE = "ssd_output.txt";
   const string ERROR_MSG = "ERROR";
+  Logger &logger = Logger::getInstance();
 
   string getCurWorkingDir();
   string readOutputFile();

@@ -1,6 +1,7 @@
 #include "command.h"
 
 bool FlushCommand::execute(SSD_INTERFACE &ssd, const CommandLine &cli) {
+  logger.print("FlushCommand.execute()", "Executing flush command");
   if (cli.args.size() != 0) {
     cout << "INVALID COMMAND\n";
     return false;
