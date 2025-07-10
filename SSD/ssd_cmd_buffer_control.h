@@ -10,8 +10,8 @@ public:
   SSDDriver *getDriver();
   static CmdBufferControl &getInstance();
   std::string getBufferNameList() const;
-  bool runCommandBuffer(char *argv[]);
-  bool writeCmdBuffer(char *argv[]);
+  bool writeCmdBuffer(int lba, char *argv[]);
+  bool runCommandBuffer(int argc, char *argv[]);
   bool updateToNextEmpty(const std::string &cmd);
   bool updateBufferByIndex(int index, const std::string &cmd);
   std::string setBufferName(int index, const std::string &cmd);

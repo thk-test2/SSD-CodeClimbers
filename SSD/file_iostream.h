@@ -21,6 +21,12 @@ public:
     output_file_name = "ssd_output.txt";
     storageSize = size;
     buffer = buf;
+
+    ifstream ifs(nand_file_name);
+    if (!ifs)
+      initSsdNand();
+
+    clearOutput();
   };
   string readFileAsString(const string &filename);
   void writeError();

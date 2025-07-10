@@ -9,10 +9,8 @@ int main() {
 #else
 int main(int argc, char *argv[]) {
   CmdBufferControl &cmdBuffer = CmdBufferControl::getInstance();
-  if (!cmdBuffer.getDriver()->isValidParam(argc, argv))
-    return 0;
    
-  if (!cmdBuffer.runCommandBuffer(argv))
+  if (!cmdBuffer.runCommandBuffer(argc, argv))
     cout << "SSD Opreation Failed" << std::endl;
 
   return 0;

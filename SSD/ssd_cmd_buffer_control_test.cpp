@@ -152,20 +152,26 @@ TEST_F(BufferControlFixture, BufferGetParsingInvalidIndexTest) {
   EXPECT_THROW(cmdBuffer.getBufferCmd(10), CmdBufferInvalidIdexException);
 }
 
-TEST_F(BufferControlFixture, DISABLED_BufferRunCommand) {
+TEST_F(BufferControlFixture, BufferRunCommand) {
   char *argv[5];
   argv[0] = const_cast<char *>("ssd.exe");
   argv[1] = const_cast<char *>("W");
   argv[2] = const_cast<char *>("10");
   argv[3] = const_cast<char *>("0x12345678");
   argv[4] = nullptr;
-  cmdBuffer.runCommandBuffer(argv);
+  cmdBuffer.runCommandBuffer(4, argv);
+
+  argv[0] = const_cast<char *>("ssd.exe");
+  argv[1] = const_cast<char *>("F");
+  argv[2] = nullptr;
+  argv[3] = nullptr;
+  cmdBuffer.runCommandBuffer(2, argv);
 
   argv[0] = const_cast<char *>("ssd.exe");
   argv[1] = const_cast<char *>("R");
   argv[2] = const_cast<char *>("10");
   argv[3] = nullptr;
-  cmdBuffer.runCommandBuffer(argv);
+  cmdBuffer.runCommandBuffer(3, argv);
 
   checkOutputFileValid("0x12345678");
 }
@@ -177,14 +183,16 @@ TEST_F(BufferControlFixture, BufferRunEraseCommand) {
   argv[2] = const_cast<char *>("10");
   argv[3] = const_cast<char *>("0x12345678");
   argv[4] = nullptr;
-  cmdBuffer.runCommandBuffer(argv);
+  cmdBuffer.runCommandBuffer(4, argv);
 
   argv[0] = const_cast<char *>("ssd.exe");
   argv[1] = const_cast<char *>("E");
   argv[2] = const_cast<char *>("10");
   argv[3] = const_cast<char *>("1");
   argv[4] = nullptr;
-  cmdBuffer.runCommandBuffer(argv);
+
+
+  cmdBuffer.runCommandBuffer(4, argv);
 }
 
 TEST_F(BufferControlFixture, BufferWriteRemoveCase) {
@@ -196,28 +204,28 @@ TEST_F(BufferControlFixture, BufferWriteRemoveCase) {
   argv[2] = const_cast<char *>("5");
   argv[3] = const_cast<char *>("0xAAAAAAAA");
   argv[4] = nullptr;
-  cmdBuffer.runCommandBuffer(argv);
+  cmdBuffer.runCommandBuffer(4, argv);
 
   argv[0] = const_cast<char *>("ssd.exe");
   argv[1] = const_cast<char *>("W");
   argv[2] = const_cast<char *>("6");
   argv[3] = const_cast<char *>("0xAAAAAAAA");
   argv[4] = nullptr;
-  cmdBuffer.runCommandBuffer(argv);
+  cmdBuffer.runCommandBuffer(4, argv);
 
   argv[0] = const_cast<char *>("ssd.exe");
   argv[1] = const_cast<char *>("W");
   argv[2] = const_cast<char *>("7");
   argv[3] = const_cast<char *>("0xAAAAAAAA");
   argv[4] = nullptr;
-  cmdBuffer.runCommandBuffer(argv);
+  cmdBuffer.runCommandBuffer(4, argv);
 
   argv[0] = const_cast<char *>("ssd.exe");
   argv[1] = const_cast<char *>("E");
   argv[2] = const_cast<char *>("6");
   argv[3] = const_cast<char *>("2");
   argv[4] = nullptr;
-  cmdBuffer.runCommandBuffer(argv);
+  cmdBuffer.runCommandBuffer(4, argv);
 
   EXPECT_EQ(expected_ret, cmdBuffer.getBufferNameList());
 }
@@ -230,14 +238,14 @@ TEST_F(BufferControlFixture, BufferDuplicatedEraseCommand) {
   argv[2] = const_cast<char *>("10");
   argv[3] = const_cast<char *>("10");
   argv[4] = nullptr;
-  cmdBuffer.runCommandBuffer(argv);
+  cmdBuffer.runCommandBuffer(4, argv);
 
   argv[0] = const_cast<char *>("ssd.exe");
   argv[1] = const_cast<char *>("E");
   argv[2] = const_cast<char *>("15");
   argv[3] = const_cast<char *>("10");
   argv[4] = nullptr;
-  cmdBuffer.runCommandBuffer(argv);
+  cmdBuffer.runCommandBuffer(4, argv);
 
   EXPECT_EQ(expected_ret, cmdBuffer.getBufferNameList());
 }
@@ -250,14 +258,14 @@ TEST_F(BufferControlFixture, BufferSequentialEraseCommand) {
   argv[2] = const_cast<char *>("80");
   argv[3] = const_cast<char *>("10");
   argv[4] = nullptr;
-  cmdBuffer.runCommandBuffer(argv);
+  cmdBuffer.runCommandBuffer(4, argv);
 
   argv[0] = const_cast<char *>("ssd.exe");
   argv[1] = const_cast<char *>("E");
   argv[2] = const_cast<char *>("90");
   argv[3] = const_cast<char *>("10");
   argv[4] = nullptr;
-  cmdBuffer.runCommandBuffer(argv);
+  cmdBuffer.runCommandBuffer(4, argv);
 
   EXPECT_EQ(expected_ret, cmdBuffer.getBufferNameList());
 }
@@ -270,14 +278,14 @@ TEST_F(BufferControlFixture, Buffer2timeDubplicaedEraseCommand) {
   argv[2] = const_cast<char *>("10");
   argv[3] = const_cast<char *>("10");
   argv[4] = nullptr;
-  cmdBuffer.runCommandBuffer(argv);
+  cmdBuffer.runCommandBuffer(4, argv);
 
   argv[0] = const_cast<char *>("ssd.exe");
   argv[1] = const_cast<char *>("E");
   argv[2] = const_cast<char *>("25");
   argv[3] = const_cast<char *>("10");
   argv[4] = nullptr;
-  cmdBuffer.runCommandBuffer(argv);
+  cmdBuffer.runCommandBuffer(4, argv);
 
   expected_ret = "1_E_10_10,2_E_25_10,3_empty,4_empty,5_empty,";
   EXPECT_EQ(expected_ret, cmdBuffer.getBufferNameList());
@@ -287,7 +295,8 @@ TEST_F(BufferControlFixture, Buffer2timeDubplicaedEraseCommand) {
   argv[2] = const_cast<char *>("17");
   argv[3] = const_cast<char *>("10");
   argv[4] = nullptr;
-  cmdBuffer.runCommandBuffer(argv);
+
+  cmdBuffer.runCommandBuffer(4, argv); 
 
   expected_ret = "1_E_10_25,2_empty,3_empty,4_empty,5_empty,";
   EXPECT_EQ(expected_ret, cmdBuffer.getBufferNameList());
@@ -302,21 +311,21 @@ TEST_F(BufferControlFixture, BufferWrite1) {
   argv[2] = const_cast<char *>("5");
   argv[3] = const_cast<char *>("0xAAAAAAAA");
   argv[4] = nullptr;
-  cmdBuffer.runCommandBuffer(argv);
+  cmdBuffer.runCommandBuffer(4, argv);
 
   argv[0] = const_cast<char *>("ssd.exe");
   argv[1] = const_cast<char *>("W");
   argv[2] = const_cast<char *>("6");
   argv[3] = const_cast<char *>("0xAAAAAAAA");
   argv[4] = nullptr;
-  cmdBuffer.runCommandBuffer(argv);
+  cmdBuffer.runCommandBuffer(4, argv);
 
   argv[0] = const_cast<char *>("ssd.exe");
   argv[1] = const_cast<char *>("W");
   argv[2] = const_cast<char *>("7");
   argv[3] = const_cast<char *>("0xAAAAAAAA");
   argv[4] = nullptr;
-  cmdBuffer.runCommandBuffer(argv);
+  cmdBuffer.runCommandBuffer(4, argv);
 
   EXPECT_EQ(expected_ret, cmdBuffer.getBufferNameList());
 }
@@ -330,21 +339,46 @@ TEST_F(BufferControlFixture, BufferWrite2) {
   argv[2] = const_cast<char *>("5");
   argv[3] = const_cast<char *>("0xAAAAAAAA");
   argv[4] = nullptr;
-  cmdBuffer.runCommandBuffer(argv);
+  cmdBuffer.runCommandBuffer(4, argv);
 
   argv[0] = const_cast<char *>("ssd.exe");
   argv[1] = const_cast<char *>("W");
   argv[2] = const_cast<char *>("7");
   argv[3] = const_cast<char *>("0xAAAAAAAA");
   argv[4] = nullptr;
-  cmdBuffer.runCommandBuffer(argv);
+  cmdBuffer.runCommandBuffer(4, argv);
 
   argv[0] = const_cast<char *>("ssd.exe");
   argv[1] = const_cast<char *>("W");
   argv[2] = const_cast<char *>("7");
   argv[3] = const_cast<char *>("0xBBBBBBBB");
   argv[4] = nullptr;
-  cmdBuffer.runCommandBuffer(argv);
+  cmdBuffer.runCommandBuffer(4, argv);
 
+}
+
+TEST_F(BufferControlFixture, BufferEraseOverSize) {
+  char *argv[5];
+  argv[0] = const_cast<char *>("ssd.exe");
+  argv[1] = const_cast<char *>("E");
+  argv[2] = const_cast<char *>("5");
+  argv[3] = const_cast<char *>("15");
+  argv[4] = nullptr;
+  cmdBuffer.runCommandBuffer(4, argv);
+
+  std::string expected_ret = "1_empty,2_empty,3_empty,4_empty,5_empty,";
+  EXPECT_EQ(expected_ret, cmdBuffer.getBufferNameList());
+}
+
+TEST_F(BufferControlFixture, BufferEraseOverRange) {
+  char *argv[5];
+  argv[0] = const_cast<char *>("ssd.exe");
+  argv[1] = const_cast<char *>("E");
+  argv[2] = const_cast<char *>("99");
+  argv[3] = const_cast<char *>("5");
+  argv[4] = nullptr;
+  cmdBuffer.runCommandBuffer(4, argv);
+
+  std::string expected_ret = "1_empty,2_empty,3_empty,4_empty,5_empty,";
   EXPECT_EQ(expected_ret, cmdBuffer.getBufferNameList());
 }

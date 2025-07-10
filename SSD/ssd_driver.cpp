@@ -4,17 +4,6 @@
 class SSDDriver : public Device {
 public:
   SSDDriver() { stream = new IoStream(MAX_NAND_MEMORY_MAP_SIZE, buf); }
-  bool isValidParam(int argc, char *argv[]) {
-    string command = argv[1];
-    if (command == "W" && argc == 4)
-      return true;
-    else if (command == "R" && argc == 3)
-      return true;
-    else if (command == "E" && argc == 4)
-      return true;
-    else
-      return false;
-  }
 
   bool isValid_LBA(int lba) {
     return (lba >= 0 && lba < MAX_NAND_MEMORY_MAP_SIZE);
@@ -26,12 +15,42 @@ public:
     return (lba + size) <= MAX_NAND_MEMORY_MAP_SIZE;
   }
 
-  bool read(int lba) override {
+  bool isValidRWCondition(int lba) {
     if (!isValid_LBA(lba)) {
       stream->writeError();
       return false;
-    }
+    } else
+      return true;
+  }
 
+  bool isValidEraseCondition(int lba, int size) {
+    if (!isValid_LBA(lba) || !isSizeAllowed(size) || !isWithinBounds(lba, size)){
+      stream->writeError();
+      return false;
+    } else
+      return true;
+  }
+
+  bool isValidParam(int argc, char *argv[], int &lba, int &size, unsigned long& value) {
+    string command = argv[1];
+    if (command == "W" && argc == 4) {
+      lba = std::stoi(argv[2]);
+      value = std::stoul(argv[3], nullptr, HEX_BASE);
+      return isValidRWCondition(lba);
+    } else if (command == "R" && argc == 3) {
+      lba = std::stoi(argv[2]);
+      return isValidRWCondition(lba);
+    } else if (command == "E" && argc == 4) {
+      lba = std::stoi(argv[2]);
+      size = std::stoi(argv[3]);
+      return isValidEraseCondition(lba,size);
+    } else if (command == "F" && argc == 2)
+      return true;
+    else
+      return false;
+  }
+
+  bool read(int lba) override {
     stream->loadNandFiletoBuf();
 
     ofstream ofs = stream->getOutputWriteStream();
@@ -50,11 +69,6 @@ public:
   }
 
   bool write(int lba, unsigned long value) override {
-    if (!isValid_LBA(lba)) {
-      stream->writeError();
-      return false;
-    }
-
     stream->loadNandFiletoBuf();
 
     buf[lba] = value;
@@ -67,12 +81,6 @@ public:
   }
 
   bool erase(int lba, int size) override {
-    if (!isValid_LBA(lba) || !isSizeAllowed(size) ||
-        !isWithinBounds(lba, size)) {
-      stream->writeError();
-      return false;
-    }
-
     stream->loadNandFiletoBuf();
 
     for (int i = lba; i < lba + size; i++)
@@ -88,6 +96,7 @@ public:
   IoStream *getIoStream() { return stream; }
   int getMaxNandSize() { return MAX_NAND_MEMORY_MAP_SIZE;  }
   int getMaxEraseSize() { return MAX_ERASE_SIZE; }
+
 
 private:
   static const int HEX_BASE = 16;
