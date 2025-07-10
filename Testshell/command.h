@@ -178,6 +178,9 @@ public:
   string getDescription() const override { return "Run comprehensive write/read test for entire SSD"; }
   string getExample() const override { return "'1_' or '1_FullWriteAndReadCompare'"; }
   bool isCmdMatch(const string command) const override { return "1_" == command || "1_FullWriteAndReadCompare" == command;};
+
+ private:
+  bool onExecute(SSD_INTERFACE &ssd, unsigned long value, std::string &valueStr);
 };
 
 class TestScript2 : public ICommand {
