@@ -9,9 +9,9 @@ class CmdBufferControl {
 public:
   SSDDriver *getDriver();
   static CmdBufferControl &getInstance();
-
   std::string getBufferNameList() const;
   bool runCommandBuffer(char *argv[]);
+  bool writeCmdBuffer(char *argv[]);
   bool updateToNextEmpty(const std::string &cmd);
   bool updateBufferByIndex(int index, const std::string &cmd);
   std::string setBufferName(int index, const std::string &cmd);
@@ -26,7 +26,6 @@ public:
   int getBufferLba(int index);
   unsigned long getBufferValue(int index);
   int getBufferLbaSize(int index);
-
   bool isSameLbaBuffer(int lba, CmdBuffer &buffer);
   bool isValidRangeForErase(int lba, CmdBuffer &buffer);
 

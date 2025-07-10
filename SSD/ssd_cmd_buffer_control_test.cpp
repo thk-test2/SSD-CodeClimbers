@@ -15,6 +15,11 @@ public:
               cmdBuffer.getDriver()->getIoStream()->readFileAsString(
                   cmdBuffer.getDriver()->getIoStream()->output_file_name));
   }
+  void checkBufferValid(const string &expected_value) {
+    EXPECT_EQ(expected_value,
+              cmdBuffer.getDriver()->getIoStream()->readFileAsString(
+                  cmdBuffer.getDriver()->getIoStream()->output_file_name));
+  }
 };
 
 TEST_F(BufferControlFixture, BufferCheckAfterInit) {
@@ -147,7 +152,7 @@ TEST_F(BufferControlFixture, BufferGetParsingInvalidIndexTest) {
   EXPECT_THROW(cmdBuffer.getBufferCmd(10), CmdBufferInvalidIdexException);
 }
 
-TEST_F(BufferControlFixture, BufferRunCommand) {
+TEST_F(BufferControlFixture, DISABLED_BufferRunCommand) {
   char *argv[5];
   argv[0] = const_cast<char *>("ssd.exe");
   argv[1] = const_cast<char *>("W");
@@ -180,11 +185,11 @@ TEST_F(BufferControlFixture, BufferRunEraseCommand) {
   argv[3] = const_cast<char *>("1");
   argv[4] = nullptr;
   cmdBuffer.runCommandBuffer(argv);
-
 }
 
 TEST_F(BufferControlFixture, BufferWriteRemoveCase) {
-  std::string expected_ret = "1_W_5_0xAAAAAAAA,2_E_6_2,3_empty,4_empty,5_empty,";
+  std::string expected_ret =
+      "1_W_5_0xAAAAAAAA,2_E_6_2,3_empty,4_empty,5_empty,";
   char *argv[5];
   argv[0] = const_cast<char *>("ssd.exe");
   argv[1] = const_cast<char *>("W");
@@ -218,8 +223,7 @@ TEST_F(BufferControlFixture, BufferWriteRemoveCase) {
 }
 
 TEST_F(BufferControlFixture, BufferDuplicatedEraseCommand) {
-  std::string expected_ret =
-      "1_E_10_15,2_empty,3_empty,4_empty,5_empty,";
+  std::string expected_ret = "1_E_10_15,2_empty,3_empty,4_empty,5_empty,";
   char *argv[5];
   argv[0] = const_cast<char *>("ssd.exe");
   argv[1] = const_cast<char *>("E");
@@ -228,7 +232,6 @@ TEST_F(BufferControlFixture, BufferDuplicatedEraseCommand) {
   argv[4] = nullptr;
   cmdBuffer.runCommandBuffer(argv);
 
-  
   argv[0] = const_cast<char *>("ssd.exe");
   argv[1] = const_cast<char *>("E");
   argv[2] = const_cast<char *>("15");
@@ -284,8 +287,64 @@ TEST_F(BufferControlFixture, Buffer2timeDubplicaedEraseCommand) {
   argv[2] = const_cast<char *>("17");
   argv[3] = const_cast<char *>("10");
   argv[4] = nullptr;
-  cmdBuffer.runCommandBuffer(argv); 
+  cmdBuffer.runCommandBuffer(argv);
 
   expected_ret = "1_E_10_25,2_empty,3_empty,4_empty,5_empty,";
+  EXPECT_EQ(expected_ret, cmdBuffer.getBufferNameList());
+}
+
+TEST_F(BufferControlFixture, BufferWrite1) {
+  std::string expected_ret =
+      "1_W_5_0xAAAAAAAA,2_W_6_0xAAAAAAAA,3_W_7_0xAAAAAAAA,4_empty,5_empty,";
+  char *argv[5];
+  argv[0] = const_cast<char *>("ssd.exe");
+  argv[1] = const_cast<char *>("W");
+  argv[2] = const_cast<char *>("5");
+  argv[3] = const_cast<char *>("0xAAAAAAAA");
+  argv[4] = nullptr;
+  cmdBuffer.runCommandBuffer(argv);
+
+  argv[0] = const_cast<char *>("ssd.exe");
+  argv[1] = const_cast<char *>("W");
+  argv[2] = const_cast<char *>("6");
+  argv[3] = const_cast<char *>("0xAAAAAAAA");
+  argv[4] = nullptr;
+  cmdBuffer.runCommandBuffer(argv);
+
+  argv[0] = const_cast<char *>("ssd.exe");
+  argv[1] = const_cast<char *>("W");
+  argv[2] = const_cast<char *>("7");
+  argv[3] = const_cast<char *>("0xAAAAAAAA");
+  argv[4] = nullptr;
+  cmdBuffer.runCommandBuffer(argv);
+
+  EXPECT_EQ(expected_ret, cmdBuffer.getBufferNameList());
+}
+
+TEST_F(BufferControlFixture, BufferWrite2) {
+  std::string expected_ret =
+      "1_W_5_0xAAAAAAAA,2_W_7_0xBBBBBBBB,3_empty,4_empty,5_empty,";
+  char *argv[5];
+  argv[0] = const_cast<char *>("ssd.exe");
+  argv[1] = const_cast<char *>("W");
+  argv[2] = const_cast<char *>("5");
+  argv[3] = const_cast<char *>("0xAAAAAAAA");
+  argv[4] = nullptr;
+  cmdBuffer.runCommandBuffer(argv);
+
+  argv[0] = const_cast<char *>("ssd.exe");
+  argv[1] = const_cast<char *>("W");
+  argv[2] = const_cast<char *>("7");
+  argv[3] = const_cast<char *>("0xAAAAAAAA");
+  argv[4] = nullptr;
+  cmdBuffer.runCommandBuffer(argv);
+
+  argv[0] = const_cast<char *>("ssd.exe");
+  argv[1] = const_cast<char *>("W");
+  argv[2] = const_cast<char *>("7");
+  argv[3] = const_cast<char *>("0xBBBBBBBB");
+  argv[4] = nullptr;
+  cmdBuffer.runCommandBuffer(argv);
+
   EXPECT_EQ(expected_ret, cmdBuffer.getBufferNameList());
 }

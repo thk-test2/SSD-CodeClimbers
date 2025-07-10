@@ -81,12 +81,14 @@ bool CmdBufferControl::runCommandBuffer(char *argv[]) {
   if (cmdType == "R") {
     // TO DO : Buffer Check
     ret = driver->read(lba);
+
   } else if (cmdType == "W") {
     unsigned long value = std::stoul(argv[3], nullptr, 16);
-    updateToNextEmpty(makdFullCmdString(argv));
 
-    // TO DO : Buffer Check
-    ret = driver->write(lba, value);
+    ret = writeCmdBuffer(argv);
+    if (ret)
+      return ret;
+
   } else if (cmdType == "E") {
     int size = std::stoi(argv[3]);
     std::memset(eraseMap + lba, 1, size); // set eraseMap
@@ -96,6 +98,24 @@ bool CmdBufferControl::runCommandBuffer(char *argv[]) {
     // TO DO : Buffer Check
   }
   return ret;
+}
+
+bool CmdBufferControl::writeCmdBuffer(char *argv[]) {
+  int lba = std::stoi(argv[2]);
+
+  for (auto &buffer : cmdBuffer) {
+    if (buffer.isEmpty())
+      continue;
+    if (buffer.getCmd() == 'W') {
+      if (lba == buffer.getLba()) {
+        buffer.clear();
+        break;
+      }
+    }
+  }
+  updateToNextEmpty(makdFullCmdString(argv));
+  emptyBufferShift();
+  return true;
 }
 
 bool CmdBufferControl::updateToNextEmpty(const std::string &cmd) {
@@ -290,7 +310,7 @@ bool CmdBufferControl::isValidRangeForErase(int lba, CmdBuffer &buffer) {
          lba < (buffer.getLba() + buffer.getLbaSize());
 }
 
-bool CmdBufferControl::isBufferContainReadValue(int lba, unsigned long& value) {
+bool CmdBufferControl::isBufferContainReadValue(int lba, unsigned long &value) {
   bool isContain = false;
   for (auto buffer : cmdBuffer) {
     if (isSameLbaBuffer(lba, buffer)) {
