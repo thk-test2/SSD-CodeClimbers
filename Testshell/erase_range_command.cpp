@@ -1,6 +1,4 @@
 #include "command.h"
-#include "test_shell.h"
-#include <algorithm>
 
 bool EraseRangeCommand::execute(TestShell *shell, const Command &command) {
   if (!isValidEraseRangeUsage(command)) {
@@ -27,6 +25,7 @@ bool EraseRangeCommand::execute(TestShell *shell, const Command &command) {
     lba += unit_size;
     unit_size = std::min(10, remain_size);
   }
+  cout << "[Erase Range] Done\n";
   return true;
 }
 
