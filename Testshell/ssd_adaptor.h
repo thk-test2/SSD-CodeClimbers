@@ -5,12 +5,13 @@
 #include <direct.h>
 
 #include "ssd_interface.h"
+#include "logger.h"
 
 using std::string;
 
-class SSD_EXE : public SSD_INTERFACE {
+class SsdAdaptor : public SSD_INTERFACE {
 public:
-  SSD_EXE() : ssdDir(getCurWorkingDir()) {}
+  SsdAdaptor() : ssdDir(getCurWorkingDir()) {}
 
   void read(int lba) override;
   void write(int lba, unsigned long value) override;
@@ -24,6 +25,7 @@ private:
   const string SSD_EXE_NAME = "ssd.exe";
   const string SSD_OUTPUT_FILE = "ssd_output.txt";
   const string ERROR_MSG = "ERROR";
+  Logger &logger = Logger::getInstance();
 
   string getCurWorkingDir();
   string readOutputFile();

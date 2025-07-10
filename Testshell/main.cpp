@@ -1,7 +1,7 @@
 #include <fstream>
 
 #include "test_shell.h"
-#include "ssd_exe.h"
+#include "ssd_adaptor.h"
 #include "gmock/gmock.h"
 
 // stdout 캡처/해제 함수
@@ -10,7 +10,7 @@ using testing::internal::GetCapturedStdout;
 using namespace testing;
 
 // MockDriver
-class MockSSD : public SSD_INTERFACE {
+class MockSsdAdaptor : public SSD_INTERFACE {
 public:
   MOCK_METHOD(void, read, (int lba), (override));
   MOCK_METHOD(void, write, (int lba, unsigned long value), (override));
@@ -21,7 +21,7 @@ public:
 
 class TestShellFixture : public ::testing::Test {
 public:
-  NiceMock<MockSSD> ssd;
+  NiceMock<MockSsdAdaptor> ssd;
   TestShell ts{&ssd};
 
   string randomValue = convertHexToString(getRandomValue());
@@ -35,73 +35,83 @@ public:
   const string TEST_SCRIPT_4_FULLNAME = "4_EraseAndWriteAging";
   const string TEST_SCRIPT_4_SHORTCUT = "4_";
 
+  const string SCRIPT_FAIL = "FAIL!";
+  const string SCRIPT_PASS = "Pass";
+
+  const string INVALID_COMMAND = "INVALID COMMAND\n";
+
   string getCallHelpOutput() {
     CaptureStdout();
     ts.getCommandHandler()->executeCommand(CommandLine{"help", {}});
     return GetCapturedStdout();
   }
+
+  string getCommandOutput(const CommandLine &command) {
+    CaptureStdout();
+    ts.getCommandHandler()->executeCommand(command);
+    return GetCapturedStdout();
+  }
+
+  void checkExpectedStrInOutput(const std::string &output,
+                                const std::string &expectedStr) {
+    EXPECT_TRUE(output.find(expectedStr) != std::string::npos)
+        << "Expected string not found in output"
+        << "Expect string: " << expectedStr << endl
+        << "Actual string: " << output << endl;
+  }
+
+  void checkExpectedStrsInOutput(const std::string &output,
+                                 const vector<std::string> &expectedStrs) {
+    for (auto &expectedStr : expectedStrs) {
+      EXPECT_TRUE(output.find(expectedStr) != std::string::npos)
+          << "Expected string not found in output"
+          << "Expect string: " << expectedStr << endl
+          << "Actual string: " << output << endl;
+    }
+  }
 };
 
 TEST_F(TestShellFixture, DisplaysCorrectHeader) {
-  std::string output = getCallHelpOutput();
-
-  EXPECT_TRUE(
-      output.find("SSD Test Shell - Simple and Powerful SSD Testing Tool") !=
-      std::string::npos);
+  checkExpectedStrInOutput(
+      getCallHelpOutput(),
+      "SSD Test Shell - Simple and Powerful SSD Testing Tool");
 }
 
 TEST_F(TestShellFixture, DisplaysTeamMembers) {
-  std::string output = getCallHelpOutput();
-
-  EXPECT_TRUE(output.find("Team Members:") != std::string::npos);
-  EXPECT_TRUE(output.find("Taehyun Kyong") != std::string::npos);
-  EXPECT_TRUE(output.find("Sunghwan Kim") != std::string::npos);
-  EXPECT_TRUE(output.find("Hyeonseok Sim") != std::string::npos);
-  EXPECT_TRUE(output.find("Yerim Yun") != std::string::npos);
-  EXPECT_TRUE(output.find("Hoenhwi Jeong") != std::string::npos);
-  EXPECT_TRUE(output.find("Jeseong Kim") != std::string::npos);
+  vector<string> expectedMembers = {"Taehyun Kyong", "Sunghwan Kim",
+                                    "Hyeonseok Sim", "Yerim Yun",
+                                    "Hoenhwi Jeong", "Jeseong Kim"};
+  checkExpectedStrsInOutput(getCallHelpOutput(), expectedMembers);
 }
 
 TEST_F(TestShellFixture, DisplaysCommandsSection) {
-  std::string output = getCallHelpOutput();
-
-  EXPECT_TRUE(output.find("Commands:") != std::string::npos);
-
-  EXPECT_TRUE(output.find("read") != std::string::npos);
-  EXPECT_TRUE(output.find("read 10") != std::string::npos);
-
-  EXPECT_TRUE(output.find("write") != std::string::npos);
-  EXPECT_TRUE(output.find("write 5 0xFF") != std::string::npos);
-
-  EXPECT_TRUE(output.find("fullread") != std::string::npos);
-  EXPECT_TRUE(output.find("Read the entire SSD") != std::string::npos);
-
-  EXPECT_TRUE(output.find("fullwrite") != std::string::npos);
-  EXPECT_TRUE(output.find("fullwrite 0x00") != std::string::npos);
-
-  EXPECT_TRUE(output.find("help") != std::string::npos);
-  EXPECT_TRUE(output.find("Show this help message") != std::string::npos);
-
-  EXPECT_TRUE(output.find("exit") != std::string::npos);
-  EXPECT_TRUE(output.find("Exit the shell") != std::string::npos);
-
-  EXPECT_TRUE(output.find("erase") != std::string::npos);
-  EXPECT_TRUE(output.find("erase 0 10") != std::string::npos);
-
-  EXPECT_TRUE(output.find("erase_range") != std::string::npos);
-  EXPECT_TRUE(output.find("erase_range 0 99") != std::string::npos);
-
-  EXPECT_TRUE(output.find("flush") != std::string::npos);
-  EXPECT_TRUE(output.find("Flush all buffered commands to SSD") != std::string::npos);
+  vector<string> expectedCommands = {"Commands:",
+                                     "read",
+                                     "read 10",
+                                     "write",
+                                     "write 5 0xFF",
+                                     "fullread",
+                                     "Read the entire SSD",
+                                     "fullwrite",
+                                     "fullwrite 0x00",
+                                     "help",
+                                     "Show this help message",
+                                     "exit",
+                                     "Exit the shell",
+                                     "erase",
+                                     "erase 0 10",
+                                     "erase_range",
+                                     "erase_range 0 99",
+                                     "flush",
+                                     "Flush all buffered commands to SSD"};
+  checkExpectedStrsInOutput(getCallHelpOutput(), expectedCommands);
 }
 
 TEST_F(TestShellFixture, DisplayTestScriptsSection) {
-  std::string output = getCallHelpOutput();
-
-  EXPECT_TRUE(output.find("1_FullWriteAndReadCompare") != std::string::npos);
-  EXPECT_TRUE(output.find("2_PartialLBAWrite") != std::string::npos);
-  EXPECT_TRUE(output.find("3_WriteReadAging") != std::string::npos);
-  EXPECT_TRUE(output.find("4_EraseAndWriteAging") != std::string::npos);
+  vector<string> expectedScripts = {"1_FullWriteAndReadCompare",
+                                    "2_PartialLBAWrite", "3_WriteReadAging",
+                                    "4_EraseAndWriteAging"};
+  checkExpectedStrsInOutput(getCallHelpOutput(), expectedScripts);
 }
 
 TEST_F(TestShellFixture, ReadNormalCase) {
@@ -155,13 +165,15 @@ TEST_F(TestShellFixture, WriteInvalidCase) {
 
   ts.getCommandHandler()->executeCommand(InvalidFormatCmd);
 
-  CommandLine OverflowLbaCmd{"write", vector<string>{"2147483648", "0xAAAABBBB"}};
+  CommandLine OverflowLbaCmd{"write",
+                             vector<string>{"2147483648", "0xAAAABBBB"}};
   EXPECT_CALL(ssd, write(_, _)).Times(0);
   EXPECT_CALL(ssd, getResult()).Times(0);
 
   ts.getCommandHandler()->executeCommand(OverflowLbaCmd);
 
-  CommandLine OverflowValueCmd{"write", vector<string>{"0", "0xAAAABBBBAAAABBBB"}};
+  CommandLine OverflowValueCmd{"write",
+                               vector<string>{"0", "0xAAAABBBBAAAABBBB"}};
   EXPECT_CALL(ssd, write(_, _)).Times(0);
   EXPECT_CALL(ssd, getResult()).Times(0);
 
@@ -189,11 +201,7 @@ TEST_F(TestShellFixture, EraseInvalidCase) {
     EXPECT_CALL(ssd, erase(_, _)).Times(0);
     EXPECT_CALL(ssd, getResult()).Times(0);
 
-    CaptureStdout();
-    ts.getCommandHandler()->executeCommand(command);
-    std::string output = GetCapturedStdout();
-
-    EXPECT_EQ("INVALID COMMAND\n", output);
+    checkExpectedStrInOutput(getCommandOutput(command), INVALID_COMMAND);
   }
 }
 
@@ -218,11 +226,7 @@ TEST_F(TestShellFixture, EraseRangeInvalidCase) {
     EXPECT_CALL(ssd, erase(_, _)).Times(0);
     EXPECT_CALL(ssd, getResult()).Times(0);
 
-    CaptureStdout();
-    ts.getCommandHandler()->executeCommand(command);
-    std::string output = GetCapturedStdout();
-
-    EXPECT_EQ("INVALID COMMAND\n", output);
+    checkExpectedStrInOutput(getCommandOutput(command), INVALID_COMMAND);
   }
 }
 
@@ -232,11 +236,7 @@ TEST_F(TestShellFixture, FlushNormalCase) {
   EXPECT_CALL(ssd, flush()).Times(1);
   EXPECT_CALL(ssd, getResult()).Times(1).WillOnce(Return(""));
 
-  CaptureStdout();
-  ts.getCommandHandler()->executeCommand(command);
-  std::string output = GetCapturedStdout();
-
-  EXPECT_EQ("[Flush] Done\n", output);
+  checkExpectedStrInOutput(getCommandOutput(command), "[Flush] Done\n");
 }
 
 TEST_F(TestShellFixture, FlushErrorCase) {
@@ -245,37 +245,18 @@ TEST_F(TestShellFixture, FlushErrorCase) {
   EXPECT_CALL(ssd, flush()).Times(1);
   EXPECT_CALL(ssd, getResult()).Times(1).WillOnce(Return("ERROR"));
 
-  CaptureStdout();
-  ts.getCommandHandler()->executeCommand(command);
-  std::string output = GetCapturedStdout();
-
-  EXPECT_EQ("[Flush] ERROR\n", output);
+  checkExpectedStrInOutput(getCommandOutput(command), "[Flush] ERROR\n");
 }
 
 TEST_F(TestShellFixture, FlushInvalidUsage) {
-  CommandLine command{"flush", vector<string>{"extra_arg"}};
+  vector<CommandLine> commands = {{"flush", vector<string>{"extra_arg"}},
+                                  {"flush", vector<string>{"arg1", "arg2"}}};
+  for (auto command : commands) {
+    EXPECT_CALL(ssd, flush()).Times(0);
+    EXPECT_CALL(ssd, getResult()).Times(0);
 
-  EXPECT_CALL(ssd, flush()).Times(0);
-  EXPECT_CALL(ssd, getResult()).Times(0);
-
-  CaptureStdout();
-  ts.getCommandHandler()->executeCommand(command);
-  std::string output = GetCapturedStdout();
-
-  EXPECT_EQ("INVALID COMMAND\n", output);
-}
-
-TEST_F(TestShellFixture, FlushMultipleArgsInvalidUsage) {
-  CommandLine command{"flush", vector<string>{"arg1", "arg2"}};
-
-  EXPECT_CALL(ssd, flush()).Times(0);
-  EXPECT_CALL(ssd, getResult()).Times(0);
-
-  CaptureStdout();
-  ts.getCommandHandler()->executeCommand(command);
-  std::string output = GetCapturedStdout();
-
-  EXPECT_EQ("INVALID COMMAND\n", output);
+    checkExpectedStrInOutput(getCommandOutput(command), INVALID_COMMAND);
+  }
 }
 
 TEST_F(TestShellFixture, FullReadSuccessCase) {
@@ -284,11 +265,7 @@ TEST_F(TestShellFixture, FullReadSuccessCase) {
   EXPECT_CALL(ssd, read(_)).Times(100);
   EXPECT_CALL(ssd, getResult()).Times(100).WillRepeatedly(Return("0xAAAABBBB"));
 
-  CaptureStdout();
-  ts.getCommandHandler()->executeCommand(command);
-  std::string output = GetCapturedStdout();
-
-  EXPECT_TRUE(output.find("[Full Read] Done != std::string::npos"));
+  checkExpectedStrInOutput(getCommandOutput(command), "[Full Read] Done\n");
 }
 
 TEST_F(TestShellFixture, FullReadFailCase) {
@@ -306,13 +283,9 @@ TEST_F(TestShellFixture, FullReadFailCase) {
       .WillOnce(Return("0xEEEEFFFF"))
       .WillOnce(Return("ERROR"));
 
-  CaptureStdout();
-  ts.getCommandHandler()->executeCommand(command);
-  std::string output = GetCapturedStdout();
-
-  EXPECT_TRUE(output.find("LBA 00 : 0xAAAABBBB") != std::string::npos);
-  EXPECT_TRUE(output.find("LBA 01 : 0xCCCCDDDD") != std::string::npos);
-  EXPECT_TRUE(output.find("LBA 02 : 0xEEEEFFFF") != std::string::npos);
+  vector<string> expectedOutput = {"LBA 00 : 0xAAAABBBB", "LBA 01 : 0xCCCCDDDD",
+                                   "LBA 02 : 0xEEEEFFFF"};
+  checkExpectedStrsInOutput(getCommandOutput(command), expectedOutput);
 }
 
 TEST_F(TestShellFixture, FullReadInvalidUsage) {
@@ -321,10 +294,7 @@ TEST_F(TestShellFixture, FullReadInvalidUsage) {
   EXPECT_CALL(ssd, read(_)).Times(0);
   EXPECT_CALL(ssd, getResult()).Times(0);
 
-  CaptureStdout();
-  ts.getCommandHandler()->executeCommand(command);
-  std::string output = GetCapturedStdout();
-  EXPECT_EQ("INVALID COMMAND\n", output);
+  checkExpectedStrInOutput(getCommandOutput(command), INVALID_COMMAND);
 }
 
 // fullwrite 테스트들
@@ -335,11 +305,7 @@ TEST_F(TestShellFixture, FullWriteSuccessCase) {
   EXPECT_CALL(ssd, write(_, _)).Times(100);
   EXPECT_CALL(ssd, getResult()).Times(100).WillRepeatedly(Return("0xABCDABCD"));
 
-  CaptureStdout();
-  ts.getCommandHandler()->executeCommand(command);
-  std::string output = GetCapturedStdout();
-
-  EXPECT_TRUE(output.find("[Full Write] Done") != std::string::npos);
+  checkExpectedStrInOutput(getCommandOutput(command), "[Full Write] Done");
 }
 
 TEST_F(TestShellFixture, FullWriteFailCase) {
@@ -358,50 +324,20 @@ TEST_F(TestShellFixture, FullWriteFailCase) {
       .WillOnce(Return(""))
       .WillOnce(Return("ERROR"));
 
-  CaptureStdout();
-  ts.getCommandHandler()->executeCommand(command);
-  std::string output = GetCapturedStdout();
-
-  EXPECT_TRUE(output.find("[Full Write] Failed") != std::string::npos);
+  checkExpectedStrInOutput(getCommandOutput(command), "[Full Write] Failed");
 }
 
 TEST_F(TestShellFixture, FullWriteInvalidArgumentCount) {
-  CommandLine command{"fullwrite", vector<string>{"0xABCDABCD", "extraArgs"}};
+  vector<CommandLine> commands = {
+      {"fullwrite", vector<string>{"0xABCDABCD", "extraArgs"}},
+      {"fullwrite", vector<string>{}},
+      {"fullwrite", vector<string>{"invalid_number"}}};
+  for (auto command : commands) {
+    EXPECT_CALL(ssd, write(_, _)).Times(0);
+    EXPECT_CALL(ssd, getResult()).Times(0);
 
-  EXPECT_CALL(ssd, write(_, _)).Times(0);
-  EXPECT_CALL(ssd, getResult()).Times(0);
-
-  CaptureStdout();
-  ts.getCommandHandler()->executeCommand(command);
-  std::string output = GetCapturedStdout();
-
-  EXPECT_EQ("INVALID COMMAND\n", output);
-}
-
-TEST_F(TestShellFixture, FullWriteNoArguments) {
-  CommandLine command{"fullwrite", vector<string>{}};
-
-  EXPECT_CALL(ssd, write(_, _)).Times(0);
-  EXPECT_CALL(ssd, getResult()).Times(0);
-
-  CaptureStdout();
-  ts.getCommandHandler()->executeCommand(command);
-  std::string output = GetCapturedStdout();
-
-  EXPECT_EQ("INVALID COMMAND\n", output);
-}
-
-TEST_F(TestShellFixture, FullWriteInvalidValue) {
-  CommandLine command{"fullwrite", vector<string>{"invalid_number"}};
-
-  EXPECT_CALL(ssd, write(_, _)).Times(0);
-  EXPECT_CALL(ssd, getResult()).Times(0);
-
-  CaptureStdout();
-  ts.getCommandHandler()->executeCommand(command);
-  std::string output = GetCapturedStdout();
-
-  EXPECT_EQ("INVALID COMMAND\n", output);
+    checkExpectedStrInOutput(getCommandOutput(command), INVALID_COMMAND);
+  }
 }
 
 TEST_F(TestShellFixture, ExitNormally) {
@@ -416,108 +352,33 @@ TEST_F(TestShellFixture, ExitInvalidArgs) {
   std::string output = GetCapturedStdout();
 }
 
-TEST_F(TestShellFixture, TestScript1FAIL) {
-  CommandLine cmd{TEST_SCRIPT_1_FULLNAME};
+TEST_F(TestShellFixture, TestScript1_2FAIL) {
+  vector<CommandLine> commands = {
+      {TEST_SCRIPT_1_FULLNAME, {}},
+      {TEST_SCRIPT_1_SHORTCUT, {}},
+      {TEST_SCRIPT_2_FULLNAME, {}},
+      {TEST_SCRIPT_2_SHORTCUT, {}},
+  };
+  for (auto command : commands) {
+    EXPECT_CALL(ssd, write(_, 0xAAAABBBB)).Times(AtLeast(1));
+    EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return("0xFFFFFFFF"));
 
-  EXPECT_CALL(ssd, write(_, 0xAAAABBBB)).Times(AtLeast(1));
-  EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return("0xFFFFFFFF"));
-
-  CaptureStdout();
-  ts.getCommandHandler()->executeCommand(cmd);
-  std::string output = GetCapturedStdout();
-
-  EXPECT_TRUE(output.find("FAIL!\n") != std::string::npos);
+    checkExpectedStrInOutput(getCommandOutput(command), SCRIPT_FAIL);
+  }
 }
 
-TEST_F(TestShellFixture, TestScript1ShortcutFAIL) {
-  CommandLine cmd{TEST_SCRIPT_1_SHORTCUT};
+TEST_F(TestShellFixture, TestScript1_2SUCCESS) {
+  vector<CommandLine> commands = {
+      {TEST_SCRIPT_1_FULLNAME, {}},
+      {TEST_SCRIPT_1_SHORTCUT, {}},
+      {TEST_SCRIPT_2_FULLNAME, {}},
+  };
+  for (auto command : commands) {
+    EXPECT_CALL(ssd, write(_, 0xAAAABBBB)).Times(AtLeast(1));
+    EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return("0xAAAABBBB"));
 
-  EXPECT_CALL(ssd, write(_, 0xAAAABBBB)).Times(AtLeast(1));
-  EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return("0xFFFFFFFF"));
-
-  CaptureStdout();
-  ts.getCommandHandler()->executeCommand(cmd);
-  std::string output = GetCapturedStdout();
-
-  EXPECT_TRUE(output.find("FAIL!\n") != std::string::npos);
-}
-
-TEST_F(TestShellFixture, TestScript1SUCCESS) {
-  CommandLine cmd{TEST_SCRIPT_1_FULLNAME};
-
-  EXPECT_CALL(ssd, write(_, 0xAAAABBBB)).Times(100);
-  EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return("0xAAAABBBB"));
-
-  CaptureStdout();
-  ts.getCommandHandler()->executeCommand(cmd);
-  std::string output = GetCapturedStdout();
-
-  EXPECT_EQ("Pass\n", output);
-}
-
-TEST_F(TestShellFixture, TestScript1ShortcutSUCCESS) {
-  CommandLine cmd{TEST_SCRIPT_1_SHORTCUT};
-
-  EXPECT_CALL(ssd, write(_, 0xAAAABBBB)).Times(100);
-  EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return("0xAAAABBBB"));
-
-  CaptureStdout();
-  ts.getCommandHandler()->executeCommand(cmd);
-  std::string output = GetCapturedStdout();
-
-  EXPECT_EQ("Pass\n", output);
-}
-
-TEST_F(TestShellFixture, TestScript2FAIL) {
-  CommandLine cmd{TEST_SCRIPT_2_FULLNAME};
-
-  EXPECT_CALL(ssd, write(_, 0xAAAABBBB)).Times(AtLeast(1));
-  EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return("0xFFFFFFFF"));
-
-  CaptureStdout();
-  ts.getCommandHandler()->executeCommand(cmd);
-  std::string output = GetCapturedStdout();
-
-  EXPECT_TRUE(output.find("FAIL!\n") != std::string::npos);
-}
-
-TEST_F(TestShellFixture, TestScript2ShortcutFAIL) {
-  CommandLine cmd{TEST_SCRIPT_2_SHORTCUT};
-
-  EXPECT_CALL(ssd, write(_, 0xAAAABBBB)).Times(AtLeast(1));
-  EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return("0xFFFFFFFF"));
-
-  CaptureStdout();
-  ts.getCommandHandler()->executeCommand(cmd);
-  std::string output = GetCapturedStdout();
-
-  EXPECT_TRUE(output.find("FAIL!\n") != std::string::npos);
-}
-
-TEST_F(TestShellFixture, TestScript2SUCCESS) {
-  CommandLine cmd{TEST_SCRIPT_2_FULLNAME};
-
-  EXPECT_CALL(ssd, write(_, 0xAAAABBBB)).Times(150);
-  EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return("0xAAAABBBB"));
-
-  CaptureStdout();
-  ts.getCommandHandler()->executeCommand(cmd);
-  std::string output = GetCapturedStdout();
-
-  EXPECT_EQ("Pass\n", output);
-}
-
-TEST_F(TestShellFixture, TestScript2ShortcutSUCCESS) {
-  CommandLine cmd{TEST_SCRIPT_2_SHORTCUT};
-
-  EXPECT_CALL(ssd, write(_, 0xAAAABBBB)).Times(150);
-  EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return("0xAAAABBBB"));
-
-  CaptureStdout();
-  ts.getCommandHandler()->executeCommand(cmd);
-  std::string output = GetCapturedStdout();
-
-  EXPECT_EQ("Pass\n", output);
+    checkExpectedStrInOutput(getCommandOutput(command), SCRIPT_PASS);
+  }
 }
 
 TEST_F(TestShellFixture, TestScript3FAIL) {
@@ -530,7 +391,7 @@ TEST_F(TestShellFixture, TestScript3FAIL) {
   ts.getCommandHandler()->executeCommand(cmd);
   std::string output = GetCapturedStdout();
 
-  EXPECT_TRUE(output.find("FAIL!\n") != std::string::npos);
+  EXPECT_TRUE(output.find(SCRIPT_FAIL) != std::string::npos);
 }
 
 TEST_F(TestShellFixture, TestScript3ShortcutFAIL) {
@@ -539,11 +400,7 @@ TEST_F(TestShellFixture, TestScript3ShortcutFAIL) {
   EXPECT_CALL(ssd, write(_, _)).Times(AtLeast(1));
   EXPECT_CALL(ssd, read(_)).Times(AtLeast(1));
 
-  CaptureStdout();
-  ts.getCommandHandler()->executeCommand(cmd);
-  std::string output = GetCapturedStdout();
-
-  EXPECT_TRUE(output.find("FAIL!\n") != std::string::npos);
+  checkExpectedStrInOutput(getCommandOutput(cmd), SCRIPT_FAIL);
 }
 
 TEST_F(TestShellFixture, TestScript3SUCCESS) {
@@ -553,11 +410,7 @@ TEST_F(TestShellFixture, TestScript3SUCCESS) {
   EXPECT_CALL(ssd, read(_)).Times(400);
   EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return(randomValue));
 
-  CaptureStdout();
-  ts.getCommandHandler()->executeCommand(cmd);
-  std::string output = GetCapturedStdout();
-
-  EXPECT_EQ("Pass\n", output);
+  checkExpectedStrInOutput(getCommandOutput(cmd), SCRIPT_PASS);
 }
 
 TEST_F(TestShellFixture, TestScript3ShortcutSUCCESS) {
@@ -567,16 +420,12 @@ TEST_F(TestShellFixture, TestScript3ShortcutSUCCESS) {
   EXPECT_CALL(ssd, read(_)).Times(400);
   EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return(randomValue));
 
-  CaptureStdout();
-  ts.getCommandHandler()->executeCommand(cmd);
-  std::string output = GetCapturedStdout();
-
-  EXPECT_EQ("Pass\n", output);
+  checkExpectedStrInOutput(getCommandOutput(cmd), SCRIPT_PASS);
 }
 
 TEST_F(TestShellFixture, TestScript4FAIL) {
   vector<CommandLine> commands = {{TEST_SCRIPT_4_FULLNAME, {}},
-                              {TEST_SCRIPT_4_SHORTCUT, {}}};
+                                  {TEST_SCRIPT_4_SHORTCUT, {}}};
 
   for (auto cmd : commands) {
     EXPECT_CALL(ssd, erase(_, _)).Times(AtLeast(1));
@@ -586,39 +435,27 @@ TEST_F(TestShellFixture, TestScript4FAIL) {
         .WillOnce(Return(""))
         .WillOnce(Return("ERROR"));
 
-    CaptureStdout();
-    ts.getCommandHandler()->executeCommand(cmd);
-    std::string output = GetCapturedStdout();
-
-    EXPECT_TRUE(output.find("FAIL!\n") != std::string::npos);
+    checkExpectedStrInOutput(getCommandOutput(cmd), SCRIPT_FAIL);
   }
 }
 
 TEST_F(TestShellFixture, TestScript4SUCCESS) {
   vector<CommandLine> commands = {{TEST_SCRIPT_4_FULLNAME, {}},
-                              {TEST_SCRIPT_4_SHORTCUT, {}}};
+                                  {TEST_SCRIPT_4_SHORTCUT, {}}};
 
   for (auto cmd : commands) {
     EXPECT_CALL(ssd, erase(_, _)).Times(49 * 30 + 1);
     EXPECT_CALL(ssd, write(_, _)).Times(98 * 30);
     EXPECT_CALL(ssd, getResult()).WillRepeatedly(Return(""));
 
-    CaptureStdout();
-    ts.getCommandHandler()->executeCommand(cmd);
-    std::string output = GetCapturedStdout();
-
-    EXPECT_EQ("Pass\n", output);
+    checkExpectedStrInOutput(getCommandOutput(cmd), SCRIPT_PASS);
   }
 }
 
 TEST_F(TestShellFixture, InvalidCommand) {
   CommandLine cmd{"INVALID"};
 
-  CaptureStdout();
-  ts.getCommandHandler()->executeCommand(cmd);
-  std::string output = GetCapturedStdout();
-
-  EXPECT_EQ("INVALID COMMAND\n", output);
+  checkExpectedStrInOutput(getCommandOutput(cmd), INVALID_COMMAND);
 }
 
 std::vector<std::string> getScripts(const std::string &filename) {
@@ -640,7 +477,7 @@ int main(int argc, char *argv[]) {
   ::testing::InitGoogleTest();
   return RUN_ALL_TESTS();
 #else
-  SSD_EXE ssd;
+  SsdExeAdaptor ssd;
   TestShell testShell{&ssd};
 
   if (argc > 1) {

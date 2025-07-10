@@ -1,8 +1,9 @@
-#include "ssd_exe.h"
+#include "ssd_adaptor.h"
 
 using std::string;
 
-void SSD_EXE::read(int lba) {
+void SsdAdaptor::read(int lba) {
+  logger.print("SsdAdaptor.read()", "Reading LBA: " + std::to_string(lba));
   std::ostringstream cmd;
   cmd << "\"" << ssdDir << "\\" << SSD_EXE_NAME << "\" R " << lba;
 #ifdef _DEBUG
@@ -17,7 +18,9 @@ void SSD_EXE::read(int lba) {
 #endif
 }
 
-void SSD_EXE::write(int lba, unsigned long value) {
+void SsdAdaptor::write(int lba, unsigned long value) {
+  logger.print("SsdAdaptor.write()", "Writing LBA: " + std::to_string(lba) +
+                   " with value: " + std::to_string(value));
   std::ostringstream cmd;
   cmd << "\"" << ssdDir << "\\" << SSD_EXE_NAME << "\" W " << lba << " 0x"
       << std::hex << std::uppercase << value;
@@ -35,7 +38,9 @@ void SSD_EXE::write(int lba, unsigned long value) {
 #endif
 }
 
-void SSD_EXE::erase(int lba, int size) {
+void SsdAdaptor::erase(int lba, int size) {
+  logger.print("SsdAdaptor.erase()", "Erasing LBA: " + std::to_string(lba) +
+                                      " with size: " + std::to_string(size));
   std::ostringstream cmd;
   cmd << "\"" << ssdDir << "\\" << SSD_EXE_NAME << "\" E " << lba << " "
       << size;
@@ -54,7 +59,8 @@ void SSD_EXE::erase(int lba, int size) {
 }
 
 
-  void SSD_EXE::flush() {
+void SsdAdaptor::flush() {
+  logger.print("SsdAdaptor.flush()", "Flushing SSD commands");
   std::ostringstream cmd;
   cmd << "\"" << ssdDir << "\\" << SSD_EXE_NAME << "\" F";
 #ifdef _DEBUG
@@ -66,7 +72,7 @@ void SSD_EXE::erase(int lba, int size) {
 #endif
 }
 
-string SSD_EXE::getCurWorkingDir() {
+string SsdAdaptor::getCurWorkingDir() {
   char cwd[1024];
   if (!_getcwd(cwd, sizeof(cwd))) {
     std::cerr << "[ERROR] 현재 경로를 얻을 수 없습니다." << std::endl;
@@ -76,7 +82,7 @@ string SSD_EXE::getCurWorkingDir() {
   return string(cwd);
 }
 
-string SSD_EXE::readOutputFile() {
+string SsdAdaptor::readOutputFile() {
   std::ifstream infile(ssdDir + "\\" + SSD_OUTPUT_FILE);
   if (!infile.is_open()) {
     return ERROR_MSG;

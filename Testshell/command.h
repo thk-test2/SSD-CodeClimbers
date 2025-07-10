@@ -6,6 +6,7 @@
 #include <random>
 #include <iomanip>
 
+#include "logger.h"
 #include "ssd_interface.h"
 
 using std::cout;
@@ -45,6 +46,7 @@ protected:
   const int MAX_LBA_COUNT = 100;
   const int HEX_BASE = 16;
   string commandName;
+  Logger &logger = Logger::getInstance();
 };
 
 class ExitCommand : public ICommand {
@@ -233,7 +235,7 @@ class CommandHandler {
 public:
   ~CommandHandler() = default;
   CommandHandler() { initialize(); }
-  CommandHandler(SSD_INTERFACE *ssdDriver) : _ssdDriver(ssdDriver) {
+  CommandHandler(SSD_INTERFACE *ssdAdaptor) : _ssdAdaptor(ssdAdaptor) {
     initialize();
   }
 
@@ -245,8 +247,9 @@ public:
 
 private:
   vector<ICommand *> commands;
-  SSD_INTERFACE *_ssdDriver;
+  SSD_INTERFACE *_ssdAdaptor;
 
   void addCommand(ICommand *command);
   void removeCommand(const string &commandName);
+  Logger &logger = Logger::getInstance();
 };

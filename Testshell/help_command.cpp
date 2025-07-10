@@ -1,6 +1,7 @@
 #include "command.h"
 
 bool HelpCommand::execute(SSD_INTERFACE &ssd, const CommandLine &cli) {
+  logger.print("HelpCommand.execute()", "Executing help command");
   printHeader();
   printTeamInfo();
   printCommands();

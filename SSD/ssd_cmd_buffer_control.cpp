@@ -70,10 +70,14 @@ string makdFullCmdString(char *argv[]) {
   return fullCmd;
 }
 
-bool CmdBufferControl::runCommandBuffer(char *argv[]) {
+bool CmdBufferControl::runCommandBuffer(int argc, char *argv[]) {
   bool ret = true;
   string cmdType = argv[1];
-  int lba = std::stoi(argv[2]);
+  int lba = 0, size = 0;
+  unsigned long value = 0;
+  
+  if (!driver->isValidParam(argc, argv, lba, size, value))
+    return true;
 
   if (isBufferFull())
     ret = flush();
@@ -84,18 +88,10 @@ bool CmdBufferControl::runCommandBuffer(char *argv[]) {
       ret = driver->readBuffer(lba, bufferRead);
     else
       ret = driver->read(lba);
-
   } else if (cmdType == "W") {
-    unsigned long value = std::stoul(argv[3], nullptr, 16);
-
-    ret = writeCmdBuffer(argv);
-    if (ret)
-      return ret;
-
+    removeAndUpdateWriteCommand(lba, argv);
   } else if (cmdType == "E") {
-    int size = std::stoi(argv[3]);
     std::memset(eraseMap + lba, 1, size); // set eraseMap
-
     mergeAndUpdateEraseCommand(lba, size);
   } else if (cmdType == "F") {
     flush();
@@ -103,9 +99,7 @@ bool CmdBufferControl::runCommandBuffer(char *argv[]) {
   return ret;
 }
 
-bool CmdBufferControl::writeCmdBuffer(char *argv[]) {
-  int lba = std::stoi(argv[2]);
-
+void CmdBufferControl::removeAndUpdateWriteCommand(int lba, char *argv[]) {
   for (auto &buffer : cmdBuffer) {
     if (buffer.isEmpty())
       continue;
@@ -116,10 +110,10 @@ bool CmdBufferControl::writeCmdBuffer(char *argv[]) {
       }
     }
   }
+
   updateToNextEmpty(makdFullCmdString(argv));
   emptyBufferShift();
   getDriver()->getIoStream()->clearOutput();
-  return true;
 }
 
 bool CmdBufferControl::updateToNextEmpty(const std::string &cmd) {
@@ -252,7 +246,7 @@ bool CmdBufferControl::flushEraseSeparated(int lba, int size) {
 }
 
 bool CmdBufferControl::flush() {
-  bool ret = false;
+  bool ret = true;
 
   if (getDriver() == nullptr)
     return false;

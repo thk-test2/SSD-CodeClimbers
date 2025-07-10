@@ -1,14 +1,14 @@
-#include "ssd_exe.h"
+#include "ssd_adaptor.h"
 #include "gmock/gmock.h"
 using testing::internal::CaptureStdout;
 using testing::internal::GetCapturedStdout;
 
-class SSDEXEFixture : public ::testing::Test {
+class SsdAdaptorFixture : public ::testing::Test {
 public:
-  SSD_EXE ssd;
+  SsdAdaptor ssd;
 };
 
-TEST_F(SSDEXEFixture, readNormal) {
+TEST_F(SsdAdaptorFixture, readNormal) {
   CaptureStdout();
   ssd.read(0);
   std::string output = GetCapturedStdout();
@@ -16,7 +16,7 @@ TEST_F(SSDEXEFixture, readNormal) {
 	  << "Actual stream : " << output;
 }
 
-TEST_F(SSDEXEFixture, writeNormal) {
+TEST_F(SsdAdaptorFixture, writeNormal) {
   CaptureStdout();
   ssd.write(0, 0xAAAABBBB);
   std::string output = GetCapturedStdout();
