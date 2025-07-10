@@ -1,26 +1,26 @@
 #include "command.h"
 
-bool WriteCommand::execute(TestShell* shell, const Command& command) {
-  if (!isValidWriteUsage(command, shell->getHexBase())) {
+bool WriteCommand::execute(SSD_INTERFACE &ssd, const CommandLine& cli) {
+  if (!isValidWriteUsage(cli, HEX_BASE)) {
     cout << "INVALID COMMAND\n";
     return false;
   }
-  
-  shell->getSSD()->write(stoi(command.args[0]), 
-                        stoul(command.args[1], nullptr, shell->getHexBase()));
-  string result = shell->getSSD()->getResult();
+
+  ssd.write(stoi(cli.args[0]), 
+             stoul(cli.args[1], nullptr, HEX_BASE));
+  string result = ssd.getResult();
   if (result == "")
     result = "Done";
   cout << "[Write] " << result << "\n";
   return true;
 }
 
-bool WriteCommand::isValidWriteUsage(const Command &command, int hexBase) {
-  if (command.args.size() != 2)
+bool WriteCommand::isValidWriteUsage(const CommandLine &cli, int hexBase) {
+  if (cli.args.size() != 2)
     return false;
   try {
-    int lba = stoi(command.args[0]);
-    unsigned long value = stoul(command.args[1], nullptr, hexBase);
+    int lba = stoi(cli.args[0]);
+    unsigned long value = stoul(cli.args[1], nullptr, hexBase);
   } catch (std::exception &e) {
     return false;
   }
