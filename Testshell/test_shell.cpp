@@ -15,6 +15,7 @@ void TestShell::runScripts() {
     CommandLine cli = commandHandler->parseCommand(script);
     if (!commandHandler->executeCommand(cli))
       break;
+    logger.print("TestShell.runScripts()", "Successfully executed script - " + script);
   }
 }
 
@@ -24,12 +25,13 @@ void TestShell::runInteractive() {
     cout << "> ";
     getline(std::cin, userInput);
     CommandLine cli = commandHandler->parseCommand(userInput);
-    logger.print("TestShell.run()",
+    logger.print("TestShell.runInteractive()",
         "Successfully parsed command - " + cli.command);
     if (cli.command == "exit") {
-      logger.print("TestShell.run()", "Exiting shell.");
+      logger.print("TestShell.runInteractive()", "Exiting shell.");
       break;
     }
     commandHandler->executeCommand(cli);
+    logger.print("TestShell.runInteractive()", "Successfully executed command - " + cli.command);
   }
 }
