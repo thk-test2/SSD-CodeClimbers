@@ -13,6 +13,9 @@ using std::endl;
 using std::string;
 using std::vector;
 
+// Forward declaration of CommandHandler
+class CommandHandler;
+
 class CommandLine {
 public:
   string command;
@@ -63,10 +66,24 @@ public:
 
 class HelpCommand : public ICommand {
 public:
+  HelpCommand(CommandHandler *commandHandler)
+      : _commandHandler(commandHandler) {}
   bool execute(SSD_INTERFACE &ssd, const CommandLine &cli) override;
+  bool execute(SSD_INTERFACE &ssd, const CommandLine &cli,
+               CommandHandler *commandHandler);
   string getUsage() const override { return ""; }
   string getDescription() const override { return "Show this help message"; }
   string getExample() const override { return "help"; }
+
+private:
+  CommandHandler *_commandHandler;
+
+  void printHeader();
+  void printTeamInfo();
+  void printCommands(CommandHandler* commandHandler);
+  void printTestScripts();
+  void printCommandInfo(const string &command, const string &args,
+                        const string &description, const string &example);
 };
 
 class ReadCommand : public ICommand {
@@ -180,20 +197,21 @@ static std::string convertHexToString(unsigned long value) {
 class CommandHandler {
 public:
   ~CommandHandler() = default;
-  void initialize();
-  bool executeCommand(const CommandLine &cli);
-  vector<string> getAvailableCommands();
-  CommandLine parseCommand(const string &input);
   CommandHandler() { initialize(); }
   CommandHandler(SSD_INTERFACE *ssdDriver) : _ssdDriver(ssdDriver) {
     initialize();
   }
 
+  void initialize();
+  ICommand *getCommand(const string &commandName);
+  bool executeCommand(const CommandLine &cli);
+  vector<string> getAvailableCommands();
+  CommandLine parseCommand(const string &input);
+
 private:
   vector<ICommand *> commands;
   SSD_INTERFACE *_ssdDriver;
 
-  ICommand *getCommand(const string &commandName);
   void addCommand(ICommand *command);
   void removeCommand(const string &commandName);
 };

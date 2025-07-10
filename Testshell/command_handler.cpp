@@ -55,7 +55,7 @@ void CommandHandler::initialize() {
 	addCommand(new ExitCommand());
 	addCommand(new FullReadCommand());
 	addCommand(new FullWriteCommand());
-	addCommand(new HelpCommand());
+	addCommand(new HelpCommand(this));
 	addCommand(new ReadCommand());
 	addCommand(new WriteCommand());
 	addCommand(new EraseCommand());
