@@ -1,7 +1,7 @@
 #include <fstream>
 
 #include "test_shell.h"
-#include "ssd_exe.h"
+#include "ssd_adaptor.h"
 #include "gmock/gmock.h"
 
 // stdout 캡처/해제 함수
@@ -10,7 +10,7 @@ using testing::internal::GetCapturedStdout;
 using namespace testing;
 
 // MockDriver
-class MockSSD : public SSD_INTERFACE {
+class MockSsdAdaptor : public SSD_INTERFACE {
 public:
   MOCK_METHOD(void, read, (int lba), (override));
   MOCK_METHOD(void, write, (int lba, unsigned long value), (override));
@@ -21,7 +21,7 @@ public:
 
 class TestShellFixture : public ::testing::Test {
 public:
-  NiceMock<MockSSD> ssd;
+  NiceMock<MockSsdAdaptor> ssd;
   TestShell ts{&ssd};
 
   string randomValue = convertHexToString(getRandomValue());
@@ -474,7 +474,7 @@ int main(int argc, char *argv[]) {
   ::testing::InitGoogleTest();
   return RUN_ALL_TESTS();
 #else
-  SSD_EXE ssd;
+  SsdExeAdaptor ssd;
   TestShell testShell{&ssd};
 
   if (argc > 1) {

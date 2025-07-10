@@ -6,7 +6,7 @@
 bool CommandHandler::executeCommand(const CommandLine &cli) {
   auto command = getCommand(cli.command);
   if (command) {
-    return command->execute(*_ssdDriver, cli);
+    return command->execute(*_ssdAdaptor, cli);
   }
   cout << "INVALID COMMAND" << endl;
   return false;

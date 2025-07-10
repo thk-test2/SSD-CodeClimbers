@@ -235,7 +235,7 @@ class CommandHandler {
 public:
   ~CommandHandler() = default;
   CommandHandler() { initialize(); }
-  CommandHandler(SSD_INTERFACE *ssdDriver) : _ssdDriver(ssdDriver) {
+  CommandHandler(SSD_INTERFACE *ssdAdaptor) : _ssdAdaptor(ssdAdaptor) {
     initialize();
   }
 
@@ -247,7 +247,7 @@ public:
 
 private:
   vector<ICommand *> commands;
-  SSD_INTERFACE *_ssdDriver;
+  SSD_INTERFACE *_ssdAdaptor;
 
   void addCommand(ICommand *command);
   void removeCommand(const string &commandName);

@@ -72,13 +72,13 @@
     <ClCompile Include="logger_test.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="ssd_exe.h">
+    <ClCompile Include="ssd_adaptor.h">
       <Filter>헤더 파일</Filter>
     </ClCompile>
-    <ClCompile Include="ssd_exe_test.cpp">
+    <ClCompile Include="ssd_adaptor_test.cpp">
       <Filter>소스 파일\ssd_interface</Filter>
     </ClCompile>
-    <ClCompile Include="ssd_exe.cpp">
+    <ClCompile Include="ssd_adaptor.cpp">
       <Filter>소스 파일\ssd_interface</Filter>
     </ClCompile>
     <ClCompile Include="flush_command.cpp">
