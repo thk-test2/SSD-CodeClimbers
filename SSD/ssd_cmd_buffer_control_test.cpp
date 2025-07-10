@@ -205,20 +205,20 @@ TEST_F(BufferControlFixture, BufferContainReadValuePass1) {
 
 TEST_F(BufferControlFixture, BufferRunCommand) {
   char *argv[5];
-  argv[0] = const_cast<char *>("ssd.exe");
+  argv[0] = const_cast<char *>("SSD.exe");
   argv[1] = const_cast<char *>("W");
   argv[2] = const_cast<char *>("10");
   argv[3] = const_cast<char *>("0x12345678");
   argv[4] = nullptr;
   cmdBuffer.runCommandBuffer(4, argv);
 
-  argv[0] = const_cast<char *>("ssd.exe");
+  argv[0] = const_cast<char *>("SSD.exe");
   argv[1] = const_cast<char *>("F");
   argv[2] = nullptr;
   argv[3] = nullptr;
   cmdBuffer.runCommandBuffer(2, argv);
 
-  argv[0] = const_cast<char *>("ssd.exe");
+  argv[0] = const_cast<char *>("SSD.exe");
   argv[1] = const_cast<char *>("R");
   argv[2] = const_cast<char *>("10");
   argv[3] = nullptr;
@@ -229,14 +229,14 @@ TEST_F(BufferControlFixture, BufferRunCommand) {
 
 TEST_F(BufferControlFixture, BufferRunEraseCommand) {
   char *argv[5];
-  argv[0] = const_cast<char *>("ssd.exe");
+  argv[0] = const_cast<char *>("SSD.exe");
   argv[1] = const_cast<char *>("W");
   argv[2] = const_cast<char *>("10");
   argv[3] = const_cast<char *>("0x12345678");
   argv[4] = nullptr;
   cmdBuffer.runCommandBuffer(4, argv);
 
-  argv[0] = const_cast<char *>("ssd.exe");
+  argv[0] = const_cast<char *>("SSD.exe");
   argv[1] = const_cast<char *>("E");
   argv[2] = const_cast<char *>("10");
   argv[3] = const_cast<char *>("1");
@@ -250,28 +250,28 @@ TEST_F(BufferControlFixture, BufferWriteRemoveCase) {
   std::string expected_ret =
       "1_W_5_0xAAAAAAAA,2_E_6_2,3_empty,4_empty,5_empty,";
   char *argv[5];
-  argv[0] = const_cast<char *>("ssd.exe");
+  argv[0] = const_cast<char *>("SSD.exe");
   argv[1] = const_cast<char *>("W");
   argv[2] = const_cast<char *>("5");
   argv[3] = const_cast<char *>("0xAAAAAAAA");
   argv[4] = nullptr;
   cmdBuffer.runCommandBuffer(4, argv);
 
-  argv[0] = const_cast<char *>("ssd.exe");
+  argv[0] = const_cast<char *>("SSD.exe");
   argv[1] = const_cast<char *>("W");
   argv[2] = const_cast<char *>("6");
   argv[3] = const_cast<char *>("0xAAAAAAAA");
   argv[4] = nullptr;
   cmdBuffer.runCommandBuffer(4, argv);
 
-  argv[0] = const_cast<char *>("ssd.exe");
+  argv[0] = const_cast<char *>("SSD.exe");
   argv[1] = const_cast<char *>("W");
   argv[2] = const_cast<char *>("7");
   argv[3] = const_cast<char *>("0xAAAAAAAA");
   argv[4] = nullptr;
   cmdBuffer.runCommandBuffer(4, argv);
 
-  argv[0] = const_cast<char *>("ssd.exe");
+  argv[0] = const_cast<char *>("SSD.exe");
   argv[1] = const_cast<char *>("E");
   argv[2] = const_cast<char *>("6");
   argv[3] = const_cast<char *>("2");
@@ -284,14 +284,14 @@ TEST_F(BufferControlFixture, BufferWriteRemoveCase) {
 TEST_F(BufferControlFixture, BufferDuplicatedEraseCommand) {
   std::string expected_ret = "1_E_10_15,2_empty,3_empty,4_empty,5_empty,";
   char *argv[5];
-  argv[0] = const_cast<char *>("ssd.exe");
+  argv[0] = const_cast<char *>("SSD.exe");
   argv[1] = const_cast<char *>("E");
   argv[2] = const_cast<char *>("10");
   argv[3] = const_cast<char *>("10");
   argv[4] = nullptr;
   cmdBuffer.runCommandBuffer(4, argv);
 
-  argv[0] = const_cast<char *>("ssd.exe");
+  argv[0] = const_cast<char *>("SSD.exe");
   argv[1] = const_cast<char *>("E");
   argv[2] = const_cast<char *>("15");
   argv[3] = const_cast<char *>("10");
@@ -304,14 +304,14 @@ TEST_F(BufferControlFixture, BufferDuplicatedEraseCommand) {
 TEST_F(BufferControlFixture, BufferSequentialEraseCommand) {
   std::string expected_ret = "1_E_80_20,2_empty,3_empty,4_empty,5_empty,";
   char *argv[5];
-  argv[0] = const_cast<char *>("ssd.exe");
+  argv[0] = const_cast<char *>("SSD.exe");
   argv[1] = const_cast<char *>("E");
   argv[2] = const_cast<char *>("80");
   argv[3] = const_cast<char *>("10");
   argv[4] = nullptr;
   cmdBuffer.runCommandBuffer(4, argv);
 
-  argv[0] = const_cast<char *>("ssd.exe");
+  argv[0] = const_cast<char *>("SSD.exe");
   argv[1] = const_cast<char *>("E");
   argv[2] = const_cast<char *>("90");
   argv[3] = const_cast<char *>("10");
@@ -324,14 +324,14 @@ TEST_F(BufferControlFixture, BufferSequentialEraseCommand) {
 TEST_F(BufferControlFixture, Buffer2timeDubplicaedEraseCommand) {
   std::string expected_ret;
   char *argv[5];
-  argv[0] = const_cast<char *>("ssd.exe");
+  argv[0] = const_cast<char *>("SSD.exe");
   argv[1] = const_cast<char *>("E");
   argv[2] = const_cast<char *>("10");
   argv[3] = const_cast<char *>("10");
   argv[4] = nullptr;
   cmdBuffer.runCommandBuffer(4, argv);
 
-  argv[0] = const_cast<char *>("ssd.exe");
+  argv[0] = const_cast<char *>("SSD.exe");
   argv[1] = const_cast<char *>("E");
   argv[2] = const_cast<char *>("25");
   argv[3] = const_cast<char *>("10");
@@ -341,7 +341,7 @@ TEST_F(BufferControlFixture, Buffer2timeDubplicaedEraseCommand) {
   expected_ret = "1_E_10_10,2_E_25_10,3_empty,4_empty,5_empty,";
   EXPECT_EQ(expected_ret, cmdBuffer.getBufferNameList());
 
-  argv[0] = const_cast<char *>("ssd.exe");
+  argv[0] = const_cast<char *>("SSD.exe");
   argv[1] = const_cast<char *>("E");
   argv[2] = const_cast<char *>("17");
   argv[3] = const_cast<char *>("10");
@@ -357,21 +357,21 @@ TEST_F(BufferControlFixture, BufferWrite1) {
   std::string expected_ret =
       "1_W_5_0xAAAAAAAA,2_W_6_0xAAAAAAAA,3_W_7_0xAAAAAAAA,4_empty,5_empty,";
   char *argv[5];
-  argv[0] = const_cast<char *>("ssd.exe");
+  argv[0] = const_cast<char *>("SSD.exe");
   argv[1] = const_cast<char *>("W");
   argv[2] = const_cast<char *>("5");
   argv[3] = const_cast<char *>("0xAAAAAAAA");
   argv[4] = nullptr;
   cmdBuffer.runCommandBuffer(4, argv);
 
-  argv[0] = const_cast<char *>("ssd.exe");
+  argv[0] = const_cast<char *>("SSD.exe");
   argv[1] = const_cast<char *>("W");
   argv[2] = const_cast<char *>("6");
   argv[3] = const_cast<char *>("0xAAAAAAAA");
   argv[4] = nullptr;
   cmdBuffer.runCommandBuffer(4, argv);
 
-  argv[0] = const_cast<char *>("ssd.exe");
+  argv[0] = const_cast<char *>("SSD.exe");
   argv[1] = const_cast<char *>("W");
   argv[2] = const_cast<char *>("7");
   argv[3] = const_cast<char *>("0xAAAAAAAA");
@@ -385,21 +385,21 @@ TEST_F(BufferControlFixture, BufferWrite2) {
   std::string expected_ret =
       "1_W_5_0xAAAAAAAA,2_W_7_0xBBBBBBBB,3_empty,4_empty,5_empty,";
   char *argv[5];
-  argv[0] = const_cast<char *>("ssd.exe");
+  argv[0] = const_cast<char *>("SSD.exe");
   argv[1] = const_cast<char *>("W");
   argv[2] = const_cast<char *>("5");
   argv[3] = const_cast<char *>("0xAAAAAAAA");
   argv[4] = nullptr;
   cmdBuffer.runCommandBuffer(4, argv);
 
-  argv[0] = const_cast<char *>("ssd.exe");
+  argv[0] = const_cast<char *>("SSD.exe");
   argv[1] = const_cast<char *>("W");
   argv[2] = const_cast<char *>("7");
   argv[3] = const_cast<char *>("0xAAAAAAAA");
   argv[4] = nullptr;
   cmdBuffer.runCommandBuffer(4, argv);
 
-  argv[0] = const_cast<char *>("ssd.exe");
+  argv[0] = const_cast<char *>("SSD.exe");
   argv[1] = const_cast<char *>("W");
   argv[2] = const_cast<char *>("7");
   argv[3] = const_cast<char *>("0xBBBBBBBB");
@@ -410,7 +410,7 @@ TEST_F(BufferControlFixture, BufferWrite2) {
 
 TEST_F(BufferControlFixture, BufferEraseOverSize) {
   char *argv[5];
-  argv[0] = const_cast<char *>("ssd.exe");
+  argv[0] = const_cast<char *>("SSD.exe");
   argv[1] = const_cast<char *>("E");
   argv[2] = const_cast<char *>("5");
   argv[3] = const_cast<char *>("15");
@@ -423,7 +423,7 @@ TEST_F(BufferControlFixture, BufferEraseOverSize) {
 
 TEST_F(BufferControlFixture, BufferEraseOverRange) {
   char *argv[5];
-  argv[0] = const_cast<char *>("ssd.exe");
+  argv[0] = const_cast<char *>("SSD.exe");
   argv[1] = const_cast<char *>("E");
   argv[2] = const_cast<char *>("99");
   argv[3] = const_cast<char *>("5");
@@ -439,7 +439,7 @@ TEST_F(BufferControlFixture, BufferReadWithRunCommandPass) {
   EXPECT_TRUE(cmdBuffer.updateToNextEmpty("W_19_0x11112222"));
 
   char *argv[5];
-  argv[0] = const_cast<char *>("ssd.exe");
+  argv[0] = const_cast<char *>("SSD.exe");
   argv[1] = const_cast<char *>("R");
   argv[2] = const_cast<char *>("19");
   argv[3] = nullptr;
@@ -454,7 +454,7 @@ TEST_F(BufferControlFixture, BufferReadWithRunCommandPass2) {
   EXPECT_TRUE(cmdBuffer.updateToNextEmpty("E_10_10"));
 
   char *argv[5];
-  argv[0] = const_cast<char *>("ssd.exe");
+  argv[0] = const_cast<char *>("SSD.exe");
   argv[1] = const_cast<char *>("R");
   argv[2] = const_cast<char *>("19");
   argv[3] = nullptr;
@@ -467,7 +467,7 @@ TEST_F(BufferControlFixture, BufferReadWithRunCommandPass2) {
 TEST_F(BufferControlFixture, BufferIntgTestWithRunCommandPass1) {
 
   char *argv[5];
-  argv[0] = const_cast<char *>("ssd.exe");
+  argv[0] = const_cast<char *>("SSD.exe");
   argv[1] = const_cast<char *>("R");
   argv[2] = const_cast<char *>("19");
   argv[3] = nullptr;
@@ -476,7 +476,7 @@ TEST_F(BufferControlFixture, BufferIntgTestWithRunCommandPass1) {
 
   checkOutputFileValid("0x00000000");
 
-  argv[0] = const_cast<char *>("ssd.exe");
+  argv[0] = const_cast<char *>("SSD.exe");
   argv[1] = const_cast<char *>("W");
   argv[2] = const_cast<char *>("7");
   argv[3] = const_cast<char *>("0xBBBBBBBB");
@@ -496,7 +496,7 @@ TEST_F(BufferControlFixture, BufferIntgTestWithRunCommandPass2) {
   std::string expected_ret = "1_E_20_1,2_empty,3_empty,4_empty,5_empty,";
   char *argv[5];
 
-  argv[0] = const_cast<char *>("ssd.exe");
+  argv[0] = const_cast<char *>("SSD.exe");
   argv[1] = const_cast<char *>("W");
   argv[2] = const_cast<char *>("20");
   argv[3] = const_cast<char *>("0xABCDABCD");
@@ -506,14 +506,14 @@ TEST_F(BufferControlFixture, BufferIntgTestWithRunCommandPass2) {
 
   checkOutputFileValid("");
 
-  argv[0] = const_cast<char *>("ssd.exe");
+  argv[0] = const_cast<char *>("SSD.exe");
   argv[1] = const_cast<char *>("W");
   argv[2] = const_cast<char *>("20");
   argv[3] = const_cast<char *>("0x12341234");
   argv[4] = nullptr;
   cmdBuffer.runCommandBuffer(4, argv);
 
-  argv[0] = const_cast<char *>("ssd.exe");
+  argv[0] = const_cast<char *>("SSD.exe");
   argv[1] = const_cast<char *>("E");
   argv[2] = const_cast<char *>("20");
   argv[3] = const_cast<char *>("1");
@@ -528,7 +528,7 @@ TEST_F(BufferControlFixture, BufferIntgTestWithRunCommandPass3) {
   std::string expected_ret = "1_W_20_0xABCDABCD,2_E_10_5,3_empty,4_empty,5_empty,";
   char *argv[5];
 
-  argv[0] = const_cast<char *>("ssd.exe");
+  argv[0] = const_cast<char *>("SSD.exe");
   argv[1] = const_cast<char *>("W");
   argv[2] = const_cast<char *>("20");
   argv[3] = const_cast<char *>("0xABCDABCD");
@@ -537,14 +537,14 @@ TEST_F(BufferControlFixture, BufferIntgTestWithRunCommandPass3) {
 
   checkOutputFileValid("");
 
-  argv[0] = const_cast<char *>("ssd.exe");
+  argv[0] = const_cast<char *>("SSD.exe");
   argv[1] = const_cast<char *>("E");
   argv[2] = const_cast<char *>("10");
   argv[3] = const_cast<char *>("4");
   argv[4] = nullptr;
   cmdBuffer.runCommandBuffer(4, argv);
 
-  argv[0] = const_cast<char *>("ssd.exe");
+  argv[0] = const_cast<char *>("SSD.exe");
   argv[1] = const_cast<char *>("E");
   argv[2] = const_cast<char *>("12");
   argv[3] = const_cast<char *>("3");
@@ -563,7 +563,7 @@ TEST_F(BufferControlFixture, BufferFullWriteTestWithRunCommandPass) {
   for (int i = 0; i < cmdBuffer.MAX_BUFFER_SIZE + 1; i++) {
     std::string value = std::to_string(i);
 
-    std::vector<std::string> args = {"ssd.exe", "W", value, "0xABCDABCD"};
+    std::vector<std::string> args = {"SSD.exe", "W", value, "0xABCDABCD"};
 
     std::vector<char *> argv;
     for (auto &s : args) {
