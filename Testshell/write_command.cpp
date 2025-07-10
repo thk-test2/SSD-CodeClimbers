@@ -1,6 +1,7 @@
 #include "command.h"
 
 bool WriteCommand::execute(SSD_INTERFACE &ssd, const CommandLine& cli) {
+  logger.print("WriteCommand.execute()", "Executing write command");
   if (!isValidWriteUsage(cli, HEX_BASE)) {
     cout << "INVALID COMMAND\n";
     return false;

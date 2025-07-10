@@ -3,6 +3,7 @@
 using std::string;
 
 void SSD_EXE::read(int lba) {
+  logger.print("SSD_EXE.read()", "Reading LBA: " + std::to_string(lba));
   std::ostringstream cmd;
   cmd << "\"" << ssdDir << "\\" << SSD_EXE_NAME << "\" R " << lba;
 #ifdef _DEBUG
@@ -18,6 +19,8 @@ void SSD_EXE::read(int lba) {
 }
 
 void SSD_EXE::write(int lba, unsigned long value) {
+  logger.print("SSD_EXE.write()", "Writing LBA: " + std::to_string(lba) +
+                   " with value: " + std::to_string(value));
   std::ostringstream cmd;
   cmd << "\"" << ssdDir << "\\" << SSD_EXE_NAME << "\" W " << lba << " 0x"
       << std::hex << std::uppercase << value;
@@ -36,6 +39,8 @@ void SSD_EXE::write(int lba, unsigned long value) {
 }
 
 void SSD_EXE::erase(int lba, int size) {
+  logger.print("SSD_EXE.erase()", "Erasing LBA: " + std::to_string(lba) +
+                                      " with size: " + std::to_string(size));
   std::ostringstream cmd;
   cmd << "\"" << ssdDir << "\\" << SSD_EXE_NAME << "\" E " << lba << " "
       << size;
@@ -54,7 +59,8 @@ void SSD_EXE::erase(int lba, int size) {
 }
 
 
-  void SSD_EXE::flush() {
+void SSD_EXE::flush() {
+  logger.print("SSD_EXE.flush()", "Flushing SSD commands");
   std::ostringstream cmd;
   cmd << "\"" << ssdDir << "\\" << SSD_EXE_NAME << "\" F";
 #ifdef _DEBUG

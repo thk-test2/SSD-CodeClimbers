@@ -1,11 +1,11 @@
 #include "command.h"
 
-bool checkPartialWriteSuccess(SSD_INTERFACE &ssd, int lba, unsigned long value) {
+bool checkPartialWriteSuccess(SSD_INTERFACE &ssd, int lba,
+                              unsigned long value) {
   ssd.read(lba);
 
   string valueStr = convertHexToString(value);
-  if (ssd.getResult() == "ERROR" ||
-      ssd.getResult() != valueStr) {
+  if (ssd.getResult() == "ERROR" || ssd.getResult() != valueStr) {
     return false;
   }
   return true;
@@ -20,13 +20,15 @@ bool preConditionCheck(const CommandLine &cli) {
 }
 
 bool TestScript1::execute(SSD_INTERFACE &ssd, const CommandLine &cli) {
+  logger.print("TestScript1.execute()",
+               "Executing full write and read compare test");
   if (!preConditionCheck(cli))
     return false;
 
   unsigned long value = 0xAAAABBBB;
   string valueStr = convertHexToString(value);
 
-if (!onExecute(ssd, value, valueStr))
+  if (!onExecute(ssd, value, valueStr))
     return false;
   return true;
 }
@@ -52,6 +54,8 @@ bool TestScript1::onExecute(SSD_INTERFACE &ssd, unsigned long value,
 }
 
 bool TestScript2::execute(SSD_INTERFACE &ssd, const CommandLine &cli) {
+  logger.print("TestScript2.execute()",
+               "Executing partial LBA write consistency test");
   if (!preConditionCheck(cli))
     return false;
 
@@ -72,8 +76,10 @@ bool TestScript2::execute(SSD_INTERFACE &ssd, const CommandLine &cli) {
 }
 
 bool TestScript3::execute(SSD_INTERFACE &ssd, const CommandLine &cli) {
+  logger.print("TestScript3.execute()", "Executing write/read aging test");
+
 #ifdef _DEBUG
-  unsigned long value = stoul(cli.args[0], nullptr, 16);
+  unsigned long value = stoul(cli.args[0], nullptr, HEX_BASE);
 #else
   if (!preConditionCheck(cli))
     return false;
@@ -98,8 +104,10 @@ bool TestScript3::execute(SSD_INTERFACE &ssd, const CommandLine &cli) {
 }
 
 bool TestScript4::execute(SSD_INTERFACE &ssd, const CommandLine &cli) {
+  logger.print("TestScript4.execute()", "Executing erase and write aging test");
   if (!preConditionCheck(cli))
     return false;
+
   unsigned long value1 = getRandomValue();
   unsigned long value2 = getRandomValue();
 

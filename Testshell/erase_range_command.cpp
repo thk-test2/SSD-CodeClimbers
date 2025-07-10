@@ -2,13 +2,13 @@
 #include <algorithm>
 
 bool EraseRangeCommand::execute(SSD_INTERFACE &ssd, const CommandLine &cli) {
+  logger.print("EraseRangeCommand.execute()", "Executing erase range command");
   if (!isValidEraseRangeUsage(cli)) {
     std::cout << "INVALID COMMAND\n";
     return false;
   }
   int st_lba = std::stoi(cli.args[0]);
   int en_lba = std::stoi(cli.args[1]);
-
 
   int remain_size = en_lba - st_lba + 1;
   int unit_size = std::min(MAX_SSD_ERASE_SIZE, remain_size);

@@ -2,6 +2,7 @@
 #include <algorithm>
 
 bool EraseCommand::execute(SSD_INTERFACE &ssd, const CommandLine &cli) {
+  logger.print("EraseCommand.execute()", "Executing erase command");
   if (!isValidEraseUsage(cli)) {
     std::cout << "INVALID COMMAND\n";
     return false;

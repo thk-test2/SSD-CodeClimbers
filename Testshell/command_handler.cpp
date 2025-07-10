@@ -1,6 +1,7 @@
 #include <sstream>
 
 #include "command.h"
+#include "logger.h"
 
 bool CommandHandler::executeCommand(const CommandLine &cli) {
   auto command = getCommand(cli.command);
@@ -45,6 +46,7 @@ CommandLine CommandHandler::parseCommand(const string &input) {
   string cmd;
   vector<string> args;
   if (iss >> cmd) {
+    logger.print("CommandHandler.parseCommand()", "Parsed command: " + cmd);
     string arg;
     while (iss >> arg) {
       args.push_back(arg);
@@ -54,7 +56,6 @@ CommandLine CommandHandler::parseCommand(const string &input) {
 }
 
 void CommandHandler::initialize() {
-  // Initialize the command handler with default commands
   addCommand(new ExitCommand());
   addCommand(new FullReadCommand());
   addCommand(new FullWriteCommand());
