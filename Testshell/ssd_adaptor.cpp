@@ -2,8 +2,8 @@
 
 using std::string;
 
-void SsdExeAdaptor::read(int lba) {
-  logger.print("SSD_EXE.read()", "Reading LBA: " + std::to_string(lba));
+void SsdAdaptor::read(int lba) {
+  logger.print("SsdAdaptor.read()", "Reading LBA: " + std::to_string(lba));
   std::ostringstream cmd;
   cmd << "\"" << ssdDir << "\\" << SSD_EXE_NAME << "\" R " << lba;
 #ifdef _DEBUG
@@ -18,8 +18,8 @@ void SsdExeAdaptor::read(int lba) {
 #endif
 }
 
-void SsdExeAdaptor::write(int lba, unsigned long value) {
-  logger.print("SsdExeAdaptor.write()", "Writing LBA: " + std::to_string(lba) +
+void SsdAdaptor::write(int lba, unsigned long value) {
+  logger.print("SsdAdaptor.write()", "Writing LBA: " + std::to_string(lba) +
                    " with value: " + std::to_string(value));
   std::ostringstream cmd;
   cmd << "\"" << ssdDir << "\\" << SSD_EXE_NAME << "\" W " << lba << " 0x"
@@ -38,8 +38,8 @@ void SsdExeAdaptor::write(int lba, unsigned long value) {
 #endif
 }
 
-void SsdExeAdaptor::erase(int lba, int size) {
-  logger.print("SsdExeAdaptor.erase()", "Erasing LBA: " + std::to_string(lba) +
+void SsdAdaptor::erase(int lba, int size) {
+  logger.print("SsdAdaptor.erase()", "Erasing LBA: " + std::to_string(lba) +
                                       " with size: " + std::to_string(size));
   std::ostringstream cmd;
   cmd << "\"" << ssdDir << "\\" << SSD_EXE_NAME << "\" E " << lba << " "
@@ -59,8 +59,8 @@ void SsdExeAdaptor::erase(int lba, int size) {
 }
 
 
-void SsdExeAdaptor::flush() {
-  logger.print("SsdExeAdaptor.flush()", "Flushing SSD commands");
+void SsdAdaptor::flush() {
+  logger.print("SsdAdaptor.flush()", "Flushing SSD commands");
   std::ostringstream cmd;
   cmd << "\"" << ssdDir << "\\" << SSD_EXE_NAME << "\" F";
 #ifdef _DEBUG
@@ -72,7 +72,7 @@ void SsdExeAdaptor::flush() {
 #endif
 }
 
-string SsdExeAdaptor::getCurWorkingDir() {
+string SsdAdaptor::getCurWorkingDir() {
   char cwd[1024];
   if (!_getcwd(cwd, sizeof(cwd))) {
     std::cerr << "[ERROR] 현재 경로를 얻을 수 없습니다." << std::endl;
@@ -82,7 +82,7 @@ string SsdExeAdaptor::getCurWorkingDir() {
   return string(cwd);
 }
 
-string SsdExeAdaptor::readOutputFile() {
+string SsdAdaptor::readOutputFile() {
   std::ifstream infile(ssdDir + "\\" + SSD_OUTPUT_FILE);
   if (!infile.is_open()) {
     return ERROR_MSG;
