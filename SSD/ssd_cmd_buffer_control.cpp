@@ -78,7 +78,6 @@ bool CmdBufferControl::runCommandBuffer(char *argv[]) {
 
     bool result = writeCmdBuffer(argv);
     if (result)
-      cout << "[WRITE] result : " << result << std::endl;
       return result;
 
     ret = driver->write(lba, value);
@@ -110,21 +109,12 @@ bool CmdBufferControl::isMatchedWriteLBA(const CmdBuffer &buf, int lba) {
   return buf.getCmd() == 'W' && lba == buf.getLba();
 }
 
-bool CmdBufferControl::isMatchedEraseLBA(const CmdBuffer &buf, int lba) {
-  return buf.getCmd() == 'E' && lba == buf.getLba();
-}
-
 bool CmdBufferControl::writeCmdBuffer(char *argv[]) {
   int lba = std::stoi(argv[2]);
-  for (int i = static_cast<int>(cmdBuffer.size()) - 1; i >= 0; --i) {
-    const auto &buf = cmdBuffer[i];
+  for (auto &buf : cmdBuffer) {
     if (isMatchedWriteLBA(buf, lba)) {
       efficientWriteCmdbuffer(buf, argv);
       return true;
-    }
-    if (isMatchedEraseLBA(buf, lba)) {
-        // TODO: LBA 외에 range 체크 필요 
-      break;
     }
   }
 
@@ -136,7 +126,7 @@ bool CmdBufferControl::writeCmdBuffer(char *argv[]) {
 }
 
 void CmdBufferControl::addCmdToWriteBuffer(char *argv[]) {
-  updateBufferByIndex(getLastEmptyIndex(), makdFullCmdString(argv));
+  updateToNextEmpty(makdFullCmdString(argv));
   getDriver()->getIoStream()->clearOutput();
 }
 

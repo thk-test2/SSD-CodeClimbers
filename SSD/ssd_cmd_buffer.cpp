@@ -50,7 +50,7 @@ std::vector<std::string> CmdBuffer::splitFileName() const {
 
 char CmdBuffer::getCmd() const {
   if (isEmpty())
-    throw CmdBufferEmptyException();
+    return '0';
 
   auto parts = splitFileName();
 
