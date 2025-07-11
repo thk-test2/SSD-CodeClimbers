@@ -60,6 +60,20 @@ void IoStream::loadNandFiletoBuf() {
   }
 }
 
+void IoStream::WirteOuputFile(unsigned long value) {
+  ofstream ofs(output_file_name);
+  ofs << "0x" << std::setfill('0') << std::setw(8) << std::hex << std::uppercase
+      << value;
+}
+
+void IoStream::writeBufToNandFile(unsigned long *buf) {
+  ofstream ofs(nand_file_name);
+  for (int i = 0; i < storageSize; ++i) {
+    ofs << std::dec << i << " 0x" << std::setfill('0') << std::setw(8)
+        << std::hex << std::uppercase << buf[i] << "\n";
+  }
+}
+
 int IoStream::getStorageSize() { return storageSize; }
 
 ofstream IoStream::getOutputWriteStream() {
