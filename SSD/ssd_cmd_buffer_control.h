@@ -1,6 +1,6 @@
 #pragma once
 #include "ssd_cmd_buffer.h"
-#include "ssd_driver.cpp"
+#include "ssd_driver.h"
 #include <string>
 #include <vector>
 #include <stdexcept>

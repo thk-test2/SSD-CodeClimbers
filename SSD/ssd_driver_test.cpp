@@ -1,4 +1,4 @@
-#include "ssd_driver.cpp"
+#include "ssd_driver.h"
 #include "gmock/gmock.h"
 
 using namespace testing;

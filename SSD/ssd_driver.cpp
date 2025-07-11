@@ -1,102 +1,84 @@
 #include "ssd_driver.h"
-#include "file_iostream.h"
 
-class SSDDriver : public Device {
-public:
-  SSDDriver() { stream = new IoStream(MAX_NAND_MEMORY_MAP_SIZE, buf); }
+bool SSDDriver::isValid_LBA(int lba) {
+  return (lba >= 0 && lba < MAX_NAND_MEMORY_MAP_SIZE);
+}
 
-  bool isValid_LBA(int lba) {
-    return (lba >= 0 && lba < MAX_NAND_MEMORY_MAP_SIZE);
-  }
-  bool isSizeAllowed(int size) {
-    return size >= MIN_ERASE_SIZE && size <= MAX_ERASE_SIZE;
-  }
-  bool isWithinBounds(int lba, int size) {
-    return (lba + size) <= MAX_NAND_MEMORY_MAP_SIZE;
-  }
+bool SSDDriver::isSizeAllowed(int size) {
+  return size >= MIN_ERASE_SIZE && size <= MAX_ERASE_SIZE;
+}
 
-  bool isValidRWCondition(int lba) {
-    if (!isValid_LBA(lba)) {
-      stream->writeError();
-      return false;
-    } else
-      return true;
-  }
+bool SSDDriver::isWithinBounds(int lba, int size) {
+  return (lba + size) <= MAX_NAND_MEMORY_MAP_SIZE;
+}
 
-  bool isValidEraseCondition(int lba, int size) {
-    if (!isValid_LBA(lba) || !isSizeAllowed(size) || !isWithinBounds(lba, size)){
-      stream->writeError();
-      return false;
-    } else
-      return true;
-  }
-
-  bool isValidParam(int argc, char *argv[], int &lba, int &size, unsigned long& value) {
-    string command = argv[1];
-    if (command == "W" && argc == 4) {
-      lba = std::stoi(argv[2]);
-      value = std::stoul(argv[3], nullptr, HEX_BASE);
-      return isValidRWCondition(lba);
-    } else if (command == "R" && argc == 3) {
-      lba = std::stoi(argv[2]);
-      return isValidRWCondition(lba);
-    } else if (command == "E" && argc == 4) {
-      lba = std::stoi(argv[2]);
-      size = std::stoi(argv[3]);
-      return isValidEraseCondition(lba,size);
-    } else if (command == "F" && argc == 2)
-      return true;
-    else
-      return false;
-  }
-  
-  bool read(int lba) override {
-    stream->loadNandFiletoBuf();
-    stream->WirteOuputFile(buf[lba]);
-
+bool SSDDriver::isValidRWCondition(int lba) {
+  if (!isValid_LBA(lba)) {
+    getIoStream()->writeError();
+    return false;
+  } else
     return true;
-  }
+}
 
-  bool readBuffer(int lba, unsigned long value) {
-    stream->WirteOuputFile(value);
+bool SSDDriver::isValidEraseCondition(int lba, int size) {
+  if (!isValid_LBA(lba) || !isSizeAllowed(size) || !isWithinBounds(lba, size)) {
+    getIoStream()->writeError();
+    return false;
+  } else
     return true;
-  }
+}
 
-  bool write(int lba, unsigned long value) override {
-    stream->loadNandFiletoBuf();
-
-    buf[lba] = value;
-
-    stream->writeBufToNandFile(buf);
-    stream->clearOutput();
-
+bool SSDDriver::isValidParam(int argc, char *argv[], int &lba, int &size,
+                                    unsigned long &value) {
+  string command = argv[1];
+  if (command == "W" && argc == 4) {
+    lba = std::stoi(argv[2]);
+    value = std::stoul(argv[3], nullptr, HEX_BASE);
+    return isValidRWCondition(lba);
+  } else if (command == "R" && argc == 3) {
+    lba = std::stoi(argv[2]);
+    return isValidRWCondition(lba);
+  } else if (command == "E" && argc == 4) {
+    lba = std::stoi(argv[2]);
+    size = std::stoi(argv[3]);
+    return isValidEraseCondition(lba, size);
+  } else if (command == "F" && argc == 2)
     return true;
-  }
+  else
+    return false;
+}
 
-  bool erase(int lba, int size) override {
-    stream->loadNandFiletoBuf();
+bool SSDDriver::read(int lba) {
+  getIoStream()->loadNandFiletoBuf();
+  getIoStream()->WirteOuputFile(buf[lba]);
 
-    for (int i = lba; i < lba + size; i++)
-      buf[i] = 0;
+  return true;
+}
 
-    stream->writeBufToNandFile(buf);
-    stream->clearOutput();
+bool SSDDriver::readBuffer(int lba, unsigned long value) {
+  getIoStream()->WirteOuputFile(value);
+  return true;
+}
 
-    return true;
-  }
+bool SSDDriver::write(int lba, unsigned long value) {
+  getIoStream()->loadNandFiletoBuf();
 
-  IoStream *getIoStream() { return stream; }
-  int getMaxNandSize() { return MAX_NAND_MEMORY_MAP_SIZE;  }
-  int getMaxEraseSize() { return MAX_ERASE_SIZE; }
+  buf[lba] = value;
 
+  getIoStream()->writeBufToNandFile(buf);
+  getIoStream()->clearOutput();
 
-private:
-  static const int HEX_BASE = 16;
-  static const int MAX_NAND_MEMORY_MAP_SIZE = 100;
-  static const int MIN_ERASE_SIZE = 1;
-  static const int MAX_ERASE_SIZE = 10;
-  unsigned long buf[MAX_NAND_MEMORY_MAP_SIZE] = {
-      0,
-  };
-  IoStream *stream;
-};
+  return true;
+}
+
+bool SSDDriver::erase(int lba, int size) {
+  getIoStream()->loadNandFiletoBuf();
+
+  for (int i = lba; i < lba + size; i++)
+    buf[i] = 0;
+
+  getIoStream()->writeBufToNandFile(buf);
+  getIoStream()->clearOutput();
+
+  return true;
+}
