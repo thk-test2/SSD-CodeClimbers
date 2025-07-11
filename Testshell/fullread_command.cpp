@@ -1,11 +1,18 @@
 #include "command.h"
 
-bool FullReadCommand::execute(SSD_INTERFACE &ssd, const CommandLine &cli) {
-  logger.print("FullReadCommand.execute()", "Executing full read command");
+bool preConditionCheck(const CommandLine &cli) {
   if (cli.args.size() != 0) {
-    cout << "INVALID COMMAND\n";
+    cout << "INVALID_COMMAND\n";
     return false;
   }
+  return true;
+}
+
+bool FullReadCommand::execute(SSD_INTERFACE &ssd, const CommandLine &cli) {
+  logger.print("FullReadCommand.execute()", "Executing full read command");
+  if (!preConditionCheck(cli))
+    return false;
+
   cout << "[Full Read]\n";
   for (int lba = 0; lba < MAX_LBA_COUNT; lba++) {
     ssd.read(lba);
