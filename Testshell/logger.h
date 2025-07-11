@@ -19,6 +19,7 @@ private:
   void checkFileRotation();
   void rotateLogFile();
   void manageOldLogFiles();
+  void ensureLogDirectory();
 
 public:
   static Logger &getInstance();

@@ -10,7 +10,9 @@
 Logger *Logger::instance = nullptr;
 
 Logger::Logger(std::unique_ptr<IFileSystem> fs)
-    : currentLogFile("latest.log"), fileSystem(std::move(fs)) {}
+    : currentLogFile("log/latest.log"), fileSystem(std::move(fs)) {
+  ensureLogDirectory();
+}
 
 Logger &Logger::getInstance() {
   if (instance == nullptr) {
@@ -22,6 +24,7 @@ Logger &Logger::getInstance() {
 void Logger::setFileSystem(std::unique_ptr<IFileSystem> fs) {
   if (instance != nullptr) {
     instance->fileSystem = std::move(fs);
+    instance->ensureLogDirectory();
   } else {
     instance = new Logger(std::move(fs));
   }
@@ -30,6 +33,14 @@ void Logger::setFileSystem(std::unique_ptr<IFileSystem> fs) {
 void Logger::resetInstance() {
   delete instance;
   instance = nullptr;
+}
+
+void Logger::ensureLogDirectory() {
+  if (fileSystem && !fileSystem->directoryExists("log")) {
+    if (!fileSystem->createDirectory("log")) {
+      std::cerr << "Logger error: Failed to create log directory" << std::endl;
+    }
+  }
 }
 
 void Logger::print(const std::string &className, const std::string &message) {
@@ -97,7 +108,7 @@ void Logger::checkFileRotation() {
 
 void Logger::rotateLogFile() {
   std::string timestamp = getRotationTimestamp();
-  std::string newFilename = "until_" + timestamp + ".log";
+  std::string newFilename = "log/until_" + timestamp + ".log";
 
   if (fileSystem->fileExists(currentLogFile)) {
     if (!fileSystem->renameFile(currentLogFile, newFilename)) {
