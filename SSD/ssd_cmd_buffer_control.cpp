@@ -11,11 +11,11 @@ CmdBufferControl::CmdBufferControl() {
 
   clearEraseMap();
   createBufferDirectory();
-  updateExsitingCmdBuffer();
-  updateExsitingEraseMap();
+  updateExistingCmdBuffer();
+  updateExistingEraseMap();
 }
 
-void CmdBufferControl::updateExsitingEraseMap() {
+void CmdBufferControl::updateExistingEraseMap() {
   for (auto &buf : cmdBuffer) {
     if (buf.isEmpty())
       continue;
@@ -25,7 +25,7 @@ void CmdBufferControl::updateExsitingEraseMap() {
   }
 }
 
-void CmdBufferControl::updateExsitingCmdBuffer() {
+void CmdBufferControl::updateExistingCmdBuffer() {
   for (int i = 1; i <= MAX_BUFFER_SIZE; ++i) {
     std::string existingFile = "";
     for (const auto &entry : fs::directory_iterator(bufferPath)) {
