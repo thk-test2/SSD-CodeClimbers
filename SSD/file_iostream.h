@@ -31,7 +31,7 @@ public:
   string readFileAsString(const string &filename);
   void writeError();
   void clearOutput();
-  void WirteOuputFile(unsigned long value);
+  void writeOutputFile(unsigned long value);
   void writeBufToNandFile(unsigned long *buf);
  
   void loadNandFiletoBuf();
