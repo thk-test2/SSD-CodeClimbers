@@ -16,14 +16,6 @@ void CommandHandler::addCommand(ICommand *command) {
   commands.push_back(command);
 }
 
-void CommandHandler::removeCommand(const string &commandName) {
-  commands.erase(std::remove_if(commands.begin(), commands.end(),
-                                [&](ICommand *cmd) {
-                                  return cmd->getUsage() == commandName;
-                                }),
-                 commands.end());
-}
-
 vector<string> CommandHandler::getAvailableCommands() {
   vector<string> commandNames;
   for (const auto &command : commands) {

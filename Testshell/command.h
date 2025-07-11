@@ -252,6 +252,5 @@ private:
   SSD_INTERFACE *_ssdAdaptor;
 
   void addCommand(ICommand *command);
-  void removeCommand(const string &commandName);
   Logger &logger = Logger::getInstance();
 };
