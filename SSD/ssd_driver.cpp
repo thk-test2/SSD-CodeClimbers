@@ -50,13 +50,13 @@ bool SSDDriver::isValidParam(int argc, char *argv[], int &lba, int &size,
 
 bool SSDDriver::read(int lba) {
   getIoStream()->loadNandFiletoBuf();
-  getIoStream()->WirteOuputFile(buf[lba]);
+  getIoStream()->writeOutputFile(buf[lba]);
 
   return true;
 }
 
 bool SSDDriver::readBuffer(int lba, unsigned long value) {
-  getIoStream()->WirteOuputFile(value);
+  getIoStream()->writeOutputFile(value);
   return true;
 }
 

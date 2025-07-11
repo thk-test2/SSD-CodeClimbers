@@ -60,7 +60,7 @@ void IoStream::loadNandFiletoBuf() {
   }
 }
 
-void IoStream::WirteOuputFile(unsigned long value) {
+void IoStream::writeOutputFile(unsigned long value) {
   ofstream ofs(output_file_name);
   ofs << "0x" << std::setfill('0') << std::setw(8) << std::hex << std::uppercase
       << value;
