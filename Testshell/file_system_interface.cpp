@@ -29,11 +29,12 @@ std::vector<std::string> FileSystem::getUntilLogFiles() {
   std::vector<std::string> untilFiles;
 
   WIN32_FIND_DATAA findFileData;
-  HANDLE hFind = FindFirstFileA("until_*.log", &findFileData);
+  HANDLE hFind = FindFirstFileA("log\\until_*.log", &findFileData);
 
   if (hFind != INVALID_HANDLE_VALUE) {
     do {
-      untilFiles.push_back(std::string(findFileData.cFileName));
+      std::string filename = "log\\" + std::string(findFileData.cFileName);
+      untilFiles.push_back(filename);
     } while (FindNextFileA(hFind, &findFileData) != 0);
     FindClose(hFind);
   }
@@ -48,4 +49,13 @@ void FileSystem::writeToFile(const std::string &filename,
     file << content << std::endl;
     file.close();
   }
+}
+
+bool FileSystem::createDirectory(const std::string &path) {
+  return CreateDirectoryA(path.c_str(), NULL) != 0 || GetLastError() == ERROR_ALREADY_EXISTS;
+}
+
+bool FileSystem::directoryExists(const std::string &path) {
+  DWORD attributes = GetFileAttributesA(path.c_str());
+  return (attributes != INVALID_FILE_ATTRIBUTES && (attributes & FILE_ATTRIBUTE_DIRECTORY));
 }
