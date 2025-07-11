@@ -8,12 +8,24 @@ namespace fs = std::filesystem;
 CmdBufferControl::CmdBufferControl() {
   driver = new SSDDriver();
   eraseMap = new char[driver->getMaxNandSize()];
+
   clearEraseMap();
+  createBufferDirectory();
+  updateExsitingCmdBuffer();
+  updateExsitingEraseMap();
+}
 
-  if (!fs::exists(bufferPath)) {
-    fs::create_directory(bufferPath);
+void CmdBufferControl::updateExsitingEraseMap() {
+  for (auto &buf : cmdBuffer) {
+    if (buf.isEmpty())
+      continue;
+    if (buf.getCmd() == 'E') {
+      setEraseMap(buf.getLba(), buf.getLbaSize(), 1);
+    }
   }
+}
 
+void CmdBufferControl::updateExsitingCmdBuffer() {
   for (int i = 1; i <= MAX_BUFFER_SIZE; ++i) {
     std::string existingFile = "";
     for (const auto &entry : fs::directory_iterator(bufferPath)) {
@@ -35,13 +47,11 @@ CmdBufferControl::CmdBufferControl() {
 
     cmdBuffer.emplace_back(bufferPath + "/" + existingFile);
   }
+}
 
-  for (auto buf : cmdBuffer) {
-    if (buf.isEmpty())
-      continue;
-    if (buf.getCmd() == 'E') {
-      setEraseMap(buf.getLba(), buf.getLbaSize(), 1);
-    }
+void CmdBufferControl::createBufferDirectory() {
+  if (!fs::exists(bufferPath)) {
+    fs::create_directory(bufferPath);
   }
 }
 
@@ -58,17 +68,6 @@ std::string CmdBufferControl::getBufferNameList() const {
   }
 
   return list;
-}
-
-string makdFullCmdString(char *argv[]) {
-  string fullCmd = argv[1];
-  int i = 2;
-  while (argv[i] != nullptr) {
-    fullCmd += "_";
-    fullCmd += argv[i];
-    i++;
-  }
-  return fullCmd;
 }
 
 bool CmdBufferControl::runCommandBuffer(int argc, char *argv[]) {
@@ -100,6 +99,17 @@ bool CmdBufferControl::runCommandBuffer(int argc, char *argv[]) {
   return ret;
 }
 
+string makeFullCmdString(char *argv[]) {
+  string fullCmd = argv[1];
+  int i = 2;
+  while (argv[i] != nullptr) {
+    fullCmd += "_";
+    fullCmd += argv[i];
+    i++;
+  }
+  return fullCmd;
+}
+
 void CmdBufferControl::removeAndUpdateWriteCommand(int lba, char *argv[]) {
   for (auto &buffer : cmdBuffer) {
     if (buffer.isEmpty())
@@ -112,7 +122,7 @@ void CmdBufferControl::removeAndUpdateWriteCommand(int lba, char *argv[]) {
     }
   }
 
-  updateToNextEmpty(makdFullCmdString(argv));
+  updateToNextEmpty(makeFullCmdString(argv));
   emptyBufferShift();
   getDriver()->getIoStream()->clearOutput();
 }
@@ -174,7 +184,7 @@ bool CmdBufferControl::isBufferFull() const {
 bool CmdBufferControl::emptyBufferShift() {
   std::vector<std::string> nonEmptyCommands;
 
-  if (isBufferFull() == true)
+  if (isBufferFull())
     return false;
 
   for (const auto &buf : cmdBuffer) {
@@ -258,7 +268,7 @@ bool CmdBufferControl::flush() {
 
   char cmd = 0;
   int lba = 0;
-  for (auto buffer : cmdBuffer) {
+  for (auto &buffer : cmdBuffer) {
     if (buffer.isEmpty())
       continue;
 

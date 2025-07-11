@@ -15,17 +15,6 @@ public:
     return (lba + size) <= MAX_NAND_MEMORY_MAP_SIZE;
   }
 
-  void WirteOuputFile(unsigned long value) {
-    ofstream ofs = stream->getOutputWriteStream();
-    ofs << "0x" << std::setfill('0') << std::setw(8) << std::hex
-        << std::uppercase << value;
-  }
-
-  bool readBuffer(int lba, unsigned long value) {
-    WirteOuputFile(value);
-    return true;
-  }
-  
   bool isValidRWCondition(int lba) {
     if (!isValid_LBA(lba)) {
       stream->writeError();
@@ -60,20 +49,17 @@ public:
     else
       return false;
   }
-
+  
   bool read(int lba) override {
     stream->loadNandFiletoBuf();
-    WirteOuputFile(buf[lba]);
+    stream->WirteOuputFile(buf[lba]);
 
     return true;
   }
 
-  void writeBufToNandFile() {
-    ofstream ofs = stream->getNandWriteStream();
-    for (int i = 0; i < MAX_NAND_MEMORY_MAP_SIZE; ++i) {
-      ofs << std::dec << i << " 0x" << std::setfill('0') << std::setw(8)
-          << std::hex << std::uppercase << buf[i] << "\n";
-    }
+  bool readBuffer(int lba, unsigned long value) {
+    stream->WirteOuputFile(value);
+    return true;
   }
 
   bool write(int lba, unsigned long value) override {
@@ -81,8 +67,7 @@ public:
 
     buf[lba] = value;
 
-    writeBufToNandFile();
-
+    stream->writeBufToNandFile(buf);
     stream->clearOutput();
 
     return true;
@@ -94,8 +79,7 @@ public:
     for (int i = lba; i < lba + size; i++)
       buf[i] = 0;
 
-    writeBufToNandFile();
-
+    stream->writeBufToNandFile(buf);
     stream->clearOutput();
 
     return true;

@@ -39,6 +39,9 @@ public:
 
 private:
   CmdBufferControl(); // 생성자에서 bufferPath 설정
+  void updateExsitingEraseMap();
+  void updateExsitingCmdBuffer();
+  void createBufferDirectory();
   CmdBufferControl(const CmdBufferControl &) = delete;
   CmdBufferControl &operator=(const CmdBufferControl &) = delete;
 
