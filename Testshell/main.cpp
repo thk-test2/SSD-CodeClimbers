@@ -1,7 +1,7 @@
 #include <fstream>
 
-#include "test_shell.h"
 #include "ssd_adaptor.h"
+#include "test_shell.h"
 #include "gmock/gmock.h"
 
 // stdout 캡처/해제 함수
@@ -178,6 +178,13 @@ TEST_F(TestShellFixture, WriteInvalidCase) {
   EXPECT_CALL(ssd, getResult()).Times(0);
 
   ts.getCommandHandler()->executeCommand(OverflowValueCmd);
+
+  CommandLine InvalidArgCount{"write",
+                              vector<string>{"0", "0xAAAABBBBAAAABBBB", "3"}};
+  EXPECT_CALL(ssd, write(_, _)).Times(0);
+  EXPECT_CALL(ssd, getResult()).Times(0);
+
+  ts.getCommandHandler()->executeCommand(InvalidArgCount);
 }
 
 TEST_F(TestShellFixture, EraseNormalCase) {
@@ -205,6 +212,15 @@ TEST_F(TestShellFixture, EraseInvalidCase) {
   }
 }
 
+TEST_F(TestShellFixture, EraseErrorCase) {
+
+  CommandLine command{"erase", vector<string>{"0", "12"}};
+  EXPECT_CALL(ssd, erase(_, _)).Times(1);
+  EXPECT_CALL(ssd, getResult()).Times(1).WillOnce(Return("ERROR"));
+
+  checkExpectedStrInOutput(getCommandOutput(command), "ERROR");
+}
+
 TEST_F(TestShellFixture, EraseRangeNormalCase) {
   CommandLine command{"erase_range", vector<string>{"0", "12"}};
 
@@ -228,6 +244,16 @@ TEST_F(TestShellFixture, EraseRangeInvalidCase) {
 
     checkExpectedStrInOutput(getCommandOutput(command), INVALID_COMMAND);
   }
+}
+
+TEST_F(TestShellFixture, EraseRangeErrorCase) {
+
+  CommandLine command{"erase_range", vector<string>{"0", "12"}};
+
+  EXPECT_CALL(ssd, erase(_, _)).Times(1);
+  EXPECT_CALL(ssd, getResult()).Times(1).WillOnce(Return("ERROR"));
+
+  checkExpectedStrInOutput(getCommandOutput(command), "ERROR");
 }
 
 TEST_F(TestShellFixture, FlushNormalCase) {
